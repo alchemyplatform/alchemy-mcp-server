@@ -36,16 +36,22 @@ npm run build
 npm start
 ```
 
-## Using with Claude Desktop
 
-To use this MCP server with Claude Desktop, add the following to your Claude Desktop configuration:
+
+## Using with Claude Desktop/Cursor
+
+To use this MCP server with Claude Desktop, add the following to your Claude Desktop or Cursor MCP configuration:
 
 ```json
 {
   "mcpServers": {
     "alchemy": {
-      "command": "node",
-      "args": ["path/to/alchemy-mpc/dist/index.js"]
+      "command": "npx",
+      "args": ["tsx", "path/to/alchemy-mpc/src/index.ts"],
+      "env": {
+        "ALCHEMY_API_KEY": "YOUR_API_KEY",
+        "ALCHEMY_BASE_URL": "https://eth-mainnet.g.alchemy.com/nft/v3/"
+      }
     }
   }
 }
