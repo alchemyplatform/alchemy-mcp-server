@@ -45,8 +45,15 @@ export function toISO8601(dateStr: string): string {
         return dateStr;
     }
   
-    const date = new Date(dateStr);
-    return date.toISOString();
+    // For any other date string, parse it normally
+    try {
+        const date = new Date(dateStr);
+        return date.toISOString();
+    } catch (error) {
+        console.error('Error parsing date:', error);
+        // Return current time if parsing fails
+        return now.toISOString();
+    }
 }
 
 export default toISO8601;
