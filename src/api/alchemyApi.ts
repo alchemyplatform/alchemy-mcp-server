@@ -1,57 +1,25 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
-
+import { pricesClient, nftClient } from './alchemyClients.ts';
+import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol } from '../types/types.ts';
 dotenv.config();
 
-const API_KEY = 'yeG95r7lTdAgDMZFTEljLzsV_NjaXsr2';
-const BASE_URL = 'https://eth-mainnet.g.alchemy.com/nft/v3/';
+const API_KEY = process.env.ALCHEMY_API_KEY;
+// const BASE_URL = 'https://eth-mainnet.g.alchemy.com/nft/v3/';
 
-// Create Axios client with the proper base URL format for Alchemy API
-const alchemyClient = axios.create({
-  baseURL: BASE_URL + API_KEY,
-  headers: {
-    'Accept': 'application/json',
-  },
-});
+let NFT_DEFAULT_NETWORK = 'eth-mainnet';
 
-export interface NFTOwnershipParams {
-  owner: string;
-  withMetadata?: boolean;
-  contractAddresses?: string[];
-  excludeFilters?: string[];
-  pageSize?: number;
-  pageKey?: string;
-  orderBy?: string;
-  tokenUriTimeoutInMs?: number;
-  spamConfidenceLevel?: string;
+const BASE_API_URLS = {
+  NFT: `https://${NFT_DEFAULT_NETWORK}.g.alchemy.com/nft/v3/${API_KEY}`,
+  PRICES: `https://api.g.alchemy.com/prices/v1/tokens`,
+  TOKEN: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/tokens/by-address`,
+  TXN_HISTORY: `https://api.g.alchemy.com/data/v1/${API_KEY}/transactions/history/by-address`
 }
 
-// export interface GetOwnersForNFTParams {
-//   contractAddress: string;
-//   tokenId: string;
-//   pageKey?: string;
-//   pageSize?: number;
-// }
-
-// export interface GetOwnersForCollectionParams {
-//   contractAddress: string;
-//   withTokenBalances?: boolean;
-//   pageKey?: string;
-//   pageSize?: number;
-// }
-
-// export interface IsHolderOfCollectionParams {
-//   wallet: string;
-//   contractAddress: string;
-// }
-
-/**
- * NFT API Ownership Endpoints
- */
 export const alchemyApi = {
   // Get NFTs owned by an address
+  // TODO: NFT API url is structured differently for each network. Need to add a network param to the function and use the correct url.
   async getNFTsForOwner(params: NFTOwnershipParams) {
-    const response = await alchemyClient.get('/getNFTsForOwner', {
+    const response = await nftClient.get(BASE_API_URLS.NFT + '/getNFTsForOwner', {
       params: {
         owner: params.owner,
         withMetadata: params.withMetadata,
@@ -66,41 +34,55 @@ export const alchemyApi = {
     });
     return response.data;
   },
+  async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
+    console.log('Fetching token prices for symbols:', params.symbols);
+    try {
+      const queryParams = new URLSearchParams();
+      params.symbols.forEach(symbol => {
+        queryParams.append('symbols', symbol.toUpperCase());
+      });
+      
+      const response = await pricesClient.get(`/by-symbol?${queryParams}`);
+      
+      console.log('Successfully fetched token prices:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching token prices:', error);
+      throw error;
+    }
+  },
+  async getTokenPriceByAddress(params: TokenPriceByAddress) {
+    console.log('Fetching token price for address:', params.addresses);
+    try {
+      const response = await pricesClient.post('/by-address', {
+        addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
+          address: pair.address,
+          network: pair.network
+        }))
+      });
 
-  // Get owners for a specific NFT
-  // async getOwnersForNFT(params: GetOwnersForNFTParams) {
-  //   const response = await alchemyClient.get('/getOwnersForToken', {
-  //     params: {
-  //       contractAddress: params.contractAddress,
-  //       tokenId: params.tokenId,
-  //       pageKey: params.pageKey,
-  //       pageSize: params.pageSize
-  //     }
-  //   });
-  //   return response.data;
-  // },
+      console.log('Successfully fetched token price:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching token price:', error);
+      throw error;
+    }
+  },
+  async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
+    console.log('Fetching token price history for symbol:', params.symbol);
+    try {
+      const response = await pricesClient.post('/historical', {
+        symbol: params.symbol,
+        startTime: params.startTime,
+        endTime: params.endTime,
+        interval: params.interval
+      });
 
-  // // Get owners for a collection
-  // async getOwnersForCollection(params: GetOwnersForCollectionParams) {
-  //   const response = await alchemyClient.get('/getOwnersForCollection', {
-  //     params: {
-  //       contractAddress: params.contractAddress,
-  //       withTokenBalances: params.withTokenBalances,
-  //       pageKey: params.pageKey,
-  //       pageSize: params.pageSize
-  //     }
-  //   });
-  //   return response.data;
-  // },
-
-  // // Check if an address owns an NFT from a collection
-  // async isHolderOfCollection(params: IsHolderOfCollectionParams) {
-  //   const response = await alchemyClient.get('/isHolderOfCollection', {
-  //     params: {
-  //       wallet: params.wallet,
-  //       contractAddress: params.contractAddress
-  //     }
-  //   });
-  //   return response.data;
-  // }
-}; 
+      console.log('Successfully fetched token price history:', response.data);
+      return response.data;  
+    } catch (error) {
+      console.error('Error fetching token price history:', error);
+      throw error;
+    }
+  },
+};
