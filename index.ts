@@ -3,13 +3,13 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { alchemyApi } from './api/alchemyApi.js';
 import toISO8601 from './utils/toISO8601.js';
-// Create a new MCP server
+
 const server = new McpServer({
   name: "alchemy-mpc",
   version: "1.0.0",
 });
-// PRICES API
 
+// || ** PRICES API ** ||
 // Get a token price by Symbol
 server.tool('getTokenPriceBySymbol', {
   symbols: z.array(z.string()).describe('A list of token symbols to query. e.g. ["BTC", "ETH"]'),
@@ -34,7 +34,7 @@ server.tool('getTokenPriceBySymbol', {
   }
 });
 
-// Get a token price by Address
+// Get a token price by token contract address
 server.tool('getTokenPriceByAddress', {
   addresses: z.array(z.object({
     address: z.string().describe('The token contract address to query. e.g. "0x1234567890123456789012345678901234567890"'),
@@ -92,7 +92,7 @@ server.tool('getTokenPriceHistoryBySymbol', {
   }
 });
 
-// MultiChain Token API
+// || ** MultiChain Token API ** ||
 
 // Fetches current balances, prices, and metadata for multiple addresses using network and address pairs.
 server.tool('getTokensByMultichainAddress', {
@@ -121,7 +121,8 @@ server.tool('getTokensByMultichainAddress', {
   }
 });
 
-// NFT API
+// || ** NFT API ** ||
+
 // Get NFTs owned by an address
 server.tool('getNFTsForOwner', {
   owner: z.string(),
@@ -164,11 +165,5 @@ server.tool('getNFTsForOwner', {
   }
 });
 
-// Create and connect transport
-  const transport = new StdioServerTransport();
-  await server.connect(transport); 
-
-// runServer().catch(error => {
-//   console.error("Error running server:", error);
-//   process.exit(1);
-// });
+const transport = new StdioServerTransport();
+await server.connect(transport); 

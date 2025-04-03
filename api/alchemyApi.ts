@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import { pricesClient, nftClient, multiChainTokenClient } from './alchemyClients.js';
 import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTokenByAddressPair } from '../types/types.js';
-import { hexToNumber } from 'viem';
 dotenv.config();
 
 const API_KEY = process.env.ALCHEMY_API_KEY;
@@ -108,7 +107,6 @@ export const alchemyApi = {
             const hexTokenBalance = token.tokenBalance;
             const tokenDecimals = parseInt(token.tokenMetadata.decimals || '0', 10);
             
-            // Convert hex balance to decimal using BigInt
             const bigIntBalance = BigInt(hexTokenBalance);
             const decimalBalance = Number(bigIntBalance) / Math.pow(10, tokenDecimals);
             

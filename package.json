@@ -23,7 +23,6 @@
     "@modelcontextprotocol/sdk": "^1.7.0",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
-    "viem": "^2.25.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
