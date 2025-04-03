@@ -31,3 +31,12 @@ export interface TokenPriceHistoryBySymbol {
   endTime: string;
   interval: string;
 }
+
+export interface MultiChainTokenByAddress {
+  addresses: MultiChainTokenByAddressPair[];
+}
+
+export interface MultiChainTokenByAddressPair {
+  address: string;
+  networks: string[];
+}

@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
-import { pricesClient, nftClient } from './alchemyClients.ts';
-import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol } from '../types/types.ts';
+import { pricesClient, nftClient, multiChainTokenClient } from './alchemyClients.js';
+import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTokenByAddressPair } from '../types/types.js';
+import { hexToNumber } from 'viem';
 dotenv.config();
 
 const API_KEY = process.env.ALCHEMY_API_KEY;
@@ -85,4 +86,52 @@ export const alchemyApi = {
       throw error;
     }
   },
+  async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
+    try {
+      const response = await multiChainTokenClient.post('/by-address', {
+        addresses: params.addresses.map((pair: MultiChainTokenByAddressPair) => ({
+          address: pair.address,
+          networks: pair.networks
+        }))
+      });
+
+      // Handle nested data structure - API returns { data: { data: { tokens: [...] } } }
+      const responseData = response.data && response.data.data ? response.data.data : response.data;
+      
+      // Process tokens if they exist
+      // LLMs are very bad at arithmetic, so we need to convert the hex balances to decimal
+      if (responseData.tokens && Array.isArray(responseData.tokens)) {
+        // Convert hex balances to decimal
+        responseData.tokens = responseData.tokens.map((token: any) => {
+          try {
+            const processedToken = { ...token };
+            const hexTokenBalance = token.tokenBalance;
+            const tokenDecimals = parseInt(token.tokenMetadata.decimals || '0', 10);
+            
+            // Convert hex balance to decimal using BigInt
+            const bigIntBalance = BigInt(hexTokenBalance);
+            const decimalBalance = Number(bigIntBalance) / Math.pow(10, tokenDecimals);
+            
+            // Store both formats
+            processedToken.originalHexBalance = hexTokenBalance;
+            processedToken.tokenBalance = decimalBalance;
+            
+            return processedToken;
+          } catch (error) {
+            // On error, return token with balance as 0 but keep original hex
+            return {
+              ...token,
+              originalHexBalance: token.tokenBalance,
+              tokenBalance: 0
+            };
+          }
+        });
+      }
+
+      return responseData;
+    } catch (error) {
+      console.error('Error fetching token data:', error);
+      throw error;
+    }
+  }
 };

@@ -19,6 +19,15 @@ export const pricesClient = axios.create({
       'Authorization': `Bearer ${API_KEY}`
     },
   });
+  
+export const multiChainTokenClient = axios.create({
+    baseURL: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/tokens`,
+    headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+    },
+});
 
   // TODO: Add network param to the baseURL
 export const nftClient = axios.create({
