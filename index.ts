@@ -121,6 +121,33 @@ server.tool('getTokensByMultichainAddress', {
   }
 });
 
+// Fetches current balances for multiple addresses using network and address pairs.
+server.tool('getTokenBalancesByMultichainWallet', {
+  addresses: z.array(z.object({
+    address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+    networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
+  })).describe('A list of wallet address and network pairs'),
+}, async (params) => {
+  try {
+    const result = await alchemyApi.getTokenBalancesByMultichainWallet(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in getTokenBalancesByMultichainWallet:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
 // || ** NFT API ** ||
 
 // Get NFTs owned by an address
