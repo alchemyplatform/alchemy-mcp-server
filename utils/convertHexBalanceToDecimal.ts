@@ -10,7 +10,7 @@ export default function convertHexBalanceToDecimal(response: any) {
         try {
           const processedToken = { ...token };
           const hexTokenBalance = token.tokenBalance;
-          const tokenDecimals = parseInt(token.tokenMetadata.decimals || '0', 10);
+          const tokenDecimals = parseInt(token.tokenMetadata.decimals || '18', 10);
           
           const bigIntBalance = BigInt(hexTokenBalance);
           const decimalBalance = Number(bigIntBalance) / Math.pow(10, tokenDecimals);

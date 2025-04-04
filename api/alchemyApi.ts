@@ -104,21 +104,5 @@ export const alchemyApi = {
       console.error('Error fetching token data:', error);
       throw error;
     }
-  },
-  async getTokenBalancesByMultichainWallet(params: MultiChainTokenByAddress) {
-    try {
-      const response = await multiChainTokenClient.post('/by-address', {
-        addresses: params.addresses.map((pair: MultiChainTokenByAddressPair) => ({
-          address: pair.address,
-          networks: pair.networks 
-        }))
-      });
-
-      const responseData = convertHexBalanceToDecimal(response);
-      return responseData;
-    } catch (error) {
-      console.error('Error fetching token balances:', error);
-      throw error;
-    }
   }
 };
