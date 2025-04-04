@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { pricesClient, nftClient, multiChainTokenClient } from './alchemyClients.js';
 import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTokenByAddressPair } from '../types/types.js';
+import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 dotenv.config();
 
 const API_KEY = process.env.ALCHEMY_API_KEY;
@@ -14,6 +15,8 @@ const BASE_API_URLS = {
   TOKEN: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/tokens/by-address`,
   TXN_HISTORY: `https://api.g.alchemy.com/data/v1/${API_KEY}/transactions/history/by-address`
 }
+
+
 
 export const alchemyApi = {
   // Get NFTs owned by an address
@@ -94,41 +97,27 @@ export const alchemyApi = {
         }))
       });
 
-      // Handle nested data structure - API returns { data: { data: { tokens: [...] } } }
-      const responseData = response.data && response.data.data ? response.data.data : response.data;
-      
-      // Process tokens if they exist
-      // LLMs are very bad at arithmetic, so we need to convert the hex balances to decimal
-      if (responseData.tokens && Array.isArray(responseData.tokens)) {
-        // Convert hex balances to decimal
-        responseData.tokens = responseData.tokens.map((token: any) => {
-          try {
-            const processedToken = { ...token };
-            const hexTokenBalance = token.tokenBalance;
-            const tokenDecimals = parseInt(token.tokenMetadata.decimals || '0', 10);
-            
-            const bigIntBalance = BigInt(hexTokenBalance);
-            const decimalBalance = Number(bigIntBalance) / Math.pow(10, tokenDecimals);
-            
-            // Store both formats
-            processedToken.originalHexBalance = hexTokenBalance;
-            processedToken.tokenBalance = decimalBalance;
-            
-            return processedToken;
-          } catch (error) {
-            // On error, return token with balance as 0 but keep original hex
-            return {
-              ...token,
-              originalHexBalance: token.tokenBalance,
-              tokenBalance: 0
-            };
-          }
-        });
-      }
+      const responseData = convertHexBalanceToDecimal(response);
 
       return responseData;
     } catch (error) {
       console.error('Error fetching token data:', error);
+      throw error;
+    }
+  },
+  async getTokenBalancesByMultichainWallet(params: MultiChainTokenByAddress) {
+    try {
+      const response = await multiChainTokenClient.post('/by-address', {
+        addresses: params.addresses.map((pair: MultiChainTokenByAddressPair) => ({
+          address: pair.address,
+          networks: pair.networks 
+        }))
+      });
+
+      const responseData = convertHexBalanceToDecimal(response);
+      return responseData;
+    } catch (error) {
+      console.error('Error fetching token balances:', error);
       throw error;
     }
   }
