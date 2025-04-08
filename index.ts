@@ -121,6 +121,76 @@ server.tool('getTokensByMultichainAddress', {
   }
 });
 
+// || ** MultiChain Transaction History API ** ||
+
+// Fetches transaction history for singular or multiple wallet addresses using multiple blockchain networks.
+server.tool('fetchTransactionHistory', {
+  addresses: z.array(z.object({
+    address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+    networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
+  })).describe('A list of wallet address and network pairs'),
+  before: z.string().optional().describe('The cursor that points to the previous set of results. Use this to paginate through the results.'),
+  after: z.string().optional().describe('The cursor that points to the next set of results. Use this to paginate through the results.'),
+  limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100')
+}, async (params) => {  
+  try {
+    const result = await alchemyApi.getTransactionHistoryByMultichainAddress(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in getTransactionHistoryByMultichainAddress:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true     
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// || ** TRANSFERS API ** ||
+
+// Fetches the transfers and transaction history for any address
+server.tool('fetchTransfers', {
+  fromBlock: z.string().default('0x0').describe('The block number to start the search from. e.g. "1234567890". Inclusive from block (hex string, int, latest, or indexed).'),
+  toBlock: z.string().default('latest').describe('The block number to end the search at. e.g. "1234567890". Inclusive to block (hex string, int, latest, or indexed).'),
+  fromAddress: z.string().optional().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+  toAddress: z.string().optional().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+  contractAddresses: z.array(z.string()).default([]).describe('The contract addresses to query. e.g. ["0x1234567890123456789012345678901234567890"]'),
+  category: z.array(z.string()).default(['external', 'erc20']).describe('The category of transfers to query. e.g. "external" or "internal"'),
+  order: z.string().default('asc').describe('The order of the results. e.g. "asc" or "desc".'),
+  withMetadata: z.boolean().default(false).describe('Whether to include metadata in the results.'),
+  excludeZeroValue: z.boolean().default(true).describe('Whether to exclude zero value transfers.'),
+  maxCount: z.string().default('0x3e8').describe('The maximum number of results to return. e.g. "100".'),
+  pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
+  network: z.string().default('eth-mainnet').describe('The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet").'),
+  
+}, async (params) => {
+  try {
+    const result = await alchemyApi.getAssetTransfers(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in fetchTransfers:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
 // || ** NFT API ** ||
 
 // Get NFTs owned by an address
