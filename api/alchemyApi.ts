@@ -1,32 +1,10 @@
 import dotenv from 'dotenv';
-import { createPricesClient, createNftClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient } from './alchemyClients.js';
-import { NFTOwnershipParams, TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTokenByAddressPair, MultiChainTransactionHistoryByAddress, AssetTransfersParams } from '../types/types.js';
+import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 dotenv.config();
 
-// Default network setting that can be referenced or overridden
-const DEFAULT_NETWORK = 'eth-mainnet';
-
 export const alchemyApi = {
-  // Get NFTs owned by an address
-  async getNFTsForOwner(params: NFTOwnershipParams, network = DEFAULT_NETWORK) {
-    const client = createNftClient(network);
-    
-    const response = await client.get('/getNFTsForOwner', {
-      params: {
-        owner: params.owner,
-        withMetadata: params.withMetadata,
-        contractAddresses: params.contractAddresses ? params.contractAddresses.join(',') : undefined,
-        excludeFilters: params.excludeFilters ? params.excludeFilters.join(',') : undefined,
-        orderBy: params.orderBy,
-        pageSize: params.pageSize,
-        pageKey: params.pageKey,
-        tokenUriTimeoutInMs: params.tokenUriTimeoutInMs,
-        spamConfidenceLevel: params.spamConfidenceLevel
-      }
-    });
-    return response.data;
-  },
   
   async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
     try {
@@ -87,7 +65,7 @@ export const alchemyApi = {
       const client = createMultiChainTokenClient();
       
       const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: MultiChainTokenByAddressPair) => ({
+        addresses: params.addresses.map((pair: AddressPair) => ({
           address: pair.address,
           networks: pair.networks
         }))
@@ -107,7 +85,7 @@ export const alchemyApi = {
       const client = createMultiChainTransactionHistoryClient();
       
       const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: MultiChainTokenByAddressPair) => ({
+        addresses: params.addresses.map((pair: AddressPair) => ({
           address: pair.address,  
           networks: pair.networks
         })),
@@ -136,6 +114,36 @@ export const alchemyApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching asset transfers:', error);
+      throw error;
+    }
+  },
+
+  async getNftsForAddress(params: NftsByAddressParams) {
+    try {
+      const client = createNftClient();
+      
+      const response = await client.post('/by-address', { 
+        ...params
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching NFTs for address:', error);
+      throw error;
+    }
+  },
+
+  async getNftContractsByAddress(params: NftContractsByAddressParams) {
+    try {
+      const client = createNftClient();
+      
+      const response = await client.post('/by-address', {
+        ...params
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching NFT contracts by address:', error);
       throw error;
     }
   }
