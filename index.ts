@@ -193,36 +193,27 @@ server.tool('fetchTransfers', {
 
 // || ** NFT API ** ||
 
-// Get NFTs owned by an address
-server.tool('getNFTsForOwner', {
-  owner: z.string(),
-  withMetadata: z.boolean().default(false).optional(),
-  pageKey: z.string().optional(),
-  pageSize: z.number().default(100).optional(),
-  contractAddresses: z.array(z.string()).optional(),
-  excludeFilters: z.array(z.string()).optional(),
-  tokenUriTimeoutInMs: z.number().optional(),
-  spamConfidenceLevel: z.enum(['LOW', 'MEDIUM', 'HIGH']).optional()
+// Returns the owned NFTs for a given wallet address
+server.tool('getNftsByAddress', {
+  addresses: z.array(z.object({
+    address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+    networks: z.array(z.string()).default(['eth-mainnet']).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]'),
+    excludeFilters: z.array(z.enum(['SPAM', 'AIRDROPS'])).default(["SPAM", "AIRDROPS"]).describe('The filters to exclude from the results. e.g. ["SPAM", "AIRDROPS"]'),
+    includeFilters: z.array(z.enum(['SPAM', 'AIRDROPS'])).default([]).describe('The filters to include in the results. e.g. ["SPAM", "AIRDROPS"]'),
+    spamConfidenceLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'VERY_HIGH']).default('VERY_HIGH').describe('The spam confidence level to query. e.g. "LOW" or "HIGH"'),
+  })).describe('A list of wallet address and network pairs'),
+  withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
+  pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
+  pageSize: z.number().default(100).describe('The number of results to return. Default is 100. Max is 1000'),
 }, async (params) => {
   try {
-    const result = await alchemyApi.getNFTsForOwner(params);
+    const result = await alchemyApi.getNftsForAddress(params);
     return {
-      content: [
-        {
-          type: "text",
-          text: JSON.stringify(result, null, 2)
-        }
-      ]
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
   } catch (error) {
     if (error instanceof Error) {
-      console.error('Detailed error:', {
-        message: error.message,
-        // @ts-ignore
-        response: error.response?.data,
-        // @ts-ignore
-        config: error.config
-      });
+      console.error('Error in getNFTsForOwner:', error);
       return {
         content: [{ type: "text", text: `Error: ${error.message}` }],
         isError: true
@@ -235,5 +226,33 @@ server.tool('getNFTsForOwner', {
   }
 });
 
+// Returns the data for owned NFT contracts for a given wallet address
+// The returned response from the LLM should show information about the NFT contract not the specific NFTs held by the wallet address at that contract
+server.tool('getNftContractsByAddress ', {
+  addresses: z.array(z.object({
+    address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+    networks: z.array(z.string()).default(['eth-mainnet']).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]'),
+  })).describe('A list of wallet address and network pairs'),
+  withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
+}, async (params) => {
+  try {
+    const result = await alchemyApi.getNftContractsByAddress(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in getNftContractsByAddress:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
 const transport = new StdioServerTransport();
 await server.connect(transport); 
