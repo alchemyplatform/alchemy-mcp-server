@@ -1,0 +1,22 @@
+**Token Price Methods:**
+1. "What's the current price of ETH, BTC, and SOL?"
+2. "What's the price the token at address 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984 on Ethereum mainnet?"
+3. "Show me ETH price history from June 1 to July 1, 2023, with daily intervals"
+
+**Multichain Token Methods:**
+4. "What tokens does wallet 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 hold across Ethereum and Base?"
+5. "Show me all token balances for Vitalik's wallet (0xd8da6bf26964af9d7eed9e03e53415d37aa96045) on Ethereum, Base, and Optimism"
+
+**Transaction History Methods:**
+6. "Show me the last 10 transactions for 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 on Ethereum mainnet"
+7. "Display recent transactions for 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 on Ethereum and Base"
+8. "Show me all ERC-20 transfers to or from 0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+
+**NFT Methods:**
+9. "What NFTs does 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 own on Ethereum?"
+10. "Show me all NFT collections that 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 has tokens from, excluding spam"
+11. "List all Bored Ape NFTs owned by 0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+
+**Combined Queries:**
+12. "Compare the token balances of 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 and 0x73bceb1cd57c711feac4224d062b0f6ff338501e on Ethereum mainnet"
+13. "Show me all NFTs and token balances for 0xd8da6bf26964af9d7eed9e03e53415d37aa96045 across Ethereum and Base"
