@@ -1,9 +1,13 @@
 {
-  "name": "alchemy-mpc",
-  "version": "1.0.0",
-  "description": "MCP server for Alchemy blockchain APIs",
-  "main": "dist/index.js",
+  "name": "alchemy-mcp-server",
+  "version": "0.1.0",
+  "description": "MCP server for using Alchemy APIs",
+  "license": "MIT",
+  "author": "Alchemy, (https://www.alchemy.com)",
+  "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
+  "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
@@ -11,15 +15,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
-  "keywords": [
-    "mcp",
-    "alchemy",
-    "blockchain",
-    "nft",
-    "model-context-protocol"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.7.0",
     "axios": "^1.6.2",
