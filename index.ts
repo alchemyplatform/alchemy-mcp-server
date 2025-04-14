@@ -3,16 +3,17 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { alchemyApi } from './api/alchemyApi.js';
 import toISO8601 from './utils/toISO8601.js';
-
+import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
+import { convertWeiToEth } from './utils/convertWeiToEth.js';
 const server = new McpServer({
   name: "alchemy-mpc",
   version: "1.0.0",
 });
 
 // || ** PRICES API ** ||
-// Get a token price by Symbol
-server.tool('getTokenPriceBySymbol', {
-  symbols: z.array(z.string()).describe('A list of token symbols to query. e.g. ["BTC", "ETH"]'),
+// Fetch the price of a token by it's symbol eg. "BTC" or "ETH"
+server.tool('fetchTokenPriceBySymbol', {
+  symbols: z.array(z.string()).describe('A list of blockchaintoken symbols to query. e.g. ["BTC", "ETH"]'),
 }, async (params) => {
   try {
     const result = await alchemyApi.getTokenPriceBySymbol(params);
@@ -34,8 +35,8 @@ server.tool('getTokenPriceBySymbol', {
   }
 });
 
-// Get a token price by token contract address
-server.tool('getTokenPriceByAddress', {
+// Fetch the price of a token by the token contract address
+server.tool('fetchTokenPriceByAddress', {
   addresses: z.array(z.object({
     address: z.string().describe('The token contract address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     network: z.string().describe('The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet"')
@@ -61,8 +62,8 @@ server.tool('getTokenPriceByAddress', {
   }
 });
 
-// Get a token price history by Symbol
-server.tool('getTokenPriceHistoryBySymbol', {
+// Fetch the price history of a token by Symbol
+server.tool('fetchTokenPriceHistoryBySymbol', {
   symbol: z.string().describe('The token symbol to query. e.g. "BTC" or "ETH"'),
   startTime: z.string().describe('The start time date to query. e.g. "2021-01-01"'),
   endTime: z.string().describe('The end time date to query. e.g. "2021-01-01"'),
@@ -94,8 +95,9 @@ server.tool('getTokenPriceHistoryBySymbol', {
 
 // || ** MultiChain Token API ** ||
 
-// Fetches current balances, prices, and metadata for multiple addresses using network and address pairs.
-server.tool('getTokensByMultichainAddress', {
+// Fetch the current balance, price, and metadata of the tokens owned by specific addresses using network and address pairs.
+// The returned response from the LLM should be formatted in an easy to read table format.
+server.tool('fetchTokensOwnedByMultichainAddresses', {
   addresses: z.array(z.object({
     address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
@@ -123,8 +125,9 @@ server.tool('getTokensByMultichainAddress', {
 
 // || ** MultiChain Transaction History API ** ||
 
-// Fetches transaction history for singular or multiple wallet addresses using multiple blockchain networks.
-server.tool('fetchTransactionHistory', {
+// Fetch the transaction history of singular or multiple wallet addresses using multiple blockchain networks.
+// The returned response from the LLM should list out transactions with data and dates not just summarize them.
+server.tool('fetchAddressTransactionHistory', {
   addresses: z.array(z.object({
     address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
@@ -134,7 +137,15 @@ server.tool('fetchTransactionHistory', {
   limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100')
 }, async (params) => {  
   try {
-    const result = await alchemyApi.getTransactionHistoryByMultichainAddress(params);
+    let result = await alchemyApi.getTransactionHistoryByMultichainAddress(params);
+    // List the transaction hash when returning the result to the user
+    const formattedTxns = result.transactions.map((transaction: any) => ({
+      ...transaction,
+      date: convertTimestampToDate(transaction.blockTimestamp),
+      ethValue: convertWeiToEth(transaction.value)
+    }));
+
+    result.transactions = formattedTxns;
     return {
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
@@ -155,18 +166,18 @@ server.tool('fetchTransactionHistory', {
 
 // || ** TRANSFERS API ** ||
 
-// Fetches the transfers and transaction history for any address
+// Fetch the transfers and transaction history for any address
 server.tool('fetchTransfers', {
   fromBlock: z.string().default('0x0').describe('The block number to start the search from. e.g. "1234567890". Inclusive from block (hex string, int, latest, or indexed).'),
   toBlock: z.string().default('latest').describe('The block number to end the search at. e.g. "1234567890". Inclusive to block (hex string, int, latest, or indexed).'),
-  fromAddress: z.string().optional().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
-  toAddress: z.string().optional().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
+  fromAddress: z.string().optional().describe('The wallet address to query the transfer was sent from.'),
+  toAddress: z.string().optional().describe('The wallet address to query the transfer was sent to.'),
   contractAddresses: z.array(z.string()).default([]).describe('The contract addresses to query. e.g. ["0x1234567890123456789012345678901234567890"]'),
   category: z.array(z.string()).default(['external', 'erc20']).describe('The category of transfers to query. e.g. "external" or "internal"'),
   order: z.string().default('asc').describe('The order of the results. e.g. "asc" or "desc".'),
   withMetadata: z.boolean().default(false).describe('Whether to include metadata in the results.'),
   excludeZeroValue: z.boolean().default(true).describe('Whether to exclude zero value transfers.'),
-  maxCount: z.string().default('0x3e8').describe('The maximum number of results to return. e.g. "100".'),
+  maxCount: z.string().default('0xA').describe('The maximum number of results to return. e.g. "0x3E8".'),
   pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
   network: z.string().default('eth-mainnet').describe('The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet").'),
   
@@ -193,8 +204,8 @@ server.tool('fetchTransfers', {
 
 // || ** NFT API ** ||
 
-// Returns the owned NFTs for a given wallet address
-server.tool('getNftsByAddress', {
+// Fetch the NFTs owned by a singular or multiple wallet addresses across multiple blockchain networks.
+server.tool('fetchNftsOwnedByMultichainAddresses', {
   addresses: z.array(z.object({
     address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     networks: z.array(z.string()).default(['eth-mainnet']).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]'),
@@ -204,7 +215,7 @@ server.tool('getNftsByAddress', {
   })).describe('A list of wallet address and network pairs'),
   withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
   pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
-  pageSize: z.number().default(100).describe('The number of results to return. Default is 100. Max is 1000'),
+  pageSize: z.number().default(10).describe('The number of results to return. Default is 100. Max is 100'),
 }, async (params) => {
   try {
     const result = await alchemyApi.getNftsForAddress(params);
@@ -226,9 +237,9 @@ server.tool('getNftsByAddress', {
   }
 });
 
-// Returns the data for owned NFT contracts for a given wallet address
+// Fetch the contract data for an NFT owned by a singular or multiple wallet addresses across multiple blockchain networks
 // The returned response from the LLM should show information about the NFT contract not the specific NFTs held by the wallet address at that contract
-server.tool('getNftContractsByAddress ', {
+server.tool('fetchNftContractDataByMultichainAddress', {
   addresses: z.array(z.object({
     address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     networks: z.array(z.string()).default(['eth-mainnet']).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]'),
@@ -254,5 +265,14 @@ server.tool('getNftContractsByAddress ', {
     };
   }
 });
-const transport = new StdioServerTransport();
-await server.connect(transport); 
+
+async function runServer() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport); 
+  console.error('Alchemy MCP Server is running on stdio');
+}
+
+runServer().catch((error) => {
+  console.error("Fatal error in runServer():", error);
+  process.exit(1);
+});

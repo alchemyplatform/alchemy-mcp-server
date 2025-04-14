@@ -106,27 +106,27 @@ You can prompt your AI assistant to use the following methods:
 
 ### Token Price Methods
 
-1. **getTokenPriceBySymbol**
+1. **fetchTokenPriceBySymbol**
    - Gets current price data for tokens by symbol
    - Example: "What's the current price of ETH and BTC?"
 
-2. **getTokenPriceByAddress**
+2. **fetchTokenPriceByAddress**
    - Gets current price data for tokens by contract address
    - Example: "What's the price of the token at address 0x1234...5678 on Ethereum mainnet?"
 
-3. **getTokenPriceHistoryBySymbol**
+3. **fetchTokenPriceHistoryBySymbol**
    - Gets historical price data for tokens
    - Example: "Show me BTC price history from Jan 1 to Feb 1, 2023, with daily intervals"
 
 ### Multichain Token Methods
 
-4. **getTokensByMultichainAddress**
+4. **fetchTokensOwnedByMultichainAddresses**
    - Gets token balances for addresses across multiple networks
    - Example: "What tokens does 0xabc...123 hold on Ethereum and Base?"
 
 ### Transaction History Methods
 
-5. **fetchTransactionHistory**
+5. **fetchMultichainWalletAddressTransactionHistory**
    - Gets transaction history for addresses across multiple networks
    - Example: "Show recent transactions for wallet 0xdef...456 on Ethereum"
 
@@ -136,11 +136,11 @@ You can prompt your AI assistant to use the following methods:
 
 ### NFT Methods
 
-7. **getNftsByAddress**
+7. **fetchNftsOwnedByMultichainAddresses**
    - Gets all NFTs owned by addresses
    - Example: "What NFTs does 0xjkl...012 own?"
 
-8. **getNftContractsByAddress**
+8. **fetchNftContractDataByMultichainAddress**
    - Gets NFT contract data for addresses
    - Example: "What NFT collections does 0xmno...345 have tokens from?"
 
@@ -171,4 +171,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-[ISC](LICENSE) 
+[MIT](LICENSE) 
