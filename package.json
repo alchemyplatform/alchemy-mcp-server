@@ -1,5 +1,5 @@
 {
-  "name": "alchemy-mpc",
+  "name": "alchemy-mcp",
   "version": "1.0.0",
   "description": "MCP server for Alchemy blockchain APIs",
   "main": "dist/index.js",
