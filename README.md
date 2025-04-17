@@ -27,30 +27,15 @@ npm install
 pnpm install
 ```
 
-3. Create a `.env` file from the example
-```bash
-cp .env.example .env
-```
-
-4. Add your Alchemy API key to the `.env` file
-```
-ALCHEMY_API_KEY=your_api_key_here
-```
-
 ## Development
 
 ```bash
-npm run dev
-# or
 pnpm dev
 ```
 
 ## Building for Production
 
 ```bash
-npm run build
-npm start
-# or
 pnpm build
 pnpm start
 ```
@@ -60,8 +45,6 @@ pnpm start
 The MCP Inspector helps you debug your MCP server by providing a visual interface to test your methods:
 
 ```bash
-npm run inspector
-# or
 pnpm inspector
 ```
 
