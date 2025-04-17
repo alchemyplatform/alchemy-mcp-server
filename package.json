@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
-    "prepare": "pnpm build",
+    "prepare": "pnpm run build",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
