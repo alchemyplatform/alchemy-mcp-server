@@ -1,5 +1,5 @@
 {
-  "name": "alchemy-mcp-server",
+  "name": "@alchemy/mcp-server",
   "version": "0.1.0",
   "description": "MCP server for using Alchemy APIs",
   "license": "MIT",
