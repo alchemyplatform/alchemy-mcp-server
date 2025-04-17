@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
@@ -268,8 +270,18 @@ server.tool('fetchNftContractDataByMultichainAddress', {
 
 async function runServer() {
   const transport = new StdioServerTransport();
-  await server.connect(transport); 
-  console.error('Alchemy MCP Server is running on stdio');
+  try {
+    await server.connect(transport);
+    console.error('Alchemy MCP Server is running on stdio');
+  } catch (error) {
+    console.error("Error during server connection:", error);
+    if (error instanceof Error) {
+      console.error("Detailed error message:", error.message);
+    }
+    console.error("Possible causes: network issues, incorrect configuration, or server not reachable.");
+    console.error("Consider checking the server logs and configuration.");
+    process.exit(1);
+  }
 }
 
 runServer().catch((error) => {
