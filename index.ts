@@ -6,8 +6,8 @@ import toISO8601 from './utils/toISO8601.js';
 import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
 import { convertWeiToEth } from './utils/convertWeiToEth.js';
 const server = new McpServer({
-  name: "alchemy-mpc",
-  version: "1.0.0",
+  name: "alchemy-mcp-server",
+  version: "0.1.0",
 });
 
 // || ** PRICES API ** ||
