@@ -22,8 +22,6 @@ cd alchemy-mcp
 
 2. Install dependencies
 ```bash
-npm install
-# or
 pnpm install
 ```
 
