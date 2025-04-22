@@ -4,9 +4,9 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { alchemyApi } from './api/alchemyApi.js';
-import toISO8601 from './utils/toISO8601.js';
 import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
 import { convertWeiToEth } from './utils/convertWeiToEth.js';
+import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
 const server = new McpServer({
   name: "alchemy-mcp-server",
   version: "0.1.0",
@@ -83,6 +83,49 @@ server.tool('fetchTokenPriceHistoryBySymbol', {
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error in getTokenPriceHistoryBySymbol:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// Fetch token price history using various time frame formats or natural language
+server.tool('fetchTokenPriceHistoryByTimeFrame', {
+  symbol: z.string().describe('The token symbol to query. e.g. "BTC" or "ETH"'),
+  timeFrame: z.string().describe('Time frame like "last-week", "past-7d", "ytd", "last-month", etc. or use natural language like "last week"'),
+  interval: z.string().default('1d').describe('The interval to query. e.g. "1d" or "1h"'),
+  useNaturalLanguageProcessing: z.boolean().default(false).describe('If true, will interpret timeFrame as natural language'),
+}, async (params) => {
+  try {
+    // Process time frame - either directly or through NLP
+    let timeFrame = params.timeFrame;
+    if (params.useNaturalLanguageProcessing) {
+      timeFrame = parseNaturalLanguageTimeFrame(params.timeFrame);
+    }
+    
+    // Calculate date range
+    const { startDate, endDate } = calculateDateRange(timeFrame);
+    
+    // Fetch the data
+    const result = await alchemyApi.getTokenPriceHistoryBySymbol({
+      symbol: params.symbol,
+      startTime: startDate,
+      endTime: endDate,
+      interval: params.interval
+    });
+    
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in fetchTokenPriceHistoryByTimeFrame:', error);
       return {
         content: [{ type: "text", text: `Error: ${error.message}` }],
         isError: true

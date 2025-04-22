@@ -74,3 +74,8 @@ export interface AddressPair {
   address: string;
   networks: string[];
 }
+
+export interface DateRange {
+  startDate: string;
+  endDate: string;
+}
