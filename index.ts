@@ -311,6 +311,73 @@ server.tool('fetchNftContractDataByMultichainAddress', {
   }
 });
 
+// || ** WALLET API ** ||
+
+/* 
+Needs:
+- permissions of session key (agent)
+- gas policy id
+- call data -> 
+- to address
+- chain id
+- owner SCA account address
+- concat hex string (session id, session signature from owner SCA account address)
+
+*/
+
+// Need to add call data to the params for now its hardcoded
+// When we have UI components for AI chat built
+// server.tool('prepareCallsForTransaction', {
+//    ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+//    concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
+//    policyId: z.string().describe('The policy id of the gas policy to use.'),
+//    chainId: z.string().describe('The chain id of the network to use.'),
+//   }, async (params) => {
+//     try {
+//       const result = await alchemyApi.prepareCalls(params);
+//       return {
+//         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+//       };
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         console.error('Error in prepareCallsForTransaction:', error);
+//         return {
+//           content: [{ type: "text", text: `Error: ${error.message}` }],
+//           isError: true
+//         };
+//       }
+//       return {
+//         content: [{ type: "text", text: 'Unknown error occurred' }],
+//         isError: true
+//       };
+//     }
+//   })
+server.tool('sendTransaction', {
+  ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+  concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
+  signerAddress: z.string().describe('The signer address to send the transaction from.'),
+  }, async (params) => {
+    try {
+      const result = await alchemyApi.sendTransaction(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error in prepareCallsForTransaction:', error);
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: 'Unknown error occurred' }],
+        isError: true
+      };
+    }
+  })
+// server.tool('sendTransaction')
+
 async function runServer() {
   const transport = new StdioServerTransport();
   try {

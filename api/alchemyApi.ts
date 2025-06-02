@@ -1,8 +1,14 @@
 import dotenv from 'dotenv';
-import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair } from '../types/types.js';
+import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient, createWalletClient } from './alchemyClients.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, PrepareCallsParams, SendTransactionParams, SendUserOpParams, GetCallsStatusParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
+import { toHex } from 'viem';
+import { sepolia } from 'viem/chains';
+import { LocalAccountSigner } from '@aa-sdk/core';
 dotenv.config();
+
+const POLICY_ID = '681d7fa6-5dee-48c9-893c-be3611bd8971';
+const CHAIN_ID = toHex(sepolia.id);
 
 export const alchemyApi = {
   
@@ -146,5 +152,127 @@ export const alchemyApi = {
       console.error('Error fetching NFT contracts by address:', error);
       throw error;
     }
+  },
+
+  async prepareCalls(params: PrepareCallsParams) {
+    const { ownerScaAccountAddress, concatHexString} = params;
+    try {
+      const client = createWalletClient();
+
+      const response = await client.post('', {
+        method: "wallet_prepareCalls",
+        params: [{
+          capabilities: {
+            permissions: {
+              context: concatHexString
+            },
+            paymasterService: {
+                policyId: POLICY_ID
+            }
+          },
+          calls: [
+            {
+              to: '0x0000000000000000000000000000000000000000',
+              data: '0x1234'
+            }
+          ],
+          from: ownerScaAccountAddress,
+          chainId: CHAIN_ID
+        }]
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error preparing calls:', error);
+      throw error;
+    }
+  },
+
+  async sendUserOp(params: SendUserOpParams) {
+    const { userOpRequest, userOpSignature, concatHexString } = params;
+    try {
+      const client = createWalletClient();
+    const response = await client.post('', {
+        method: 'wallet_sendPreparedCalls',
+        params: [
+          {
+            type: 'user-operation-v070',
+            data: userOpRequest.result.data,
+            capabilities: {
+              permissions: {
+                context: concatHexString
+              }
+            },
+            chainId: CHAIN_ID,
+            signature: {
+              type: 'ecdsa',
+              signature: userOpSignature
+            }
+          }
+        ]
+      })
+    
+      return response.data;
+    } catch (error) {
+      console.error('Error sending user op:', error);
+      throw error;
+    }
+  },
+
+  async getCallsStatus(params: GetCallsStatusParams) {
+    const { userOpHash } = params;
+    try {
+      const client = createWalletClient();
+      const response = await client.post('', {
+        method: 'wallet_getCallsStatus',
+        params: [userOpHash]
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error getting calls status:', error);
+      throw error;
+    }
+  },
+
+  async sendTransaction(params: SendTransactionParams) {
+    const { ownerScaAccountAddress, concatHexString, signerAddress } = params;
+    try {
+      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString});
+      const rawData = userOpRequest.result.signatureRequest.data.raw;
+      // Call the nextjs server api to get the sessionKeySigner
+      const response = await fetch(`http://localhost:3000/api/signer/${signerAddress}/private-key`);
+      const data = await response.json();
+      const sessionPrivateKey = data.privateKey;
+      const sessionKeySigner = LocalAccountSigner.privateKeyToAccountSigner(sessionPrivateKey);
+      // Sign the message
+      const userOpSignature = await sessionKeySigner.signMessage({raw: rawData});
+      // Send the user op
+      const userOp = await this.sendUserOp({userOpRequest, userOpSignature, concatHexString})
+      // Get the user op hash
+      // console.error({userOp})
+      // console.error(userOp.result.preparedCallIds)
+      const userOpHash = userOp.result.preparedCallIds[0];
+      // Get the call status
+      // const callStatus = await this.getCallsStatus({userOpHash});
+      // Get the receipts
+      // console.error({callStatus})
+      // const receipts = callStatus.result.receipts;
+      // return receipts;
+      let callStatus;
+      while (true) {
+        callStatus = await this.getCallsStatus({userOpHash});
+        if (callStatus.result?.status === 200) {
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      }
+      return callStatus.result.receipts;
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+      throw error;
+    }
   }
 };
+
+

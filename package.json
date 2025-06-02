@@ -21,9 +21,11 @@
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
+    "@aa-sdk/core": "^4.36.0",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
+    "viem": "^2.30.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
