@@ -18,7 +18,8 @@
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "test": "node --test tests/*.test.ts --loader=tsx/esm"
   },
   "dependencies": {
     "@aa-sdk/core": "^4.36.0",

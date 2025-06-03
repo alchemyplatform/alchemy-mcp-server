@@ -5,6 +5,7 @@ import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 import { toHex } from 'viem';
 import { sepolia } from 'viem/chains';
 import { LocalAccountSigner } from '@aa-sdk/core';
+import { convertEthToWei } from '../utils/ethConversions.js';
 dotenv.config();
 
 const POLICY_ID = '681d7fa6-5dee-48c9-893c-be3611bd8971';
@@ -155,7 +156,16 @@ export const alchemyApi = {
   },
 
   async prepareCalls(params: PrepareCallsParams) {
-    const { ownerScaAccountAddress, concatHexString} = params;
+    const { ownerScaAccountAddress, concatHexString, toAddress, value, callData} = params;
+    const sentData = callData ? callData : '0x';
+    // convert to Wei and also hex
+    const weiValue = value ? toHex(convertEthToWei(value)) : toHex(0);
+    console.error('value', value)
+    console.error('weiValue', weiValue)
+    console.error('sentData', sentData)
+    console.error('ownerScaAccountAddress', ownerScaAccountAddress)
+    console.error('toAddress', toAddress)
+    console.error('concatHexString', concatHexString)
     try {
       const client = createWalletClient();
 
@@ -172,8 +182,9 @@ export const alchemyApi = {
           },
           calls: [
             {
-              to: '0x0000000000000000000000000000000000000000',
-              data: '0x1234'
+              to: toAddress,
+              value: weiValue,
+              data: sentData
             }
           ],
           from: ownerScaAccountAddress,
@@ -181,7 +192,9 @@ export const alchemyApi = {
         }]
       });
 
+      console.error('response', response)
       return response.data;
+
     } catch (error) {
       console.error('Error preparing calls:', error);
       throw error;
@@ -189,7 +202,7 @@ export const alchemyApi = {
   },
 
   async sendUserOp(params: SendUserOpParams) {
-    const { userOpRequest, userOpSignature, concatHexString } = params;
+    const { userOpRequest, userOpSignature, concatHexString} = params;
     try {
       const client = createWalletClient();
     const response = await client.post('', {
@@ -236,22 +249,18 @@ export const alchemyApi = {
   },
 
   async sendTransaction(params: SendTransactionParams) {
-    const { ownerScaAccountAddress, concatHexString, signerAddress } = params;
+    const { ownerScaAccountAddress, concatHexString, signerAddress, toAddress, value, callData } = params;
     try {
-      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString});
+      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString, toAddress, value, callData});
+      console.error('userOpRequest', userOpRequest)
       const rawData = userOpRequest.result.signatureRequest.data.raw;
-      // Call the nextjs server api to get the sessionKeySigner
       const response = await fetch(`http://localhost:3000/api/signer/${signerAddress}/private-key`);
       const data = await response.json();
       const sessionPrivateKey = data.privateKey;
       const sessionKeySigner = LocalAccountSigner.privateKeyToAccountSigner(sessionPrivateKey);
-      // Sign the message
       const userOpSignature = await sessionKeySigner.signMessage({raw: rawData});
-      // Send the user op
       const userOp = await this.sendUserOp({userOpRequest, userOpSignature, concatHexString})
-      // Get the user op hash
-      // console.error({userOp})
-      // console.error(userOp.result.preparedCallIds)
+      // Get the user op hashesult.preparedCallIds)
       const userOpHash = userOp.result.preparedCallIds[0];
       // Get the call status
       // const callStatus = await this.getCallsStatus({userOpHash});

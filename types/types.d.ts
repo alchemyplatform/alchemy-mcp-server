@@ -72,12 +72,18 @@ export interface NftContractsByAddressParams {
 export interface PrepareCallsParams {
   ownerScaAccountAddress: string;
   concatHexString: string;
+  toAddress: string;
+  value?: string;
+  callData?: string;
 }
 
 export interface SendTransactionParams {
   ownerScaAccountAddress: string;
   concatHexString: string;
   signerAddress: string;
+  toAddress: string;
+  value?: string;
+  callData?: string;
 }
 
 export interface SendUserOpParams {
