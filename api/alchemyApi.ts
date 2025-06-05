@@ -6,9 +6,10 @@ import { toHex } from 'viem';
 import { sepolia } from 'viem/chains';
 import { LocalAccountSigner } from '@aa-sdk/core';
 import { convertEthToWei } from '../utils/ethConversions.js';
+import { quote } from '../utils/quote.js';
 dotenv.config();
 
-const POLICY_ID = '681d7fa6-5dee-48c9-893c-be3611bd8971';
+const POLICY_ID = '<ALCHEMY_POLICY_ID>';
 const CHAIN_ID = toHex(sepolia.id);
 
 export const alchemyApi = {
@@ -158,14 +159,8 @@ export const alchemyApi = {
   async prepareCalls(params: PrepareCallsParams) {
     const { ownerScaAccountAddress, concatHexString, toAddress, value, callData} = params;
     const sentData = callData ? callData : '0x';
-    // convert to Wei and also hex
     const weiValue = value ? toHex(convertEthToWei(value)) : toHex(0);
-    console.error('value', value)
-    console.error('weiValue', weiValue)
-    console.error('sentData', sentData)
-    console.error('ownerScaAccountAddress', ownerScaAccountAddress)
-    console.error('toAddress', toAddress)
-    console.error('concatHexString', concatHexString)
+    
     try {
       const client = createWalletClient();
 
@@ -249,8 +244,16 @@ export const alchemyApi = {
   },
 
   async sendTransaction(params: SendTransactionParams) {
-    const { ownerScaAccountAddress, concatHexString, signerAddress, toAddress, value, callData } = params;
+    const { ownerScaAccountAddress, concatHexString, signerAddress, toAddress, value, callData, isSwap } = params;
     try {
+      if (isSwap) {
+        // const swapRequest = await this.prepareSwap({ownerScaAccountAddress, concatHexString, toAddress, value, callData});
+        // console.error('swapRequest', swapRequest)
+        const quoteResponse = await quote();
+        console.error('quoteResponse', quoteResponse)
+        console.error('is a swap')
+        return "is a swap"
+      }
       const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString, toAddress, value, callData});
       console.error('userOpRequest', userOpRequest)
       const rawData = userOpRequest.result.signatureRequest.data.raw;
@@ -260,14 +263,9 @@ export const alchemyApi = {
       const sessionKeySigner = LocalAccountSigner.privateKeyToAccountSigner(sessionPrivateKey);
       const userOpSignature = await sessionKeySigner.signMessage({raw: rawData});
       const userOp = await this.sendUserOp({userOpRequest, userOpSignature, concatHexString})
-      // Get the user op hashesult.preparedCallIds)
+      console.error('userOp', userOp)
       const userOpHash = userOp.result.preparedCallIds[0];
-      // Get the call status
-      // const callStatus = await this.getCallsStatus({userOpHash});
-      // Get the receipts
-      // console.error({callStatus})
-      // const receipts = callStatus.result.receipts;
-      // return receipts;
+      console.error('userOpHash', userOpHash)
       let callStatus;
       while (true) {
         callStatus = await this.getCallsStatus({userOpHash});

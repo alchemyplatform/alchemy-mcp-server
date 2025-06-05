@@ -84,6 +84,7 @@ export interface SendTransactionParams {
   toAddress: string;
   value?: string;
   callData?: string;
+  isSwap: boolean;
 }
 
 export interface SendUserOpParams {

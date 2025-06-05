@@ -313,13 +313,16 @@ server.tool('fetchNftContractDataByMultichainAddress', {
 
 // || ** WALLET API ** ||
 
+// Send a transction to a specific address using the owner SCA account address and the signer address
+// 
 server.tool('sendTransaction', {
   ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
   concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
   signerAddress: z.string().describe('The signer address to send the transaction from.'),
   toAddress: z.string().describe('The address to send the transaction to.'),
   value: z.string().optional().describe('The value of the transaction in ETH.'),
-  data: z.string().optional().describe('The data of the transaction.'),
+  callData: z.string().optional().describe('The data of the transaction.'),
+  isSwap: z.boolean().default(false).describe('Whether the transaction is a swap.'),
   }, async (params) => {
     try {
       const result = await alchemyApi.sendTransaction(params);
