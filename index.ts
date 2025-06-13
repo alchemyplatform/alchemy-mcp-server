@@ -322,7 +322,6 @@ server.tool('sendTransaction', {
   toAddress: z.string().describe('The address to send the transaction to.'),
   value: z.string().optional().describe('The value of the transaction in ETH.'),
   callData: z.string().optional().describe('The data of the transaction.'),
-  isSwap: z.boolean().default(false).describe('Whether the transaction is a swap.'),
   }, async (params) => {
     try {
       const result = await alchemyApi.sendTransaction(params);
@@ -343,6 +342,19 @@ server.tool('sendTransaction', {
       };
     }
   })
+
+// || ** SWAP API ** ||
+
+server.tool('swap', {
+  ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+  concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
+  signerAddress: z.string().describe('The signer address to send the transaction from.')
+}, async (params) => {
+  const result = await alchemyApi.swap(params);
+  return {
+    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+  };
+});
 
 async function runServer() {
   const transport = new StdioServerTransport();

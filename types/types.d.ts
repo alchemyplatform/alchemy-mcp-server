@@ -63,6 +63,12 @@ export interface NftsByAddressPair {
   spamConfidenceLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH';
 }
 
+export interface Call {
+  to: string;
+  value?: string;
+  data: string;
+}
+
 export interface NftContractsByAddressParams {
   addresses: AddressPair[];
   withMetadata: boolean;
@@ -72,9 +78,14 @@ export interface NftContractsByAddressParams {
 export interface PrepareCallsParams {
   ownerScaAccountAddress: string;
   concatHexString: string;
-  toAddress: string;
-  value?: string;
-  callData?: string;
+  calls: Call[];
+  gasParamsOverride?: {
+    preVerificationGas: string;
+    verificationGasLimit: string;
+    callGasLimit: string;
+    maxFeePerGas: string;
+    maxPriorityFeePerGas: string;
+  };
 }
 
 export interface SendTransactionParams {
@@ -84,7 +95,6 @@ export interface SendTransactionParams {
   toAddress: string;
   value?: string;
   callData?: string;
-  isSwap: boolean;
 }
 
 export interface SendUserOpParams {
@@ -103,6 +113,12 @@ export interface LocalAccountSigner {
   signMessage: (message: { raw: string }) => Promise<string>;
   signTypedData: (message: { raw: string }) => Promise<string>;
   getAddress: () => Promise<string>;
+}
+
+export interface SwapParams {
+  ownerScaAccountAddress: string;
+  concatHexString: string;
+  signerAddress: string;
 }
 
 // From viem: https://github.com/wevm/viem/blob/1fab6bb67fef1d274fa947ea9b088cf1285ccd1e/src/accounts/types.ts#L26-L63

@@ -1,16 +1,22 @@
 import dotenv from 'dotenv';
 import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient, createWalletClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, PrepareCallsParams, SendTransactionParams, SendUserOpParams, GetCallsStatusParams } from '../types/types.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, PrepareCallsParams, SendTransactionParams, SendUserOpParams, GetCallsStatusParams, SwapParams, Call } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 import { toHex } from 'viem';
 import { sepolia } from 'viem/chains';
 import { LocalAccountSigner } from '@aa-sdk/core';
-import { convertEthToWei } from '../utils/ethConversions.js';
-import { quote } from '../utils/quote.js';
+import { createTrade } from '../libs/uniswap/trading.js';
+import { displayTrade } from '../libs/uniswap/utils.js';
+import { CurrentConfig } from '../libs/uniswap/config.js';
+import { ethers } from 'ethers';
+import { ERC20_ABI, TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER, WETH_CONTRACT_ADDRESS, SWAP_ROUTER_ADDRESS, USDC_CONTRACT_ADDRESS } from '../libs/uniswap/constants.js';
+import { Percent } from '@uniswap/sdk-core';
+
 dotenv.config();
 
-const POLICY_ID = '<ALCHEMY_POLICY_ID>';
+const POLICY_ID = process.env.POLICY_ID;
 const CHAIN_ID = toHex(sepolia.id);
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY;
 
 export const alchemyApi = {
   
@@ -157,31 +163,29 @@ export const alchemyApi = {
   },
 
   async prepareCalls(params: PrepareCallsParams) {
-    const { ownerScaAccountAddress, concatHexString, toAddress, value, callData} = params;
-    const sentData = callData ? callData : '0x';
-    const weiValue = value ? toHex(convertEthToWei(value)) : toHex(0);
+    const { ownerScaAccountAddress, concatHexString, calls, gasParamsOverride} = params;
     
     try {
       const client = createWalletClient();
 
+      const capabilities: any = {
+        permissions: {
+          context: concatHexString
+        },
+        paymasterService: {
+          policyId: POLICY_ID
+        }
+      };
+
+      if (gasParamsOverride) {
+        capabilities.gasParamsOverride = gasParamsOverride;
+      }
+
       const response = await client.post('', {
         method: "wallet_prepareCalls",
         params: [{
-          capabilities: {
-            permissions: {
-              context: concatHexString
-            },
-            paymasterService: {
-                policyId: POLICY_ID
-            }
-          },
-          calls: [
-            {
-              to: toAddress,
-              value: weiValue,
-              data: sentData
-            }
-          ],
+          capabilities,
+          calls,
           from: ownerScaAccountAddress,
           chainId: CHAIN_ID
         }]
@@ -214,7 +218,7 @@ export const alchemyApi = {
             chainId: CHAIN_ID,
             signature: {
               type: 'ecdsa',
-              signature: userOpSignature
+              data: userOpSignature
             }
           }
         ]
@@ -244,17 +248,9 @@ export const alchemyApi = {
   },
 
   async sendTransaction(params: SendTransactionParams) {
-    const { ownerScaAccountAddress, concatHexString, signerAddress, toAddress, value, callData, isSwap } = params;
+    const { ownerScaAccountAddress, concatHexString, signerAddress, toAddress, value } = params;
     try {
-      if (isSwap) {
-        // const swapRequest = await this.prepareSwap({ownerScaAccountAddress, concatHexString, toAddress, value, callData});
-        // console.error('swapRequest', swapRequest)
-        const quoteResponse = await quote();
-        console.error('quoteResponse', quoteResponse)
-        console.error('is a swap')
-        return "is a swap"
-      }
-      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString, toAddress, value, callData});
+      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString, calls: [{to: toAddress, value: value, data: '0x0'}]});
       console.error('userOpRequest', userOpRequest)
       const rawData = userOpRequest.result.signatureRequest.data.raw;
       const response = await fetch(`http://localhost:3000/api/signer/${signerAddress}/private-key`);
@@ -277,6 +273,105 @@ export const alchemyApi = {
       return callStatus.result.receipts;
     } catch (error) {
       console.error('Error sending transaction:', error);
+      throw error;
+    }
+  },
+  
+  async swap(params: SwapParams) {
+    const { ownerScaAccountAddress, concatHexString, signerAddress } = params;
+    console.error('is a new swap')
+    try { 
+      // Create the trade
+      const trade = await createTrade();
+      const tradeDisplay = displayTrade(trade);
+
+      // Check WETH balance
+      const provider = new ethers.providers.JsonRpcProvider(`https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`);
+      const wethContract = new ethers.Contract(WETH_CONTRACT_ADDRESS, ERC20_ABI, provider);
+      const wethBalance = await wethContract.balanceOf(ownerScaAccountAddress);
+      console.error('WETH Balance:', {
+        balance: wethBalance.toString(),
+        required: trade.inputAmount.quotient.toString()
+      });
+
+      if (wethBalance < trade.inputAmount.quotient) {
+        throw new Error(`Insufficient WETH balance. Have ${wethBalance.toString()}, need ${trade.inputAmount.quotient.toString()}`);
+      }
+
+      // Check current allowance
+      const currentAllowance = await wethContract.allowance(ownerScaAccountAddress, SWAP_ROUTER_ADDRESS);
+      console.error('Current allowance:', currentAllowance.toString());
+      console.error('TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER:', TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER);
+
+      // Approve the token transfer with exact amount needed
+      const approvalInterface = new ethers.utils.Interface(ERC20_ABI);
+      const approvalEncodedData = approvalInterface.encodeFunctionData('approve', [
+        SWAP_ROUTER_ADDRESS, 
+        trade.inputAmount.quotient.toString() // Approve exact amount needed instead of TOKEN_AMOUNT_TO_APPROVE_FOR_TRANSFER
+      ]);
+     
+      const approvalCall = {
+        to: WETH_CONTRACT_ADDRESS,
+        value: '0x0',
+        data: approvalEncodedData
+      }
+
+      // Execute params
+      const swapRouterInterface = new ethers.utils.Interface([
+        'function exactInputSingle((address tokenIn, address tokenOut, uint24 fee, address recipient, uint256 amountIn, uint256 amountOutMinimum, uint160 sqrtPriceLimitX96)) external payable returns (uint256 amountOut)'
+      ]);
+
+      const executeParams = {
+        tokenIn: CurrentConfig.tokens.in.address,
+        tokenOut: CurrentConfig.tokens.out.address,
+        fee: CurrentConfig.tokens.poolFee,
+        recipient: ownerScaAccountAddress,
+        amountIn: trade.inputAmount.quotient.toString(),
+        amountOutMinimum: trade.minimumAmountOut(new Percent(1000, 10_000)).quotient.toString(), // 10% slippage
+        sqrtPriceLimitX96: 0,
+      }
+    
+      const executeEncodedData = swapRouterInterface.encodeFunctionData('exactInputSingle', [executeParams]);
+      console.error('Swap calldata:', executeEncodedData);
+      
+      const executeCall = {
+        to: SWAP_ROUTER_ADDRESS,
+        value: '0x0',
+        data: executeEncodedData
+      }
+
+      // This is where we can pass all prepared calls in.
+      const preparedCalls = [approvalCall, executeCall];
+      const userOpRequest = await this.prepareCalls({ownerScaAccountAddress, concatHexString, calls: preparedCalls});
+      console.error('userOpRequest', userOpRequest)
+      const rawData = userOpRequest.result.signatureRequest.data.raw;
+      const response = await fetch(`http://localhost:3000/api/signer/${signerAddress}/private-key`);
+      const data = await response.json();
+      const sessionPrivateKey = data.privateKey;
+      const sessionKeySigner = LocalAccountSigner.privateKeyToAccountSigner(sessionPrivateKey);
+      const userOpSignature = await sessionKeySigner.signMessage({raw: rawData});
+      const userOp = await this.sendUserOp({userOpRequest, userOpSignature, concatHexString})
+
+      if (!userOp?.result?.preparedCallIds?.[0]) {
+        const errorMsg = userOp?.error?.message || 'Unknown error';
+        throw new Error(`Failed to approve token transfer: ${errorMsg}`);
+      }
+
+      const userOpHash = userOp.result.preparedCallIds[0];
+      let callStatus;
+      while (true) {
+        callStatus = await this.getCallsStatus({userOpHash});
+        if (callStatus.result?.status === 200) {
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds
+      }
+      console.error('callStatus approval', callStatus.result.receipts)
+
+      return callStatus.result.receipts;
+
+    } catch (error) {
+      console.error('Error preparing swap:', error);
       throw error;
     }
   }

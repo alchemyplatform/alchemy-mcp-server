@@ -63,7 +63,7 @@ export const createNftClient = () => axios.create({
 
 export const createWalletClient = () => {
   const client = axios.create({
-    baseURL: `https://api.g.alchemy.com/v2/<ALCHEMY_API_KEY>`,
+    baseURL: `https://api.g.alchemy.com/v2/${API_KEY}`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json'
