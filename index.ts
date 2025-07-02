@@ -314,7 +314,6 @@ server.tool('fetchNftContractDataByMultichainAddress', {
 // || ** WALLET API ** ||
 
 // Send a transction to a specific address using the owner SCA account address and the signer address
-// 
 server.tool('sendTransaction', {
   ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
   concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
@@ -344,7 +343,6 @@ server.tool('sendTransaction', {
   })
 
 // || ** SWAP API ** ||
-
 server.tool('swap', {
   ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
   concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
