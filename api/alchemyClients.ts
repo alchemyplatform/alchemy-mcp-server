@@ -6,10 +6,10 @@ dotenv.config();
 const API_KEY = process.env.ALCHEMY_API_KEY;
 
 export const createPricesClient = () => axios.create({
-  baseURL: 'https://api.g.alchemy.com/prices/v1/tokens',
+  baseURL: `https://api.g.alchemy.com/prices/v1/${API_KEY}/tokens`,
   headers: {
     'accept': 'application/json',
-    'Authorization': `Bearer ${API_KEY}`
+    'content-type': 'application/json'
   },
 });
   
