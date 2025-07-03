@@ -21,18 +21,18 @@
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.7.0",
-    "axios": "^1.6.2",
-    "dotenv": "^16.3.1",
-    "zod": "^3.23.8"
+    "@modelcontextprotocol/sdk": "^1.14.0",
+    "axios": "^1.10.0",
+    "dotenv": "^16.6.1",
+    "zod": "^3.25.71"
   },
   "devDependencies": {
-    "@types/express": "^5.0.1",
-    "@types/node": "^20.10.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.19.4",
     "shx": "^0.4.0",
-    "ts-node": "^10.9.1",
-    "tsx": "^4.19.3",
-    "typescript": "^5.3.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   },
   "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6"
 }
