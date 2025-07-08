@@ -4,7 +4,7 @@ import { ethers } from 'ethers'
 
 import { CurrentConfig } from './config.js'
 import { POOL_FACTORY_CONTRACT_ADDRESS } from './constants.js'
-import { getMainnetProvider, getProvider } from './providers.js'    
+import { getMainnetProvider } from './providers.js'    
 
 interface PoolInfo {
   token0: string
@@ -18,8 +18,6 @@ interface PoolInfo {
 
 export async function getPoolInfo(): Promise<PoolInfo> {
   console.error('Getting pool info')
-    // Just Alchemy RPC provider for sepolia. Probably don't need if we don't use wallet functions.
-//   const provider = getProvider() 
   const provider = getMainnetProvider()
   if (!provider) {
     throw new Error('No provider')
