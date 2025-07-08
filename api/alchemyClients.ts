@@ -4,12 +4,14 @@ import axios from 'axios';
 dotenv.config();
 
 const API_KEY = process.env.ALCHEMY_API_KEY;
+const BREADCRUMB_HEADER = "alchemy-mcp"
 
 export const createPricesClient = () => axios.create({
-  baseURL: 'https://api.g.alchemy.com/prices/v1/tokens',
+  baseURL: `https://api.g.alchemy.com/prices/v1/${API_KEY}/tokens`,
   headers: {
     'accept': 'application/json',
-    'Authorization': `Bearer ${API_KEY}`
+    'content-type': 'application/json',
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
   
@@ -18,6 +20,7 @@ export const createMultiChainTokenClient = () => axios.create({
   headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
 
@@ -26,6 +29,7 @@ export const createMultiChainTransactionHistoryClient = () => axios.create({
   headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
 
@@ -35,7 +39,8 @@ export const createAlchemyJsonRpcClient = (network = 'eth-mainnet') => {
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
+      'Authorization': `Bearer ${API_KEY}`,
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
     }
   });
   
@@ -58,6 +63,7 @@ export const createNftClient = () => axios.create({
   headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
 

@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server that enables AI agents to interact with Alchemy's blockchain APIs in a structured way. This allows agents to query blockchain data directly without writing any code.
 
+<a href="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server/badge" alt="Alchemy Server MCP server" />
+</a>
+
 ## General Usage
 
 This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs, allowing agents to:
