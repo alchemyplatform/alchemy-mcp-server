@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/alchemyplatform-alchemy-mcp-server-badge.png)](https://mseep.ai/app/alchemyplatform-alchemy-mcp-server)
+
 # Alchemy MCP Server
 
 A Model Context Protocol (MCP) server that enables AI agents to interact with Alchemy's blockchain APIs in a structured way. This allows agents to query blockchain data directly without writing any code.
