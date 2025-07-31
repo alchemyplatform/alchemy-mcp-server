@@ -6,3 +6,4 @@ dist/
 .cursor/
 tests/
 .claude/
+CLAUDE.md

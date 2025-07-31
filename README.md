@@ -9,11 +9,13 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with Al
 ## General Usage
 
 This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs, allowing agents to:
-- Query token prices and price history
-- Get NFT ownership information
-- View transaction history
+- Query token prices and price history (including flexible time frame queries)
+- Get NFT ownership information and contract data
+- View transaction history across multiple networks
 - Check token balances across multiple blockchain networks
-- Retrieve asset transfers
+- Retrieve detailed asset transfers with filtering
+- Send transactions via Smart Contract Accounts (**requires configured wallet agent server**)
+- Execute token swaps via DEX protocols (**requires configured wallet agent server**)
 - And more!
 
 ### Quick Setup
@@ -39,6 +41,18 @@ To quickly set up the MCP server, use the following configuration in your MCP co
 
 This configuration allows you to use the server without manually cloning the repository.
 
+### Environment Variables
+
+The MCP server requires the following environment variable:
+
+- `ALCHEMY_API_KEY` - Your Alchemy API key (required for all blockchain data queries)
+
+**For transaction and swap functionality**, you must also configure:
+
+- `AGENT_WALLET_SERVER` - URL of a configured wallet agent server that handles Smart Contract Account operations
+
+⚠️ **Important**: The `sendTransaction` and `swap` methods will not function without a properly configured wallet agent server. These methods require external wallet infrastructure to handle signing and broadcasting transactions.
+
 ## Available Methods
 
 You can prompt your AI agent to use the following methods:
@@ -54,34 +68,52 @@ You can prompt your AI agent to use the following methods:
    - Example: "What's the price of the token at address 0x1234...5678 on Ethereum mainnet?"
 
 3. **fetchTokenPriceHistoryBySymbol**
-   - Gets historical price data for tokens
+   - Gets historical price data for tokens with specific date ranges
    - Example: "Show me BTC price history from Jan 1 to Feb 1, 2023, with daily intervals"
+
+4. **fetchTokenPriceHistoryByTimeFrame**
+   - Gets historical price data using flexible time frames or natural language
+   - Example: "Show me ETH price for the last week" or "Get BTC price for the past 30 days"
 
 ### Multichain Token Methods
 
-4. **fetchTokensOwnedByMultichainAddresses**
+5. **fetchTokensOwnedByMultichainAddresses**
    - Gets token balances for addresses across multiple networks
    - Example: "What tokens does 0xabc...123 hold on Ethereum and Base?"
 
 ### Transaction History Methods
 
-5. **fetchMultichainWalletAddressTransactionHistory**
+6. **fetchAddressTransactionHistory**
    - Gets transaction history for addresses across multiple networks
    - Example: "Show recent transactions for wallet 0xdef...456 on Ethereum"
 
-6. **fetchTransfers**
-   - Gets token transfer data for addresses
+7. **fetchTransfers**
+   - Gets detailed asset transfer data with advanced filtering options
    - Example: "Show me all ERC-20 transfers to or from 0xghi...789"
 
 ### NFT Methods
 
-7. **fetchNftsOwnedByMultichainAddresses**
-   - Gets all NFTs owned by addresses
+8. **fetchNftsOwnedByMultichainAddresses**
+   - Gets all NFTs owned by addresses with spam filtering
    - Example: "What NFTs does 0xjkl...012 own?"
 
-8. **fetchNftContractDataByMultichainAddress**
+9. **fetchNftContractDataByMultichainAddress**
    - Gets NFT contract data for addresses
    - Example: "What NFT collections does 0xmno...345 have tokens from?"
+
+### Transaction Methods
+
+10. **sendTransaction**
+    - Sends transactions via Smart Contract Accounts
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - Example: "Send 0.1 ETH to 0xpqr...678"
+
+### Swap Methods
+
+11. **swap**
+    - Executes token swaps via DEX protocols (Uniswap)
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - Example: "Swap 100 USDC for ETH"
 
 ## Local Development and Open Source Contributions
 
@@ -101,14 +133,13 @@ pnpm install
 ### Development
 
 ```bash
-pnpm dev
+pnpm watch
 ```
 
 ### Building for Production
 
 ```bash
 pnpm build
-pnpm start
 ```
 
 ### Using the MCP Inspector for Debugging
@@ -144,9 +175,15 @@ Show me the NFTs owned by the wallet 0x1234...5678 on Ethereum.
 
 What tokens does wallet 0xabcd...6789 hold across Ethereum and Base?
 
-Get me the transaction history for 0x9876...5432 from the last week.
+Get me the transaction history for 0x9876...5432.
 
 Show me the price history of Ethereum from January 1st to today with daily intervals.
+
+Get me Bitcoin price data for the last week with hourly intervals.
+
+Show me ETH price performance for the past month.
+
+What ERC-20 transfers happened to address 0x1234...5678 in the last 100 blocks?
 ```
 
 ## API Reference
