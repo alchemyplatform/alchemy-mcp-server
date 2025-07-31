@@ -313,10 +313,9 @@ server.tool('fetchNftContractDataByMultichainAddress', {
 
 // || ** WALLET API ** ||
 
-// Send a transction to a specific address using the owner SCA account address and the signer address
+// Send a transaction to a specific address using the owner SCA account address and the signer address
 server.tool('sendTransaction', {
   ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
-  concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
   signerAddress: z.string().describe('The signer address to send the transaction from.'),
   toAddress: z.string().describe('The address to send the transaction to.'),
   value: z.string().optional().describe('The value of the transaction in ETH.'),
@@ -329,7 +328,7 @@ server.tool('sendTransaction', {
       };
     } catch (error) {
       if (error instanceof Error) {
-        console.error('Error in prepareCallsForTransaction:', error);
+        console.error('Error in sendTransaction:', error);
         return {
           content: [{ type: "text", text: `Error: ${error.message}` }],
           isError: true
@@ -345,13 +344,26 @@ server.tool('sendTransaction', {
 // || ** SWAP API ** ||
 server.tool('swap', {
   ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
-  concatHexString: z.string().describe('The concat hex string (session id, session signature from owner SCA account address).'),
   signerAddress: z.string().describe('The signer address to send the transaction from.')
 }, async (params) => {
-  const result = await alchemyApi.swap(params);
-  return {
-    content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-  };
+  try {
+    const result = await alchemyApi.swap(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in swap:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
 });
 
 async function runServer() {
