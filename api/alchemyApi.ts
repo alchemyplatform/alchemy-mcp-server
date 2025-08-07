@@ -153,7 +153,7 @@ export const alchemyApi = {
   async sendTransaction(params: SendTransactionParams) {
     const { ownerScaAccountAddress, signerAddress, toAddress, value, callData } = params;
     try {
-      const response = await fetch(`${AGENT_WALLET_SERVER}/api/transactions/send`, {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,8 +182,9 @@ export const alchemyApi = {
   
   async swap(params: SwapParams) {
     const { ownerScaAccountAddress, signerAddress } = params;
+    console.error('SWAPPING TOKENS');
     try {
-      const response = await fetch(`${AGENT_WALLET_SERVER}/api/transactions/swap`, {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/swap`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -193,6 +194,8 @@ export const alchemyApi = {
           signerAddress
         })
       });
+
+      console.error('SWAPPING TOKENS RESPONSE', response);
 
       if (!response.ok) {
         const errorData = await response.json();
