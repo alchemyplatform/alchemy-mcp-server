@@ -9,7 +9,7 @@ import { convertWeiToEth } from './utils/ethConversions.js';
 import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
 const server = new McpServer({
   name: "alchemy-mcp-server",
-  version: "0.1.0",
+  version: "0.2.0-rc.0",
 });
 
 // || ** PRICES API ** ||
