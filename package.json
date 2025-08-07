@@ -22,24 +22,14 @@
     "test": "node --test tests/*.test.ts --loader=tsx/esm"
   },
   "dependencies": {
-    "@aa-sdk/core": "^4.36.0",
     "@modelcontextprotocol/sdk": "^1.14.0",
-    "@uniswap/sdk-core": "^7.7.2",
-    "@uniswap/v3-core": "^1.0.1",
-    "@uniswap/v3-periphery": "^1.4.4",
-    "@uniswap/v3-sdk": "^3.25.2",
     "axios": "^1.10.0",
     "dotenv": "^16.6.1",
-    "ethers": "5.7.2",
-    "jsbi": "^3.1.4",
-    "viem": "^2.30.4",
     "zod": "^3.25.71"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
     "@types/node": "^20.19.4",
     "shx": "^0.4.0",
-    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },
