@@ -66,3 +66,29 @@ export const createNftClient = () => axios.create({
       'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
+
+export const createWalletClient = () => {
+  const client = axios.create({
+    baseURL: `https://api.g.alchemy.com/v2/${API_KEY}`,
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json'
+    }
+  });
+  
+  client.interceptors.request.use((config) => {
+    if (config.method === 'post') {
+      if (config.data && config.data.method) {
+        config.data = {
+          id: 1,
+          jsonrpc: "2.0",
+          method: config.data.method,
+          params: config.data.params
+        };
+      }
+    }
+    return config;
+  });
+  
+  return client;
+};

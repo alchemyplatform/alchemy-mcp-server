@@ -68,6 +68,21 @@ export interface NftContractsByAddressParams {
   withMetadata: boolean;
 }
 
+// || ** Wallet API ** ||
+
+export interface SendTransactionParams {
+  ownerScaAccountAddress: string;
+  signerAddress: string;
+  toAddress: string;
+  value?: string;
+  callData?: string;
+}
+
+export interface SwapParams {
+  ownerScaAccountAddress: string;
+  signerAddress: string;
+}
+
 // || ** Utils ** ||
 
 export interface AddressPair {

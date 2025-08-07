@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "esnext",
+    "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["index.ts", "api", "types", "utils"],
+  "include": ["index.ts", "api", "types", "utils", "libs"],
   "exclude": ["node_modules", "dist"]
 }

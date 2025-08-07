@@ -5,11 +5,11 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import { alchemyApi } from './api/alchemyApi.js';
 import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
-import { convertWeiToEth } from './utils/convertWeiToEth.js';
+import { convertWeiToEth } from './utils/ethConversions.js';
 import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
 const server = new McpServer({
   name: "alchemy-mcp-server",
-  version: "0.1.0",
+  version: "0.2.0-rc.0",
 });
 
 // || ** PRICES API ** ||
@@ -299,6 +299,61 @@ server.tool('fetchNftContractDataByMultichainAddress', {
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error in getNftContractsByAddress:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// || ** WALLET API ** ||
+
+// Send a transaction to a specific address using the owner SCA account address and the signer address
+server.tool('sendTransaction', {
+  ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+  signerAddress: z.string().describe('The signer address to send the transaction from.'),
+  toAddress: z.string().describe('The address to send the transaction to.'),
+  value: z.string().optional().describe('The value of the transaction in ETH.'),
+  callData: z.string().optional().describe('The data of the transaction.'),
+  }, async (params) => {
+    try {
+      const result = await alchemyApi.sendTransaction(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error in sendTransaction:', error);
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: 'Unknown error occurred' }],
+        isError: true
+      };
+    }
+  })
+
+// || ** SWAP API ** ||
+server.tool('swap', {
+  ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+  signerAddress: z.string().describe('The signer address to send the transaction from.')
+}, async (params) => {
+  try {
+    const result = await alchemyApi.swap(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in swap:', error);
       return {
         content: [{ type: "text", text: `Error: ${error.message}` }],
         isError: true

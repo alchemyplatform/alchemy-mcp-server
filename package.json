@@ -1,6 +1,6 @@
 {
   "name": "@alchemy/mcp-server",
-  "version": "0.1.8",
+  "version": "0.2.0-rc.0",
   "description": "MCP server for using Alchemy APIs",
   "license": "MIT",
   "author": "Alchemy, (https://www.alchemy.com)",
@@ -18,7 +18,8 @@
     "build": "tsc && shx chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "test": "node --test tests/*.test.ts --loader=tsx/esm"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.14.0",
@@ -27,10 +28,8 @@
     "zod": "^3.25.71"
   },
   "devDependencies": {
-    "@types/express": "^5.0.3",
     "@types/node": "^20.19.4",
     "shx": "^0.4.0",
-    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },

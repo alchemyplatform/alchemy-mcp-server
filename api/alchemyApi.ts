@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
-import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair } from '../types/types.js';
-import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 dotenv.config();
+import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
+import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
+
+const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
 
 export const alchemyApi = {
   
@@ -146,5 +148,67 @@ export const alchemyApi = {
       console.error('Error fetching NFT contracts by address:', error);
       throw error;
     }
+  },
+
+  async sendTransaction(params: SendTransactionParams) {
+    const { ownerScaAccountAddress, signerAddress, toAddress, value, callData } = params;
+    try {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerScaAccountAddress,
+          signerAddress,
+          toAddress,
+          value,
+          callData
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+      throw error;
+    }
+  },
+  
+  async swap(params: SwapParams) {
+    const { ownerScaAccountAddress, signerAddress } = params;
+    console.error('SWAPPING TOKENS');
+    try {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/swap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerScaAccountAddress,
+          signerAddress
+        })
+      });
+
+      console.error('SWAPPING TOKENS RESPONSE', response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error in swap:', error);
+      throw error;
+    }
   }
 };
+
+
