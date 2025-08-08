@@ -19,15 +19,18 @@
     "prepare": "npm run build",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "serve:http": "MCP_TRANSPORT=http HOST=127.0.0.1 PORT=3000 node dist/index.js",
     "test": "node --test tests/*.test.ts --loader=tsx/esm"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.14.0",
+    "@modelcontextprotocol/sdk": "^1.17.2",
     "axios": "^1.10.0",
     "dotenv": "^16.6.1",
+    "express": "^5.1.0",
     "zod": "^3.25.71"
   },
   "devDependencies": {
+    "@types/express": "^5.0.3",
     "@types/node": "^20.19.4",
     "shx": "^0.4.0",
     "tsx": "^4.20.3",

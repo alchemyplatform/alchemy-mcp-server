@@ -156,6 +156,42 @@ This will start the MCP Inspector which you can access in your browser. It allow
 - View the response data
 - Debug issues with your MCP server
 
+### Transports
+
+By default, the server runs over stdio. You can also run it over Streamable HTTP for compatible clients.
+
+- Stdio (default):
+
+  ```bash
+  node dist/index.js
+  ```
+
+- Streamable HTTP:
+
+  ```bash
+  # after building
+  MCP_TRANSPORT=http HOST=127.0.0.1 PORT=3000 node dist/index.js
+  # or
+  pnpm serve:http
+  ```
+
+  - HOST: Host to bind (default: `127.0.0.1`). To listen externally, set `HOST=0.0.0.0` explicitly.
+  - PORT: Port to listen (default: `3000`).
+  - MCP_HTTP_PATH: MCP endpoint path (default: `/mcp`).
+  - ALLOWED_ORIGINS: Optional comma-separated list of allowed origins in addition to the defaults.
+
+Security note (DNS rebinding mitigation):
+- The HTTP server binds to `127.0.0.1` by default and validates the `Origin` header for `GET`/`POST` to the MCP path. Allowed origins include:
+  - no Origin header
+  - `http://localhost:<PORT>`
+  - `http://127.0.0.1:<PORT>`
+  - any additional origins declared in `ALLOWED_ORIGINS`
+  Requests with disallowed `Origin` receive `403`.
+
+References:
+- MCP Streamable HTTP spec: [Model Context Protocol: Streamable HTTP](https://modelcontextprotocol.io/specification/2025-06-18/basic/transports#streamable-http)
+- TypeScript SDK README: [Streamable HTTP](https://github.com/modelcontextprotocol/typescript-sdk?tab=readme-ov-file#streamable-http)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
