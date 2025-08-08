@@ -7,19 +7,19 @@
   "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
   "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/api/index.js",
   "bin": {
-    "mcp-server-alchemy": "dist/index.js"
+    "mcp-server-alchemy": "dist/api/index.js"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc && shx chmod +x dist/*.js",
+    "build": "tsc && shx chmod +x dist/api/index.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "serve:http": "MCP_TRANSPORT=http HOST=127.0.0.1 PORT=3000 node dist/index.js",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/api/index.js",
+    "serve:http": "MCP_TRANSPORT=http HOST=127.0.0.1 PORT=3000 node dist/api/index.js",
     "test": "node --test tests/*.test.ts --loader=tsx/esm"
   },
   "dependencies": {
