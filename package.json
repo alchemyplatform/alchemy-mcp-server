@@ -7,7 +7,7 @@
   "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
   "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
-  "main": "dist/index.js",
+  "main": "index.js",
   "bin": {
     "mcp-server-alchemy": "dist/index.js"
   },
