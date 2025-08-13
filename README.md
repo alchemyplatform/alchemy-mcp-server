@@ -27,10 +27,7 @@ To quickly set up the MCP server, use the following configuration in your MCP co
   "mcpServers": {
     "alchemy": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@alchemy/mcp-server"
-      ],
+      "args": ["-y", "@alchemy/mcp-server"],
       "env": {
         "ALCHEMY_API_KEY": "YOUR_API_KEY"
       }
@@ -40,6 +37,27 @@ To quickly set up the MCP server, use the following configuration in your MCP co
 ```
 
 This configuration allows you to use the server without manually cloning the repository.
+
+### Starting with different transports
+
+By default the server starts with stdio transport. You can explicitly choose transports:
+
+```bash
+# stdio (default)
+npx -y @alchemy/mcp-server --stdio
+
+# http transport (streamable HTTP)
+PORT=3000 HOST=127.0.0.1 npx -y @alchemy/mcp-server --http
+
+# or using --transport flag
+npx -y @alchemy/mcp-server --transport=http
+```
+
+HTTP options via env:
+- `PORT` (default: 3000)
+- `HOST` (default: 127.0.0.1)
+- `ENABLE_DNS_REBINDING_PROTECTION` (default: false)
+- `ALLOWED_HOSTS` comma-separated list (default: HOST)
 
 ### Environment Variables
 
@@ -133,7 +151,11 @@ pnpm install
 ### Development
 
 ```bash
-pnpm watch
+# stdio development (hot reload)
+pnpm dev:stdio
+
+# http development (hot reload)
+pnpm dev:http
 ```
 
 ### Building for Production
@@ -147,7 +169,11 @@ pnpm build
 The MCP Inspector helps you debug your MCP server by providing a visual interface to test your methods:
 
 ```bash
+# stdio
 pnpm inspector
+
+# http
+pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3000
 ```
 
 This will start the MCP Inspector which you can access in your browser. It allows you to:

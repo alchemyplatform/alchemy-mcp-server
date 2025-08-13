@@ -12,6 +12,6 @@
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["index.ts", "api", "types", "utils", "libs"],
+  "include": ["index.ts", "server.ts", "api", "types", "utils", "libs"],
   "exclude": ["node_modules", "dist"]
 }
