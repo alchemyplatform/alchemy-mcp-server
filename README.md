@@ -18,16 +18,16 @@ This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs
 - Execute token swaps via DEX protocols (**requires configured wallet agent server**)
 - And more!
 
-### Quick Setup
+### Quick Setup (npm, stdio only)
 
-To quickly set up the MCP server, use the following configuration in your MCP config file (typically in Claude Desktop or Cursor settings):
+To set up the MCP server via npm, add this to your MCP config (Claude Desktop or Cursor):
 
 ```json
 {
   "mcpServers": {
     "alchemy": {
       "command": "npx",
-      "args": ["-y", "@alchemy/mcp-server"],
+      "args": ["-y", "mcp-server-alchemy"],
       "env": {
         "ALCHEMY_API_KEY": "YOUR_API_KEY"
       }
@@ -36,25 +36,22 @@ To quickly set up the MCP server, use the following configuration in your MCP co
 }
 ```
 
-This configuration allows you to use the server without manually cloning the repository.
+This uses the npm package and runs over stdio. HTTP transport is not exposed via the npm package.
 
-### Starting with different transports
+### HTTP transport (development and remote hosting from source)
 
-By default the server starts with stdio transport. You can explicitly choose transports:
+For development and remote hosting, use the HTTP transport from the source repo:
 
 ```bash
-# stdio (default)
-npx -y @alchemy/mcp-server --stdio
+# Development
+pnpm dev:http
 
-# http transport (streamable HTTP)
-PORT=3000 HOST=127.0.0.1 npx -y @alchemy/mcp-server --http
-
-# or using --transport flag
-npx -y @alchemy/mcp-server --transport=http
+# Build and run HTTP server from source (for remote hosting)
+pnpm build && node dist/http.js
 ```
 
 HTTP options via env:
-- `PORT` (default: 3000)
+- `PORT` (default: 3001)
 - `HOST` (default: 127.0.0.1)
 - `ENABLE_DNS_REBINDING_PROTECTION` (default: false)
 - `ALLOWED_HOSTS` comma-separated list (default: HOST)
@@ -169,11 +166,11 @@ pnpm build
 The MCP Inspector helps you debug your MCP server by providing a visual interface to test your methods:
 
 ```bash
-# stdio
+# stdio (npm-compatible)
 pnpm inspector
 
-# http
-pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3000
+# http (from source)
+pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3001
 ```
 
 This will start the MCP Inspector which you can access in your browser. It allows you to:
