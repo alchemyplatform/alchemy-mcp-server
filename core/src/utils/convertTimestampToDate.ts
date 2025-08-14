@@ -3,4 +3,5 @@ export function convertTimestampToDate(unixTimestamp: number) {
     const humanReadableDate = date.toLocaleString();
   
     return humanReadableDate;
-  }
+}
+

@@ -1,0 +1,34 @@
+{
+  "name": "@alchemy/mcp-server",
+  "version": "0.2.0-rc.0",
+  "description": "MCP stdio server for using Alchemy APIs",
+  "license": "MIT",
+  "author": "Alchemy, (https://www.alchemy.com)",
+  "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
+  "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
+  "type": "module",
+  "bin": {
+    "mcp-server-alchemy": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.14.0",
+    "axios": "^1.10.0",
+    "dotenv": "^16.6.1",
+    "zod": "^3.25.71"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.8.3",
+    "tsx": "^4.20.3",
+    "@types/node": "^20.19.4"
+  }
+}
+

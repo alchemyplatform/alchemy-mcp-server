@@ -7,3 +7,4 @@ export function convertEthToWei(eth: string) {
     const wei = BigInt(Math.floor(parseFloat(eth) * (10 ** 18)));
     return wei;
 }
+

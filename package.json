@@ -1,47 +1,22 @@
 {
-  "name": "@alchemy/mcp-server",
-  "version": "0.2.0-rc.0",
-  "description": "MCP server for using Alchemy APIs",
+  "name": "alchemy-mcp",
+  "private": true,
+  "description": "Alchemy MCP monorepo with core logic and transport entrypoints (HTTP, stdio)",
   "license": "MIT",
   "author": "Alchemy, (https://www.alchemy.com)",
   "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
   "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
-  "main": "dist/cli.js",
-  "bin": {
-    "mcp-server-alchemy": "dist/cli.js"
-  },
-  "files": [
-    "dist/cli.js",
-    "dist/server.js",
-    "dist/api",
-    "dist/utils",
-    "dist/types"
+  "workspaces": [
+    "core",
+    "transports/*"
   ],
   "scripts": {
-    "build": "tsc && shx chmod +x dist/*.js",
-    "prepare": "npm run build",
-    "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector node dist/cli.js",
-    "dev:stdio": "tsx watch cli.ts",
-    "dev:http": "PORT=3001 HOST=127.0.0.1 tsx watch http.ts",
-    "start:http": "node dist/http.js",
-    "start:stdio": "node dist/cli.js",
-    "test": "node --test tests/*.test.ts --loader=tsx/esm"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.14.0",
-    "axios": "^1.10.0",
-    "express": "^5",
-    "dotenv": "^16.6.1",
-    "zod": "^3.25.71"
-  },
-  "devDependencies": {
-    "@types/node": "^20.19.4",
-    "@types/express": "^5",
-    "shx": "^0.4.0",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "build": "pnpm -r build",
+    "dev:stdio": "pnpm --filter @alchemy/mcp-server dev",
+    "dev:http": "pnpm --filter ./transports/http dev",
+    "inspector:stdio": "pnpm --filter @alchemy/mcp-server inspector",
+    "inspector:http": "pnpm --filter ./transports/http inspector"
   },
   "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6"
 }

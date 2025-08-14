@@ -1,30 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { readFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { alchemyApi } from './api/alchemyApi.js';
 import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
 import { convertWeiToEth } from './utils/ethConversions.js';
 import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
 
-function resolveVersion(): string {
-  if (process.env.SERVER_VERSION) return process.env.SERVER_VERSION;
-  try {
-    const currentDir = dirname(fileURLToPath(import.meta.url));
-    // dist/server.js -> project package.json
-    const pkgPath = resolve(currentDir, "../package.json");
-    const raw = readFileSync(pkgPath, "utf-8");
-    const parsed = JSON.parse(raw);
-    return parsed.version || "0.0.0";
-  } catch {
-    return "0.0.0";
-  }
-}
-
-const version: string = resolveVersion();
-
-export function createServer(): McpServer {
+export function createServer(version: string = "0.0.0"): McpServer {
   const server = new McpServer({
     name: "alchemy-mcp-server",
     version,

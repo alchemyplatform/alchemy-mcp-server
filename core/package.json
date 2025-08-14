@@ -1,0 +1,25 @@
+{
+  "name": "@alchemy/mcp-core",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared core logic for Alchemy MCP server (not published)",
+  "type": "module",
+  "main": "dist/index.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b",
+    "prepare": "tsc -b",
+    "dev": "tsx watch src/server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.14.0",
+    "axios": "^1.10.0",
+    "dotenv": "^16.6.1",
+    "zod": "^3.25.71"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^20.19.4"
+  }
+}
+
