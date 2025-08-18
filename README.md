@@ -2,6 +2,7 @@
 
 A Model Context Protocol (MCP) server that enables AI agents to interact with Alchemy's blockchain APIs in a structured way. This allows agents to query blockchain data directly without writing any code.
 
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/alchemyplatform/alchemy-mcp-server)](https://archestra.ai/mcp-catalog/alchemyplatform__alchemy-mcp-server)
 <a href="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server/badge" alt="Alchemy Server MCP server" />
 </a>
