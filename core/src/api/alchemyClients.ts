@@ -3,43 +3,63 @@ import axios from 'axios';
 
 dotenv.config();
 
-const API_KEY = process.env.ALCHEMY_API_KEY;
 const BREADCRUMB_HEADER = "alchemy-mcp"
 
-export const createPricesClient = () => axios.create({
-  baseURL: `https://api.g.alchemy.com/prices/v1/${API_KEY}/tokens`,
-  headers: {
-    'accept': 'application/json',
-    'content-type': 'application/json',
-    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
-  },
-});
+// Helper to resolve API key (from parameter or environment)
+const resolveApiKey = (apiKey?: string): string => {
+  if (apiKey) return apiKey;
   
-export const createMultiChainTokenClient = () => axios.create({
-  baseURL: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/tokens`,
-  headers: {
-      'accept': 'application/json',
-      'content-type': 'application/json',
-      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
-  },
-});
+  const envApiKey = process.env.ALCHEMY_API_KEY;
+  if (!envApiKey) {
+    throw new Error('ALCHEMY_API_KEY not found in environment variables');
+  }
+  return envApiKey;
+};
 
-export const createMultiChainTransactionHistoryClient = () => axios.create({
-  baseURL: `https://api.g.alchemy.com/data/v1/${API_KEY}/transactions/history`,
-  headers: {
-      'accept': 'application/json',
-      'content-type': 'application/json',
-      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
-  },
-});
-
-export const createAlchemyJsonRpcClient = (network = 'eth-mainnet') => {
-  const client = axios.create({
-    baseURL: `https://${network}.g.alchemy.com/v2/${API_KEY}`,
+export const createPricesClient = (apiKey?: string) => {
+  const key = resolveApiKey(apiKey);
+  return axios.create({
+    baseURL: `https://api.g.alchemy.com/prices/v1/${key}/tokens`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`,
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+    },
+  });
+};
+  
+export const createMultiChainTokenClient = (apiKey?: string) => {
+  const key = resolveApiKey(apiKey);
+  return axios.create({
+    baseURL: `https://api.g.alchemy.com/data/v1/${key}/assets/tokens`,
+    headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+    },
+  });
+};
+
+export const createMultiChainTransactionHistoryClient = (apiKey?: string) => {
+  const key = resolveApiKey(apiKey);
+  return axios.create({
+    baseURL: `https://api.g.alchemy.com/data/v1/${key}/transactions/history`,
+    headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+    },
+  });
+};
+
+export const createAlchemyJsonRpcClient = (apiKey?: string, network = 'eth-mainnet') => {
+  const key = resolveApiKey(apiKey);
+  const client = axios.create({
+    baseURL: `https://${network}.g.alchemy.com/v2/${key}`,
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'Authorization': `Bearer ${key}`,
       'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
     }
   });
@@ -58,18 +78,22 @@ export const createAlchemyJsonRpcClient = (network = 'eth-mainnet') => {
   return client;
 };
 
-export const createNftClient = () => axios.create({
-  baseURL: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/nfts`,
-  headers: {
-      'accept': 'application/json',
-      'content-type': 'application/json',
-      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
-  },
-});
+export const createNftClient = (apiKey?: string) => {
+  const key = resolveApiKey(apiKey);
+  return axios.create({
+    baseURL: `https://api.g.alchemy.com/data/v1/${key}/assets/nfts`,
+    headers: {
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+    },
+  });
+};
 
-export const createWalletClient = () => {
+export const createWalletClient = (apiKey?: string) => {
+  const key = resolveApiKey(apiKey);
   const client = axios.create({
-    baseURL: `https://api.g.alchemy.com/v2/${API_KEY}`,
+    baseURL: `https://api.g.alchemy.com/v2/${key}`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json'

@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      tsx:
+        specifier: ^4.20.3
+        version: 4.20.4
 
   core:
     dependencies:
@@ -26,6 +30,9 @@ importers:
       '@types/node':
         specifier: ^20.19.4
         version: 20.19.10
+      tsx:
+        specifier: ^4.20.3
+        version: 4.20.4
       typescript:
         specifier: ^5.8.3
         version: 5.9.2
@@ -60,6 +67,9 @@ importers:
 
   transports/stdio:
     dependencies:
+      '@alchemy/mcp-core':
+        specifier: workspace:*
+        version: link:../../core
       '@modelcontextprotocol/sdk':
         specifier: ^1.14.0
         version: 1.17.3

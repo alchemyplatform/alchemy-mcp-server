@@ -1,6 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
+import { 
+  createPricesClient, 
+  createMultiChainTokenClient, 
+  createMultiChainTransactionHistoryClient, 
+  createAlchemyJsonRpcClient, 
+  createNftClient
+} from './alchemyClients.js';
 import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 
@@ -8,9 +14,9 @@ const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
 
 export const alchemyApi = {
   
-  async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
+  async getTokenPriceBySymbol(params: TokenPriceBySymbol, apiKey?: string) {
     try {
-      const client = createPricesClient();
+      const client = createPricesClient(apiKey);
       
       const queryParams = new URLSearchParams();
       params.symbols.forEach(symbol => {
@@ -26,9 +32,9 @@ export const alchemyApi = {
     }
   },
   
-  async getTokenPriceByAddress(params: TokenPriceByAddress) {
+  async getTokenPriceByAddress(params: TokenPriceByAddress, apiKey?: string) {
     try {
-      const client = createPricesClient();
+      const client = createPricesClient(apiKey);
       
       const response = await client.post('/by-address', {
         addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
@@ -45,10 +51,10 @@ export const alchemyApi = {
     }
   },
   
-  async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
+  async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol, apiKey?: string) {
     console.log('Fetching token price history for symbol:', params.symbol);
     try {
-      const client = createPricesClient();
+      const client = createPricesClient(apiKey);
       
       const response = await client.post('/historical', {
         ...params
@@ -62,9 +68,9 @@ export const alchemyApi = {
     }
   },
   
-  async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
+  async getTokensByMultichainAddress(params: MultiChainTokenByAddress, apiKey?: string) {
     try {
-      const client = createMultiChainTokenClient();
+      const client = createMultiChainTokenClient(apiKey);
       
       const response = await client.post('/by-address', {
         addresses: params.addresses.map((pair: AddressPair) => ({
@@ -81,10 +87,10 @@ export const alchemyApi = {
     }
   },
   
-  async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
+  async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress, apiKey?: string) {
     try {
       const { addresses, ...otherParams } = params;
-      const client = createMultiChainTransactionHistoryClient();
+      const client = createMultiChainTransactionHistoryClient(apiKey);
       
       const response = await client.post('/by-address', {
         addresses: params.addresses.map((pair: AddressPair) => ({
@@ -101,10 +107,10 @@ export const alchemyApi = {
     }
   },
 
-  async getAssetTransfers(params: AssetTransfersParams) {
+  async getAssetTransfers(params: AssetTransfersParams, apiKey?: string) {
     const { network, ...otherParams } = params;
     try {
-      const client = createAlchemyJsonRpcClient(network);
+      const client = createAlchemyJsonRpcClient(apiKey, network);
       
       const response = await client.post('', {
         method: "alchemy_getAssetTransfers",
@@ -120,9 +126,9 @@ export const alchemyApi = {
     }
   },
 
-  async getNftsForAddress(params: NftsByAddressParams) {
+  async getNftsForAddress(params: NftsByAddressParams, apiKey?: string) {
     try {
-      const client = createNftClient();
+      const client = createNftClient(apiKey);
       
       const response = await client.post('/by-address', { 
         ...params
@@ -135,9 +141,9 @@ export const alchemyApi = {
     }
   },
 
-  async getNftContractsByAddress(params: NftContractsByAddressParams) {
+  async getNftContractsByAddress(params: NftContractsByAddressParams, apiKey?: string) {
     try {
-      const client = createNftClient();
+      const client = createNftClient(apiKey);
       
       const response = await client.post('/by-address', {
         ...params

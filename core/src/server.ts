@@ -5,7 +5,11 @@ import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
 import { convertWeiToEth } from './utils/ethConversions.js';
 import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
 
-export function createServer(version: string = "0.0.0"): McpServer {
+interface ServerContext {
+  apiKey?: string;
+}
+
+export function createServer(version: string = "0.0.0", context?: ServerContext): McpServer {
   const server = new McpServer({
     name: "alchemy-mcp-server",
     version,
@@ -17,7 +21,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     symbols: z.array(z.string()).describe('A list of blockchaintoken symbols to query. e.g. ["BTC", "ETH"]'),
   }, async (params) => {
     try {
-      const result = await alchemyApi.getTokenPriceBySymbol(params);
+      const result = await alchemyApi.getTokenPriceBySymbol(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -44,7 +48,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     })).describe('A list of token contract address and network pairs'),
   }, async (params) => {
     try {
-      const result = await alchemyApi.getTokenPriceByAddress(params);
+      const result = await alchemyApi.getTokenPriceByAddress(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -75,7 +79,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
         ...params,
         startTime: toISO8601(params.startTime),
         endTime: toISO8601(params.endTime)
-      });
+      }, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -112,7 +116,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
         startTime: startDate,
         endTime: endDate,
         interval: params.interval
-      });
+      }, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -139,7 +143,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     })).describe('A list of wallet address and network pairs'),
   }, async (params) => {
     try {
-      const result = await alchemyApi.getTokensByMultichainAddress(params);
+      const result = await alchemyApi.getTokensByMultichainAddress(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -169,7 +173,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100')
   }, async (params) => {  
     try {
-      let result = await alchemyApi.getTransactionHistoryByMultichainAddress(params);
+      let result = await alchemyApi.getTransactionHistoryByMultichainAddress(params, context?.apiKey);
       const formattedTxns = result.transactions.map((transaction: any) => ({
         ...transaction,
         date: convertTimestampToDate(transaction.blockTimestamp),
@@ -211,7 +215,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     
   }, async (params) => {
     try {
-      const result = await alchemyApi.getAssetTransfers(params);
+      const result = await alchemyApi.getAssetTransfers(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -244,7 +248,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     pageSize: z.number().default(10).describe('The number of results to return. Default is 100. Max is 100'),
   }, async (params) => {
     try {
-      const result = await alchemyApi.getNftsForAddress(params);
+      const result = await alchemyApi.getNftsForAddress(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };
@@ -273,7 +277,7 @@ export function createServer(version: string = "0.0.0"): McpServer {
     withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
   }, async (params) => {
     try {
-      const result = await alchemyApi.getNftContractsByAddress(params);
+      const result = await alchemyApi.getNftContractsByAddress(params, context?.apiKey);
       return {
         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
       };

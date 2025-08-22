@@ -5,7 +5,7 @@
   "description": "HTTP transport for Alchemy MCP server (Vercel-compatible)",
   "type": "module",
   "scripts": {
-    "dev": "pnpm -w --filter @alchemy/mcp-core build && tsx watch api/index.ts",
+    "dev": "tsx watch api/index.ts",
     "build": "pnpm -w --filter @alchemy/mcp-core build && tsc",
     "start": "node dist/api/index.js",
     "inspector": "npx @modelcontextprotocol/inspector http http://127.0.0.1:3001/api/index"

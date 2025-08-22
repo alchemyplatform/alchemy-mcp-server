@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { createServer } from "@core/server";
+import { createServer } from "@alchemy/mcp-core";
 
 function resolveVersion(): string {
   if (process.env.SERVER_VERSION) return process.env.SERVER_VERSION; // override supported [[memory:5498526]]
@@ -22,6 +22,7 @@ function resolveVersion(): string {
 async function run() {
   const version = resolveVersion();
   const server = createServer(version);
+  console.error("server", server);
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('Alchemy MCP Server (stdio) is running');
