@@ -5,7 +5,6 @@ dotenv.config();
 
 const BREADCRUMB_HEADER = "alchemy-mcp"
 
-// Helper to resolve API key (from parameter or environment)
 const resolveApiKey = (apiKey?: string): string => {
   if (apiKey) return apiKey;
   

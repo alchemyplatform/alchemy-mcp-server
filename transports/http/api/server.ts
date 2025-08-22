@@ -5,12 +5,12 @@ import {
   JSONRPCError,
   JSONRPCNotification,
   InitializeRequestSchema,
-  LoggingMessageNotification,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createServer } from "@alchemy/mcp-core";
 
 const SESSION_ID_HEADER_NAME = "mcp-session-id";
 const JSON_RPC = "2.0";
+const HEARTBEAT_INTERVAL = 240000; // 4 minutes (240,000ms)
 
 export class MCPServer {
   // to support multiple simultaneous connections
@@ -19,10 +19,6 @@ export class MCPServer {
   heartbeats: { [sessionId: string]: NodeJS.Timeout } = {};
   // Track connected servers for sending notifications
   servers: { [sessionId: string]: any } = {};
-
-  constructor() {
-    // No complex setup needed
-  }
 
   async handleGetRequest(req: Request, res: Response) {
     const sessionId = req.headers["mcp-session-id"] as string | undefined;
@@ -35,10 +31,9 @@ export class MCPServer {
     console.log(`Establishing SSE stream for session ${sessionId}`);
     const transport = this.transports[sessionId];
     try {
-        // SDK handles all SSE validation, headers, and setup
+        // MCP SDK handles all SSE validation, headers, and setup
         await transport.handleRequest(req, res);
         
-        // Just start heartbeat - SDK manages the rest
         this.startHeartbeat(sessionId);
         
       } catch (error) {
@@ -62,7 +57,6 @@ export class MCPServer {
 
       // Handle initialize requests (with or without session ID)
       if (this.isInitializeRequest(req.body)) {
-        // Validate API key for initialize requests
         if (!apiKey) {
           res.status(401).json({
             jsonrpc: JSON_RPC,
@@ -75,7 +69,6 @@ export class MCPServer {
           return;
         }
 
-        // Validate API key format
         if (typeof apiKey !== 'string' || apiKey.trim().length === 0) {
           res.status(401).json({
             jsonrpc: JSON_RPC,
@@ -88,14 +81,12 @@ export class MCPServer {
           return;
         }
 
-        // Use provided session ID or generate new one
         const newSessionId = sessionId || randomUUID();
         
         const transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => newSessionId,
         });
 
-        // Create server with API key context
         const version = this.resolveVersion();
         const context = { apiKey };
         const server = createServer(version, context);
@@ -103,7 +94,6 @@ export class MCPServer {
         await server.connect(transport);
         await transport.handleRequest(req, res, req.body);
 
-        // Store the session and server
         const finalSessionId = transport.sessionId || newSessionId;
         this.transports[finalSessionId] = transport;
         this.servers[finalSessionId] = server;
@@ -125,7 +115,6 @@ export class MCPServer {
         return;
       }
 
-      // All other cases are bad requests
       res.status(400).json(
         this.createErrorResponse("Bad Request: invalid session ID or method.")
       );
@@ -138,12 +127,10 @@ export class MCPServer {
   }
 
   async cleanup() {
-    // Clear all heartbeats first
     for (const sessionId of Object.keys(this.heartbeats)) {
       this.clearHeartbeat(sessionId);
     }
     
-    // Close all transports
     for (const transport of Object.values(this.transports)) {
       if (typeof (transport as any).close === 'function') {
         (transport as any).close();
@@ -186,14 +173,12 @@ export class MCPServer {
       clearInterval(this.heartbeats[sessionId]);
     }
     
-    // Send actual SSE heartbeat every 4 minutes (before 5-minute timeout)
     this.heartbeats[sessionId] = setInterval(async () => {
       const transport = this.transports[sessionId];
       const server = this.servers[sessionId];
       
       if (transport && server) {
         try {
-          // Send a logging notification as heartbeat - this sends actual SSE data
           const heartbeatNotification: JSONRPCNotification = {
             jsonrpc: JSON_RPC,
             method: "notifications/message",
@@ -203,7 +188,6 @@ export class MCPServer {
             }
           };
           
-          // Send through transport to keep SSE connection alive
           await transport.send(heartbeatNotification);
           console.log(`SSE heartbeat sent for session ${sessionId}`);
           
@@ -215,7 +199,7 @@ export class MCPServer {
         // Session no longer exists, stop heartbeat
         this.clearHeartbeat(sessionId);
       }
-    }, 240000); // 4 minutes (240,000ms)
+    }, HEARTBEAT_INTERVAL);
     
     console.log(`SSE heartbeat started for session ${sessionId} (4min interval)`);
   }

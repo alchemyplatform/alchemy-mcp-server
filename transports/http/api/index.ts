@@ -7,7 +7,6 @@ app.use(express.json());
 const port = Number(process.env.PORT || 3001);
 const host = process.env.HOST || "127.0.0.1";
 
-// Create MCP server instance
 const mcpServer = new MCPServer();
 
 // MCP endpoints
