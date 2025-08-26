@@ -20,10 +20,10 @@
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.14.0",
+    "@alchemy/mcp-config": "workspace:*",
     "@alchemy/mcp-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.14.0",
     "axios": "^1.10.0",
-    "dotenv": "^16.6.1",
     "zod": "^3.25.71"
   },
   "devDependencies": {

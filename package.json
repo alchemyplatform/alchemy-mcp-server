@@ -8,6 +8,7 @@
   "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
   "workspaces": [
+    "packages/*",
     "core",
     "transports/*"
   ],
@@ -18,6 +19,7 @@
     "inspector:stdio": "pnpm --filter @alchemy/mcp-server inspector",
     "inspector:http": "pnpm --filter ./transports/http inspector"
   },
+
   "devDependencies": {
     "tsx": "^4.20.3"
   },

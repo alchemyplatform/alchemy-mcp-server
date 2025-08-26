@@ -1,18 +1,15 @@
-import dotenv from 'dotenv';
+import { ALCHEMY_API_KEY } from '@alchemy/mcp-config';
 import axios from 'axios';
-
-dotenv.config();
 
 const BREADCRUMB_HEADER = "alchemy-mcp"
 
 const resolveApiKey = (apiKey?: string): string => {
   if (apiKey) return apiKey;
   
-  const envApiKey = process.env.ALCHEMY_API_KEY;
-  if (!envApiKey) {
+  if (!ALCHEMY_API_KEY) {
     throw new Error('ALCHEMY_API_KEY not found in environment variables');
   }
-  return envApiKey;
+  return ALCHEMY_API_KEY;
 };
 
 export const createPricesClient = (apiKey?: string) => {

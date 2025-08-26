@@ -1,0 +1,21 @@
+{
+  "name": "@alchemy/mcp-config",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Shared configuration for Alchemy MCP server",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsc -b",
+    "prepare": "tsc -b"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "@types/node": "^20.19.4"
+  }
+}

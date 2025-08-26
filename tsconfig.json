@@ -1,8 +1,13 @@
 {
-  "files": [],
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
   "references": [
+    { "path": "./packages/config" },
     { "path": "./core" },
     { "path": "./transports/stdio" },
     { "path": "./transports/http" }
-  ]
+  ],
+  "files": []
 }

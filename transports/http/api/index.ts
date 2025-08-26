@@ -1,16 +1,23 @@
+// Import config first to ensure environment variables are loaded
+import { PORT, HOST, validateRequiredEnvVars } from "@alchemy/mcp-config";
+
 import express from "express";
 import { MCPServer } from "./server.js";
+
+// Validate environment variables before starting
+validateRequiredEnvVars();
 
 const app = express();
 app.use(express.json());
 
-const port = Number(process.env.PORT || 3001);
-const host = process.env.HOST || "127.0.0.1";
+const port = Number(PORT);
+const host = HOST;
 
 const mcpServer = new MCPServer();
 
 // MCP endpoints
 app.post('/mcp', async (req, res) => {
+  console.log('Received MCP request');
   await mcpServer.handlePostRequest(req, res);
 });
 

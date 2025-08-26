@@ -27,7 +27,7 @@ To set up the MCP server via npm, add this to your MCP config (Claude Desktop or
   "mcpServers": {
     "alchemy": {
       "command": "npx",
-      "args": ["-y", "mcp-server-alchemy"],
+      "args": ["-y", "@alchemy/mcp-server"],
       "env": {
         "ALCHEMY_API_KEY": "YOUR_API_KEY"
       }
@@ -47,7 +47,7 @@ For development and remote hosting, use the HTTP transport from the source repo:
 pnpm dev:http
 
 # Build and run HTTP server from source (for remote hosting)
-pnpm build && node dist/http.js
+pnpm build && pnpm --filter ./transports/http start
 ```
 
 HTTP options via env:
@@ -167,10 +167,10 @@ The MCP Inspector helps you debug your MCP server by providing a visual interfac
 
 ```bash
 # stdio (npm-compatible)
-pnpm inspector
+pnpm inspector:stdio
 
 # http (from source)
-pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3001
+pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3001/api/index
 ```
 
 This will start the MCP Inspector which you can access in your browser. It allows you to:

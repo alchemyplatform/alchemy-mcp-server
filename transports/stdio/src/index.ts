@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
+// Import config first to ensure environment variables are loaded
+import { SERVER_VERSION, validateRequiredEnvVars } from "@alchemy/mcp-config";
+import { createServer } from "@alchemy/mcp-core";
+
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { createServer } from "@alchemy/mcp-core";
 
 function resolveVersion(): string {
-  if (process.env.SERVER_VERSION) return process.env.SERVER_VERSION; // override supported [[memory:5498526]]
+  if (SERVER_VERSION) return SERVER_VERSION; // override supported [[memory:5498526]]
   try {
     const currentDir = dirname(fileURLToPath(import.meta.url));
     const pkgPath = resolve(currentDir, "../package.json");
@@ -20,6 +23,9 @@ function resolveVersion(): string {
 }
 
 async function run() {
+  // Validate environment variables before starting
+  validateRequiredEnvVars();
+  
   const version = resolveVersion();
   const server = createServer(version);
   console.error("server", server);

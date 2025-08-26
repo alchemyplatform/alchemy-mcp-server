@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import { AGENT_WALLET_SERVER } from '@alchemy/mcp-config';
 import { 
   createPricesClient, 
   createMultiChainTokenClient, 
@@ -9,8 +8,6 @@ import {
 } from './alchemyClients.js';
 import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
-
-const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
 
 export const alchemyApi = {
   

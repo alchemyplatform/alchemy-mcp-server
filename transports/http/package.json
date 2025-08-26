@@ -6,21 +6,20 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch api/index.ts",
-    "build": "pnpm -w --filter @alchemy/mcp-core build && tsc",
+    "build": "tsc",
     "start": "node dist/api/index.js",
     "inspector": "npx @modelcontextprotocol/inspector http http://127.0.0.1:3001/api/index"
   },
   "dependencies": {
-    "express": "^5",
+    "@alchemy/mcp-config": "workspace:*",
+    "@alchemy/mcp-core": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.14.0",
-    "dotenv": "^16.6.1",
-    "@alchemy/mcp-core": "workspace:*"
+    "express": "^5"
   },
   "devDependencies": {
-    "typescript": "^5.8.3",
-    "tsx": "^4.20.3",
+    "@types/express": "^5",
     "@types/node": "^20.19.4",
-    "@types/express": "^5"
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   }
 }
-

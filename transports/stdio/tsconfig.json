@@ -11,7 +11,8 @@
     "../../core/src/**/*"
   ],
   "references": [
-    { "path": "../../core" }
+    { "path": "../../core" },
+    { "path": "../../packages/config" }
   ]
 }
 

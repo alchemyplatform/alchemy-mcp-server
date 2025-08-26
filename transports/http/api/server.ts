@@ -6,6 +6,7 @@ import {
   JSONRPCNotification,
   InitializeRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { SERVER_VERSION } from "@alchemy/mcp-config";
 import { createServer } from "@alchemy/mcp-core";
 
 const SESSION_ID_HEADER_NAME = "mcp-session-id";
@@ -141,7 +142,7 @@ export class MCPServer {
   }
 
   private resolveVersion(): string {
-    if (process.env.SERVER_VERSION) return process.env.SERVER_VERSION;
+    if (SERVER_VERSION) return SERVER_VERSION;
     return "0.0.0";
   }
 

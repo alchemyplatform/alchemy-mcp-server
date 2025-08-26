@@ -12,9 +12,9 @@
     "dev": "tsx watch src/server.ts"
   },
   "dependencies": {
+    "@alchemy/mcp-config": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.14.0",
     "axios": "^1.10.0",
-    "dotenv": "^16.6.1",
     "zod": "^3.25.71"
   },
   "devDependencies": {
