@@ -7,6 +7,10 @@
   "homepage": "https://github.com/alchemyplatform/alchemy-mcp",
   "bugs": "https://github.com/alchemyplatform/alchemy-mcp/issues",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
   "workspaces": [
     "packages/*",
     "core",
@@ -14,12 +18,13 @@
   ],
   "scripts": {
     "build": "pnpm -r build",
+    "heroku-postbuild": "pnpm install && pnpm --filter @alchemy/mcp-config build && pnpm --filter @alchemy/mcp-core build && pnpm --filter @alchemy/mcp-http build",
     "dev:stdio": "pnpm --filter @alchemy/mcp-server dev",
     "dev:http": "pnpm --filter ./transports/http dev",
     "inspector:stdio": "pnpm --filter @alchemy/mcp-server inspector",
-    "inspector:http": "pnpm --filter ./transports/http inspector"
+    "inspector:http": "pnpm --filter ./transports/http inspector",
+    "start": "cd transports/http && pnpm start"
   },
-
   "devDependencies": {
     "tsx": "^4.20.3"
   },

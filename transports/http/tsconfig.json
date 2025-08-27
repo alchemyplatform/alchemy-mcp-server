@@ -7,10 +7,9 @@
     "paths": {},
     "types": ["node"]
   },
-  "include": ["api/**/*"],
+  "include": ["*.ts"],
   "references": [
     { "path": "../../core" },
     { "path": "../../packages/config" }
   ]
 }
-
