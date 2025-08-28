@@ -1,4 +1,4 @@
-import { ALCHEMY_API_KEY } from '@alchemy/mcp-config';
+import { ALCHEMY_API_KEY, ETHERSCAN_API_KEY } from '@alchemy/mcp-config';
 import axios from 'axios';
 
 const BREADCRUMB_HEADER = "alchemy-mcp"
@@ -10,6 +10,15 @@ const resolveApiKey = (apiKey?: string): string => {
     throw new Error('ALCHEMY_API_KEY not found in environment variables');
   }
   return ALCHEMY_API_KEY;
+};
+
+const resolveEtherscanApiKey = (apiKey?: string): string => {
+  if (apiKey) return apiKey;
+  
+  if (!ETHERSCAN_API_KEY) {
+    throw new Error('ETHERSCAN_API_KEY not found in environment variables');
+  }
+  return ETHERSCAN_API_KEY;
 };
 
 export const createPricesClient = (apiKey?: string) => {
@@ -111,5 +120,19 @@ export const createWalletClient = (apiKey?: string) => {
   });
   
   return client;
+};
+
+export const createEtherscanClient = (apiKey?: string) => {
+  const key = resolveEtherscanApiKey(apiKey);
+  return axios.create({
+    baseURL: 'https://api.etherscan.io/v2/api',
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json'
+    },
+    params: {
+      apikey: key  // Include API key in all requests
+    }
+  });
 };
 

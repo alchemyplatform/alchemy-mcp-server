@@ -349,6 +349,31 @@ export function createServer(version: string = "0.0.0", context?: ServerContext)
     }
   });
 
+  // || ** ETHERSCAN API ** ||
+  server.tool('fetchContractAbi', {
+    contractAddress: z.string().describe('The contract address to fetch ABI for (e.g., "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")'),
+    network: z.string().default('sepolia').describe('The Ethereum network ("mainnet" or "sepolia")')
+  }, async (params) => {
+    try {
+      const result = await alchemyApi.getContractAbi(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error in fetchContractAbi:', error);
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: 'Unknown error occurred' }],
+        isError: true
+      };
+    }
+  });
+
   return server;
 }
 

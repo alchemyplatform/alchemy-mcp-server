@@ -95,3 +95,9 @@ export interface DateRange {
   endDate: string;
 }
 
+// || ** Etherscan API ** ||
+export interface EtherscanContractAbiParams {
+  contractAddress: string;
+  network: string;
+}
+

@@ -4,10 +4,12 @@ import {
   createMultiChainTokenClient, 
   createMultiChainTransactionHistoryClient, 
   createAlchemyJsonRpcClient, 
-  createNftClient
+  createNftClient,
+  createEtherscanClient
 } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, EtherscanContractAbiParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
+import { getChainIdForNetwork } from '../utils/networkUtils.js';
 
 export const alchemyApi = {
   
@@ -209,6 +211,51 @@ export const alchemyApi = {
       return result.data;
     } catch (error) {
       console.error('Error in swap:', error);
+      throw error;
+    }
+  },
+
+  async getContractAbi(params: EtherscanContractAbiParams, apiKey?: string) {
+    try {
+      const client = createEtherscanClient(apiKey);
+      const chainId = getChainIdForNetwork(params.network);
+      
+      const response = await client.get('', {
+        params: {
+          chainid: chainId,
+          module: 'contract',
+          action: 'getabi',
+          address: params.contractAddress
+          // apikey is automatically included by the client
+        }
+      });
+
+      console.error('Etherscan API response:', response);
+
+      if (response.data.status === '0') {
+        throw new Error(`Etherscan API error: ${response.data.message || response.data.result}`);
+      }
+
+      // Parse ABI if it's a string
+      let abi = response.data.result;
+      if (typeof abi === 'string') {
+        try {
+          abi = JSON.parse(abi);
+        } catch (parseError) {
+          throw new Error('Failed to parse contract ABI');
+        }
+      }
+
+      return {
+        contractAddress: params.contractAddress,
+        network: params.network,
+        chainId: chainId,
+        abi: abi,
+        status: response.data.status,
+        message: response.data.message
+      };
+    } catch (error) {
+      console.error('Error fetching contract ABI:', error);
       throw error;
     }
   }
