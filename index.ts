@@ -366,6 +366,32 @@ server.tool('swap', {
   }
 });
 
+// || ** GAS API ** ||
+
+// Fetch comprehensive gas price information including legacy prices and EIP-1559 fee suggestions
+server.tool('fetchGasPrice', {
+  network: z.string().default('eth-mainnet').describe('The blockchain network to query gas price for. e.g. "eth-mainnet", "base-mainnet", "base-sepolia". Note: Testnets typically have much lower gas prices than mainnets.')
+}, async (params) => {
+  try {
+    const result = await alchemyApi.getGasPrice(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in fetchGasPrice:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
 async function runServer() {
   const transport = new StdioServerTransport();
   try {

@@ -83,6 +83,11 @@ export interface SwapParams {
   signerAddress: string;
 }
 
+// || ** Gas API ** ||
+export interface GasPriceParams {
+  network: string;
+}
+
 // || ** Utils ** ||
 
 export interface AddressPair {
