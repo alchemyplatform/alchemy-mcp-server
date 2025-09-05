@@ -1,10 +1,28 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, GasPriceParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
+import { convertWeiToGwei } from '../utils/ethConversions.js';
 
 const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
+
+// Helper functions for gas analysis
+function assessNetworkCongestion(gasUsedRatio: number[]): string {
+  if (!gasUsedRatio || gasUsedRatio.length === 0) return 'unknown';
+  const avgUsage = gasUsedRatio.reduce((a, b) => a + b, 0) / gasUsedRatio.length;
+  if (avgUsage > 0.9) return 'high';
+  if (avgUsage > 0.7) return 'medium';
+  if (avgUsage > 0.3) return 'low';
+  return 'very low';
+}
+
+function getGasRecommendation(baseFeeGwei: number, priorityFeesGwei: number[]): string {
+  if (baseFeeGwei < 10) return 'Good time to transact - low gas fees';
+  if (baseFeeGwei < 30) return 'Moderate gas fees - consider urgency';
+  if (baseFeeGwei < 50) return 'High gas fees - only for urgent transactions';
+  return 'Very high gas fees - consider waiting for lower fees';
+}
 
 export const alchemyApi = {
   
@@ -206,6 +224,92 @@ export const alchemyApi = {
       return result.data;
     } catch (error) {
       console.error('Error in swap:', error);
+      throw error;
+    }
+  },
+
+  async getGasPrice(params: GasPriceParams) {
+    const { network } = params;
+    try {
+      const client = createAlchemyJsonRpcClient(network);
+      
+      // Get legacy gas price
+      const gasPriceResponse = await client.post('', {
+        method: "eth_gasPrice",
+        params: []
+      });
+
+      // Get EIP-1559 fee data (more modern approach)
+      const feeHistoryResponse = await client.post('', {
+        method: "eth_feeHistory",
+        params: ["0x4", "latest", [10, 50, 90]] // Last 4 blocks, 10th, 50th, 90th percentiles
+      });
+
+      const gasPriceHex = gasPriceResponse.data.result;
+      const gasPriceGwei = convertWeiToGwei(gasPriceHex);
+      const feeHistory = feeHistoryResponse.data.result;
+
+      // Calculate suggested fees based on fee history
+      const baseFeePerGas = feeHistory.baseFeePerGas?.[feeHistory.baseFeePerGas.length - 1];
+      const priorityFees = feeHistory.reward?.[feeHistory.reward.length - 1] || [];
+
+      let suggestions = {};
+      let baseFeeGwei = 0;
+      let priorityFeesGwei: number[] = [];
+      
+      if (baseFeePerGas && priorityFees.length > 0) {
+        baseFeeGwei = convertWeiToGwei(baseFeePerGas);
+        priorityFeesGwei = priorityFees.map((fee: string) => convertWeiToGwei(fee));
+        
+        // More conservative and realistic priority fee suggestions
+        const lowPriority = Math.max(priorityFeesGwei[0] || 0, 0);
+        const normalPriority = Math.max(priorityFeesGwei[1] || 0, 0.01); // At least 0.01 Gwei
+        const fastPriority = Math.max(priorityFeesGwei[2] || 0, 0.1); // At least 0.1 Gwei
+        
+        suggestions = {
+          slow: {
+            baseFee: `${baseFeeGwei.toFixed(3)} Gwei`,
+            priorityFee: `${lowPriority.toFixed(3)} Gwei`,
+            total: `${(baseFeeGwei + lowPriority).toFixed(3)} Gwei`,
+            estimatedTime: "~60 seconds"
+          },
+          normal: {
+            baseFee: `${baseFeeGwei.toFixed(3)} Gwei`,
+            priorityFee: `${normalPriority.toFixed(3)} Gwei`,
+            total: `${(baseFeeGwei + normalPriority).toFixed(3)} Gwei`,
+            estimatedTime: "~30 seconds"
+          },
+          fast: {
+            baseFee: `${baseFeeGwei.toFixed(3)} Gwei`,
+            priorityFee: `${fastPriority.toFixed(3)} Gwei`,
+            total: `${(baseFeeGwei + fastPriority).toFixed(3)} Gwei`,
+            estimatedTime: "~15 seconds"
+          }
+        };
+      }
+
+      return {
+        network,
+        timestamp: new Date().toISOString(),
+        currentBlock: feeHistory.oldestBlock ? parseInt(feeHistory.oldestBlock, 16) + 3 : 'unknown',
+        networkCongestion: assessNetworkCongestion(feeHistory.gasUsedRatio),
+        legacy: {
+          gasPriceHex,
+          gasPriceGwei: `${gasPriceGwei.toFixed(6)} Gwei`,
+          gasPriceWei: parseInt(gasPriceHex, 16).toString()
+        },
+        eip1559: suggestions,
+        analysis: {
+          avgGasUsed: feeHistory.gasUsedRatio ? 
+            `${(feeHistory.gasUsedRatio.reduce((a: number, b: number) => a + b, 0) / feeHistory.gasUsedRatio.length * 100).toFixed(1)}%` : 'unknown',
+          recommendation: getGasRecommendation(baseFeeGwei, priorityFeesGwei)
+        },
+        raw: {
+          feeHistory: feeHistory
+        }
+      };
+    } catch (error) {
+      console.error('Error fetching gas price:', error);
       throw error;
     }
   }
