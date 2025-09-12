@@ -81,6 +81,10 @@ export interface SendTransactionParams {
 export interface SwapParams {
   ownerScaAccountAddress: string;
   signerAddress: string;
+  tokenIn: string;
+  tokenOut: string;
+  amountIn: string;
+  slippageTolerance?: number;
 }
 
 // || ** Utils ** ||

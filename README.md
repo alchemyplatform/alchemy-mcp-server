@@ -128,7 +128,8 @@ You can prompt your AI agent to use the following methods:
 11. **swap**
     - Executes token swaps via DEX protocols (Uniswap)
     - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
-    - Example: "Swap 100 USDC for ETH"
+    - **Parameters**: tokenIn, tokenOut, amountIn, slippageTolerance (optional)
+    - Example: "Swap 1.5 WETH for USDC with 1% slippage tolerance"
 
 ## Local Development and Open Source Contributions
 

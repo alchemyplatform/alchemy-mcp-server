@@ -327,7 +327,11 @@ export function createServer(version: string = "0.0.0", context?: ServerContext)
   // || ** SWAP API ** ||
   server.tool('swap', {
     ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
-    signerAddress: z.string().describe('The signer address to send the transaction from.')
+    signerAddress: z.string().describe('The signer address to send the transaction from.'),
+    tokenIn: z.string().describe('The input token symbol (e.g., WETH, USDC, DAI).'),
+    tokenOut: z.string().describe('The output token symbol (e.g., WETH, USDC, DAI).'),
+    amountIn: z.string().describe('The amount of input tokens to swap.'),
+    slippageTolerance: z.number().optional().describe('Maximum acceptable slippage percentage (e.g., 1.0 for 1%). Optional, defaults to server/DEX settings.')
   }, async (params) => {
     try {
       const result = await alchemyApi.swap(params);

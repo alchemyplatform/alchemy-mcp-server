@@ -186,7 +186,7 @@ export const alchemyApi = {
   },
   
   async swap(params: SwapParams) {
-    const { ownerScaAccountAddress, signerAddress } = params;
+    const { ownerScaAccountAddress, signerAddress, tokenIn, tokenOut, amountIn, slippageTolerance } = params;
     console.error('SWAPPING TOKENS');
     try {
       const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/swap`, {
@@ -196,7 +196,11 @@ export const alchemyApi = {
         },
         body: JSON.stringify({
           ownerScaAccountAddress,
-          signerAddress
+          signerAddress,
+          tokenIn,
+          tokenOut,
+          amountIn,
+          slippageTolerance
         })
       });
 
