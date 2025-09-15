@@ -38,7 +38,7 @@ export class MCPServer {
         this.startHeartbeat(sessionId);
         
       } catch (error) {
-        console.error(`SSE connection failed for session ${sessionId}:`, error);
+        console.error("SSE connection failed for session %s:", sessionId, error);
         res.status(503).send('SSE connection failed');
       }
   }
@@ -193,7 +193,7 @@ export class MCPServer {
           console.log(`SSE heartbeat sent for session ${sessionId}`);
           
         } catch (error) {
-          console.error(`Heartbeat failed for session ${sessionId}:`, error);
+          console.error("Heartbeat failed for session %s:", sessionId, error);
           this.clearHeartbeat(sessionId);
         }
       } else {
