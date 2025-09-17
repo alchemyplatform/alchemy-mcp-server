@@ -7,7 +7,7 @@ import {
   createNftClient,
   createEtherscanClient
 } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, EtherscanContractAbiParams } from '../types/types.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, WrapParams, UnwrapParams, EtherscanContractAbiParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 import { getChainIdForNetwork } from '../utils/networkUtils.js';
 
@@ -215,6 +215,68 @@ export const alchemyApi = {
       return result.data;
     } catch (error) {
       console.error('Error in swap:', error);
+      throw error;
+    }
+  },
+
+  async wrap(params: WrapParams) {
+    const { ownerScaAccountAddress, signerAddress, amountIn } = params;
+    console.error('WRAPPING ETH TO WETH');
+    try {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/wrap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerScaAccountAddress,
+          signerAddress,
+          amountIn
+        })
+      });
+
+      console.error('WRAPPING ETH RESPONSE', response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error in wrap:', error);
+      throw error;
+    }
+  },
+
+  async unwrap(params: UnwrapParams) {
+    const { ownerScaAccountAddress, signerAddress, amountIn } = params;
+    console.error('UNWRAPPING WETH TO ETH');
+    try {
+      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/unwrap`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerScaAccountAddress,
+          signerAddress,
+          amountIn
+        })
+      });
+
+      console.error('UNWRAPPING WETH RESPONSE', response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error('Error in unwrap:', error);
       throw error;
     }
   },

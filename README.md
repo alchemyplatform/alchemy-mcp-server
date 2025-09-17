@@ -131,6 +131,20 @@ You can prompt your AI agent to use the following methods:
     - **Parameters**: tokenIn, tokenOut, amountIn, slippageTolerance (optional)
     - Example: "Swap 1.5 WETH for USDC with 1% slippage tolerance"
 
+### Wrap/Unwrap Methods
+
+12. **wrap**
+    - Wraps ETH into WETH (Wrapped Ether)
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - **Parameters**: ownerScaAccountAddress, signerAddress, amountIn (ETH amount to wrap)
+    - Example: "Wrap 0.5 ETH into WETH"
+
+13. **unwrap**
+    - Unwraps WETH back into ETH
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - **Parameters**: ownerScaAccountAddress, signerAddress, amountIn (WETH amount to unwrap)
+    - Example: "Unwrap 1.0 WETH back to ETH"
+
 ## Local Development and Open Source Contributions
 
 ### Installation

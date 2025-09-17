@@ -353,6 +353,58 @@ export function createServer(version: string = "0.0.0", context?: ServerContext)
     }
   });
 
+  // || ** WRAP API ** ||
+  server.tool('wrap', {
+    ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+    signerAddress: z.string().describe('The signer address to send the transaction from.'),
+    amountIn: z.string().describe('The amount of ETH to wrap into WETH (human-readable format, e.g., "0.1", "1.5").')
+  }, async (params) => {
+    try {
+      const result = await alchemyApi.wrap(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error in wrap:', error);
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: 'Unknown error occurred' }],
+        isError: true
+      };
+    }
+  });
+
+  // || ** UNWRAP API ** ||
+  server.tool('unwrap', {
+    ownerScaAccountAddress: z.string().describe('The owner SCA account address.'),
+    signerAddress: z.string().describe('The signer address to send the transaction from.'),
+    amountIn: z.string().describe('The amount of WETH to unwrap into ETH (human-readable format, e.g., "0.1", "1.5").')
+  }, async (params) => {
+    try {
+      const result = await alchemyApi.unwrap(params);
+      return {
+        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error in unwrap:', error);
+        return {
+          content: [{ type: "text", text: `Error: ${error.message}` }],
+          isError: true
+        };
+      }
+      return {
+        content: [{ type: "text", text: 'Unknown error occurred' }],
+        isError: true
+      };
+    }
+  });
+
   // || ** ETHERSCAN API ** ||
   server.tool('fetchContractAbi', {
     contractAddress: z.string().describe('The contract address to fetch ABI for (e.g., "0xBB9bc244D798123fDe783fCc1C72d3Bb8C189413")'),
