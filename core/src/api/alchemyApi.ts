@@ -2,7 +2,6 @@ import { AGENT_WALLET_SERVER } from '@alchemy/mcp-config';
 import { 
   createPricesClient, 
   createMultiChainTokenClient, 
-  createMultiChainTransactionHistoryClient, 
   createAlchemyJsonRpcClient, 
   createNftClient,
   createEtherscanClient

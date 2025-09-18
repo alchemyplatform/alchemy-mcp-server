@@ -45,18 +45,6 @@ export const createMultiChainTokenClient = (apiKey?: string) => {
   });
 };
 
-export const createMultiChainTransactionHistoryClient = (apiKey?: string) => {
-  const key = resolveApiKey(apiKey);
-  return axios.create({
-    baseURL: `https://api.g.alchemy.com/data/v1/${key}/transactions/history`,
-    headers: {
-        'accept': 'application/json',
-        'content-type': 'application/json',
-        'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
-    },
-  });
-};
-
 export const createAlchemyJsonRpcClient = (apiKey?: string, network = 'eth-mainnet') => {
   const key = resolveApiKey(apiKey);
   const client = axios.create({
