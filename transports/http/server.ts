@@ -47,6 +47,7 @@ export class MCPServer {
     const sessionId = req.headers[SESSION_ID_HEADER_NAME] as string | undefined;
     const apiKey = req.headers['x-api-key'] as string | undefined;
     let transport: StreamableHTTPServerTransport;
+    console.error("handling post request", sessionId)
 
     try {
       // reuse existing transport

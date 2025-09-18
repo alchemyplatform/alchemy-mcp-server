@@ -162,42 +162,6 @@ export function createServer(version: string = "0.0.0", context?: ServerContext)
     }
   });
 
-  // || ** MultiChain Transaction History API ** ||
-  server.tool('fetchAddressTransactionHistory', {
-    addresses: z.array(z.object({
-      address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
-      networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
-    })).describe('A list of wallet address and network pairs'),
-    before: z.string().optional().describe('The cursor that points to the previous set of results. Use this to paginate through the results.'),
-    after: z.string().optional().describe('The cursor that points to the next set of results. Use this to paginate through the results.'),
-    limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100')
-  }, async (params) => {  
-    try {
-      let result = await alchemyApi.getTransactionHistoryByMultichainAddress(params, context?.apiKey);
-      const formattedTxns = result.transactions.map((transaction: any) => ({
-        ...transaction,
-        date: convertTimestampToDate(transaction.blockTimestamp),
-        ethValue: convertWeiToEth(transaction.value)
-      }));
-      result.transactions = formattedTxns;
-      return {
-        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      };
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error in getTransactionHistoryByMultichainAddress:', error);
-        return {
-          content: [{ type: "text", text: `Error: ${error.message}` }],
-          isError: true     
-        };
-      }
-      return {
-        content: [{ type: "text", text: 'Unknown error occurred' }],
-        isError: true
-      };
-    }
-  });
-
   // || ** TRANSFERS API ** ||
   server.tool('fetchTransfers', {
     fromBlock: z.string().default('0x0').describe('The block number to start the search from. e.g. "1234567890". Inclusive from block (hex string, int, latest, or indexed).'),

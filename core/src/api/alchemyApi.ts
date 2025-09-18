@@ -9,7 +9,7 @@ import {
 } from './alchemyClients.js';
 import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, WrapParams, UnwrapParams, EtherscanContractAbiParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
-import { getChainIdForNetwork } from '../utils/networkUtils.js';
+import { getChainIdForNetwork, normalizeNetworkName } from '../utils/networkUtils.js';
 
 export const alchemyApi = {
   
@@ -38,7 +38,7 @@ export const alchemyApi = {
       const response = await client.post('/by-address', {
         addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
           address: pair.address,
-          network: pair.network
+          network: normalizeNetworkName(pair.network)
         }))
       });
 
@@ -74,7 +74,7 @@ export const alchemyApi = {
       const response = await client.post('/by-address', {
         addresses: params.addresses.map((pair: AddressPair) => ({
           address: pair.address,
-          networks: pair.networks
+          networks: pair.networks.map(normalizeNetworkName)
         }))
       });
 
@@ -85,31 +85,12 @@ export const alchemyApi = {
       throw error;
     }
   },
-  
-  async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress, apiKey?: string) {
-    try {
-      const { addresses, ...otherParams } = params;
-      const client = createMultiChainTransactionHistoryClient(apiKey);
-      
-      const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: AddressPair) => ({
-          address: pair.address,  
-          networks: pair.networks
-        })),
-        ...otherParams
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching transaction history:', error);
-      throw error;
-    }
-  },
 
   async getAssetTransfers(params: AssetTransfersParams, apiKey?: string) {
     const { network, ...otherParams } = params;
     try {
-      const client = createAlchemyJsonRpcClient(apiKey, network);
+      const normalizedNetwork = normalizeNetworkName(network);
+      const client = createAlchemyJsonRpcClient(apiKey, normalizedNetwork);
       
       const response = await client.post('', {
         method: "alchemy_getAssetTransfers",
@@ -129,9 +110,15 @@ export const alchemyApi = {
     try {
       const client = createNftClient(apiKey);
       
-      const response = await client.post('/by-address', { 
-        ...params
-      });
+      const normalizedParams = {
+        ...params,
+        addresses: params.addresses.map(addr => ({
+          ...addr,
+          networks: addr.networks.map(normalizeNetworkName)
+        }))
+      };
+      
+      const response = await client.post('/by-address', normalizedParams);
 
       return response.data;
     } catch (error) {
@@ -144,9 +131,15 @@ export const alchemyApi = {
     try {
       const client = createNftClient(apiKey);
       
-      const response = await client.post('/by-address', {
-        ...params
-      });
+      const normalizedParams = {
+        ...params,
+        addresses: params.addresses.map((pair: AddressPair) => ({
+          address: pair.address,
+          networks: pair.networks.map(normalizeNetworkName)
+        }))
+      };
+      
+      const response = await client.post('/by-address', normalizedParams);
 
       return response.data;
     } catch (error) {
