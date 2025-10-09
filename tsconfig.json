@@ -1,17 +1,13 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "./dist",
-    "rootDir": "."
+    "composite": true
   },
-  "include": ["index.ts", "api", "types", "utils", "libs"],
-  "exclude": ["node_modules", "dist"]
+  "references": [
+    { "path": "./packages/config" },
+    { "path": "./core" },
+    { "path": "./transports/stdio" },
+    { "path": "./transports/http" }
+  ],
+  "files": []
 }

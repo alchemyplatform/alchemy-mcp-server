@@ -1,0 +1,10 @@
+# Exclude stdio transport and dev files
+transports/stdio/
+.git/
+.github/
+*.md
+.env.example
+.cursor/
+*.log
+coverage/
+.nyc_output/

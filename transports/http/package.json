@@ -1,0 +1,30 @@
+{
+  "name": "@alchemy/mcp-http",
+  "private": true,
+  "version": "0.0.0",
+  "description": "HTTP transport for Alchemy MCP server (Heroku deployment)",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "heroku-postbuild": "pnpm build"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "dependencies": {
+    "@alchemy/mcp-config": "workspace:*",
+    "@alchemy/mcp-core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.14.0",
+    "express": "^5"
+  },
+  "devDependencies": {
+    "@types/express": "^5",
+    "@types/node": "^20.19.4",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

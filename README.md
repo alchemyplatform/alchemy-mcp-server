@@ -18,19 +18,16 @@ This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs
 - Execute token swaps via DEX protocols (**requires configured wallet agent server**)
 - And more!
 
-### Quick Setup
+### Quick Setup (npm, stdio only)
 
-To quickly set up the MCP server, use the following configuration in your MCP config file (typically in Claude Desktop or Cursor settings):
+To set up the MCP server via npm, add this to your MCP config (Claude Desktop or Cursor):
 
 ```json
 {
   "mcpServers": {
     "alchemy": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@alchemy/mcp-server"
-      ],
+      "args": ["-y", "@alchemy/mcp-server"],
       "env": {
         "ALCHEMY_API_KEY": "YOUR_API_KEY"
       }
@@ -39,7 +36,25 @@ To quickly set up the MCP server, use the following configuration in your MCP co
 }
 ```
 
-This configuration allows you to use the server without manually cloning the repository.
+This uses the npm package and runs over stdio. HTTP transport is not exposed via the npm package.
+
+### HTTP transport (development and remote hosting from source)
+
+For development and remote hosting, use the HTTP transport from the source repo:
+
+```bash
+# Development
+pnpm dev:http
+
+# Build and run HTTP server from source (for remote hosting)
+pnpm build && pnpm --filter ./transports/http start
+```
+
+HTTP options via env:
+- `PORT` (default: 3001)
+- `HOST` (default: 127.0.0.1)
+- `ENABLE_DNS_REBINDING_PROTECTION` (default: false)
+- `ALLOWED_HOSTS` comma-separated list (default: HOST)
 
 ### Environment Variables
 
@@ -113,7 +128,22 @@ You can prompt your AI agent to use the following methods:
 11. **swap**
     - Executes token swaps via DEX protocols (Uniswap)
     - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
-    - Example: "Swap 100 USDC for ETH"
+    - **Parameters**: tokenIn, tokenOut, amountIn, slippageTolerance (optional)
+    - Example: "Swap 1.5 WETH for USDC with 1% slippage tolerance"
+
+### Wrap/Unwrap Methods
+
+12. **wrap**
+    - Wraps ETH into WETH (Wrapped Ether)
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - **Parameters**: ownerScaAccountAddress, signerAddress, amountIn (ETH amount to wrap)
+    - Example: "Wrap 0.5 ETH into WETH"
+
+13. **unwrap**
+    - Unwraps WETH back into ETH
+    - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
+    - **Parameters**: ownerScaAccountAddress, signerAddress, amountIn (WETH amount to unwrap)
+    - Example: "Unwrap 1.0 WETH back to ETH"
 
 ## Local Development and Open Source Contributions
 
@@ -133,7 +163,11 @@ pnpm install
 ### Development
 
 ```bash
-pnpm watch
+# stdio development (hot reload)
+pnpm dev:stdio
+
+# http development (hot reload)
+pnpm dev:http
 ```
 
 ### Building for Production
@@ -147,7 +181,11 @@ pnpm build
 The MCP Inspector helps you debug your MCP server by providing a visual interface to test your methods:
 
 ```bash
-pnpm inspector
+# stdio (npm-compatible)
+pnpm inspector:stdio
+
+# http (from source)
+pnpm build && npx @modelcontextprotocol/inspector http http://127.0.0.1:3001/api/index
 ```
 
 This will start the MCP Inspector which you can access in your browser. It allows you to:

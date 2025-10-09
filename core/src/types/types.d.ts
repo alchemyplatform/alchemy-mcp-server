@@ -81,6 +81,22 @@ export interface SendTransactionParams {
 export interface SwapParams {
   ownerScaAccountAddress: string;
   signerAddress: string;
+  tokenIn: string;
+  tokenOut: string;
+  amountIn: string;
+  slippageTolerance?: number;
+}
+
+export interface WrapParams {
+  ownerScaAccountAddress: string;
+  signerAddress: string;
+  amountIn: string;
+}
+
+export interface UnwrapParams {
+  ownerScaAccountAddress: string;
+  signerAddress: string;
+  amountIn: string;
 }
 
 // || ** Utils ** ||
@@ -94,3 +110,10 @@ export interface DateRange {
   startDate: string;
   endDate: string;
 }
+
+// || ** Etherscan API ** ||
+export interface EtherscanContractAbiParams {
+  contractAddress: string;
+  network: string;
+}
+

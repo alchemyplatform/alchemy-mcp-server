@@ -32,4 +32,5 @@ export default function convertHexBalanceToDecimal(response: any) {
     }
   
     return responseData;
-  }
+}
+
