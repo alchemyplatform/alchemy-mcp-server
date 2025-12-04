@@ -15,7 +15,7 @@ importers:
         specifier: ^1.13.2
         version: 1.13.2
       dotenv:
-        specifier: ^16.4.7
+        specifier: ^16.6.1
         version: 16.6.1
       zod:
         specifier: ^3.25.71
