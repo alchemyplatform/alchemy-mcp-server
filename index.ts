@@ -379,7 +379,6 @@ server.tool('swap', {
 
 // Create a new team with billing setup and admin access key
 server.tool('createAdminAccessKey', {
-  bypassPayment: z.boolean().default(false).optional().describe('Set to true to bypass X402 payment verification for testing. Default: false'),
   paymentSignature: z.string().optional().describe('Base64-encoded payment signature for X402 payment verification')
 }, async (params) => {
   try {

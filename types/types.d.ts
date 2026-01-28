@@ -105,7 +105,6 @@ export interface DateRange {
 // || ** Agents API ** ||
 
 export interface CreateAdminAccessKeyParams {
-  bypassPayment?: boolean;
   paymentSignature?: string;
 }
 

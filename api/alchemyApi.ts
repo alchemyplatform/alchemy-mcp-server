@@ -227,9 +227,7 @@ export const alchemyApi = {
     try {
       const client = createAgentsApiClient(params.paymentSignature);
 
-      const response = await client.post('/accounts/admin-access-key', {
-        bypassPayment: params.bypassPayment ?? false
-      });
+      const response = await client.post('/accounts/admin-access-key', {});
 
       return response.data;
     } catch (error) {
