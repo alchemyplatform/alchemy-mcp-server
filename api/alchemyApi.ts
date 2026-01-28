@@ -1,153 +1,204 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
+import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient, createAgentsApiClient } from './alchemyClients.js';
+import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams, CreateAdminAccessKeyParams, PurchaseCreditsParams, GetCreditBalanceParams } from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
+import { AxiosError } from 'axios';
 
 const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
 
-export const alchemyApi = {
-  
-  async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
-    try {
-      const client = createPricesClient();
-      
-      const queryParams = new URLSearchParams();
-      params.symbols.forEach(symbol => {
-        queryParams.append('symbols', symbol.toUpperCase());
-      });
-      
-      const response = await client.get(`/by-symbol?${queryParams}`);
-      
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching token prices:', error);
-      throw error;
-    }
-  },
-  
-  async getTokenPriceByAddress(params: TokenPriceByAddress) {
-    try {
-      const client = createPricesClient();
-      
-      const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
-          address: pair.address,
-          network: pair.network
-        }))
-      });
+// Helper function to check if error is a 429 rate limit error
+function is429Error(error: any): boolean {
+  return error?.response?.status === 429 || error?.status === 429;
+}
 
-      console.log('Successfully fetched token price:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching token price:', error);
-      throw error;
+// Helper function to retry API call after purchasing credits
+async function withRetryOn429<T>(
+  apiCall: () => Promise<T>,
+  accessKey?: string,
+  retryCount = 0
+): Promise<T> {
+  try {
+    return await apiCall();
+  } catch (error) {
+    // Only retry once and only if we have an accessKey
+    if (is429Error(error) && accessKey && retryCount === 0) {
+      console.log('Received 429 rate limit error. Attempting to purchase credits...');
+
+      try {
+        // Purchase credits
+        await alchemyApi.purchaseCredits({ accessKey });
+        console.log('Successfully purchased credits. Retrying request...');
+
+        // Retry the original request
+        return await apiCall();
+      } catch (purchaseError) {
+        console.error('Failed to purchase credits:', purchaseError);
+        // Throw the original error if credit purchase fails
+        throw error;
+      }
     }
+
+    // If no accessKey, already retried, or not a 429, throw the original error
+    throw error;
+  }
+}
+
+export const alchemyApi = {
+
+  async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
+    const { accessKey, ...queryParams } = params;
+
+    return withRetryOn429(
+      async () => {
+        const client = createPricesClient(accessKey);
+
+        const urlParams = new URLSearchParams();
+        queryParams.symbols.forEach(symbol => {
+          urlParams.append('symbols', symbol.toUpperCase());
+        });
+
+        const response = await client.get(`/by-symbol?${urlParams}`);
+        return response.data;
+      },
+      accessKey
+    );
   },
-  
+
+  async getTokenPriceByAddress(params: TokenPriceByAddress) {
+    const { accessKey, ...queryParams } = params;
+
+    return withRetryOn429(
+      async () => {
+        const client = createPricesClient(accessKey);
+
+        const response = await client.post('/by-address', {
+          addresses: queryParams.addresses.map((pair: TokenPriceByAddressPair) => ({
+            address: pair.address,
+            network: pair.network
+          }))
+        });
+
+        console.log('Successfully fetched token price:', response.data);
+        return response.data;
+      },
+      accessKey
+    );
+  },
+
   async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
     console.log('Fetching token price history for symbol:', params.symbol);
-    try {
-      const client = createPricesClient();
-      
-      const response = await client.post('/historical', {
-        ...params
-      });
+    const { accessKey, ...queryParams } = params;
 
-      console.log('Successfully fetched token price history:', response.data);
-      return response.data;  
-    } catch (error) {
-      console.error('Error fetching token price history:', error);
-      throw error;
-    }
+    return withRetryOn429(
+      async () => {
+        const client = createPricesClient(accessKey);
+
+        const response = await client.post('/historical', {
+          ...queryParams
+        });
+
+        console.log('Successfully fetched token price history:', response.data);
+        return response.data;
+      },
+      accessKey
+    );
   },
-  
+
   async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
-    try {
-      const client = createMultiChainTokenClient();
-      
-      const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: AddressPair) => ({
-          address: pair.address,
-          networks: pair.networks
-        }))
-      });
+    const { accessKey, ...queryParams } = params;
 
-      const responseData = convertHexBalanceToDecimal(response);
-      return responseData;
-    } catch (error) {
-      console.error('Error fetching token data:', error);
-      throw error;
-    }
+    return withRetryOn429(
+      async () => {
+        const client = createMultiChainTokenClient(accessKey);
+
+        const response = await client.post('/by-address', {
+          addresses: queryParams.addresses.map((pair: AddressPair) => ({
+            address: pair.address,
+            networks: pair.networks
+          }))
+        });
+
+        const responseData = convertHexBalanceToDecimal(response);
+        return responseData;
+      },
+      accessKey
+    );
   },
-  
-  async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
-    try {
-      const { addresses, ...otherParams } = params;
-      const client = createMultiChainTransactionHistoryClient();
-      
-      const response = await client.post('/by-address', {
-        addresses: params.addresses.map((pair: AddressPair) => ({
-          address: pair.address,  
-          networks: pair.networks
-        })),
-        ...otherParams
-      });
 
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching transaction history:', error);
-      throw error;
-    }
+  async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
+    const { accessKey, addresses, ...otherParams } = params;
+
+    return withRetryOn429(
+      async () => {
+        const client = createMultiChainTransactionHistoryClient(accessKey);
+
+        const response = await client.post('/by-address', {
+          addresses: addresses.map((pair: AddressPair) => ({
+            address: pair.address,
+            networks: pair.networks
+          })),
+          ...otherParams
+        });
+
+        return response.data;
+      },
+      accessKey
+    );
   },
 
   async getAssetTransfers(params: AssetTransfersParams) {
-    const { network, ...otherParams } = params;
-    try {
-      const client = createAlchemyJsonRpcClient(network);
-      
-      const response = await client.post('', {
-        method: "alchemy_getAssetTransfers",
-        params: [{
-          ...otherParams
-        }]
-      });
+    const { accessKey, network, ...otherParams } = params;
 
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching asset transfers:', error);
-      throw error;
-    }
+    return withRetryOn429(
+      async () => {
+        const client = createAlchemyJsonRpcClient(network, accessKey);
+
+        const response = await client.post('', {
+          method: "alchemy_getAssetTransfers",
+          params: [{
+            ...otherParams
+          }]
+        });
+
+        return response.data;
+      },
+      accessKey
+    );
   },
 
   async getNftsForAddress(params: NftsByAddressParams) {
-    try {
-      const client = createNftClient();
-      
-      const response = await client.post('/by-address', { 
-        ...params
-      });
+    const { accessKey, ...queryParams } = params;
 
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching NFTs for address:', error);
-      throw error;
-    }
+    return withRetryOn429(
+      async () => {
+        const client = createNftClient(accessKey);
+
+        const response = await client.post('/by-address', {
+          ...queryParams
+        });
+
+        return response.data;
+      },
+      accessKey
+    );
   },
 
   async getNftContractsByAddress(params: NftContractsByAddressParams) {
-    try {
-      const client = createNftClient();
-      
-      const response = await client.post('/by-address', {
-        ...params
-      });
+    const { accessKey, ...queryParams } = params;
 
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching NFT contracts by address:', error);
-      throw error;
-    }
+    return withRetryOn429(
+      async () => {
+        const client = createNftClient(accessKey);
+
+        const response = await client.post('/by-address', {
+          ...queryParams
+        });
+
+        return response.data;
+      },
+      accessKey
+    );
   },
 
   async sendTransaction(params: SendTransactionParams) {
@@ -206,6 +257,51 @@ export const alchemyApi = {
       return result.data;
     } catch (error) {
       console.error('Error in swap:', error);
+      throw error;
+    }
+  },
+
+  async createAdminAccessKey(params: CreateAdminAccessKeyParams) {
+    try {
+      const client = createAgentsApiClient(params.paymentSignature);
+
+      const response = await client.post('/accounts/admin-access-key', {
+        bypassPayment: params.bypassPayment ?? false
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error creating admin access key:', error);
+      throw error;
+    }
+  },
+
+  async purchaseCredits(params: PurchaseCreditsParams) {
+    try {
+      const client = createAgentsApiClient();
+
+      const response = await client.post('/credits/purchase', {
+        accessKey: params.accessKey
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error purchasing credits:', error);
+      throw error;
+    }
+  },
+
+  async getCreditBalance(params: GetCreditBalanceParams) {
+    try {
+      const client = createAgentsApiClient();
+
+      const response = await client.post('/credits/balance', {
+        accessKey: params.accessKey
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error('Error getting credit balance:', error);
       throw error;
     }
   }

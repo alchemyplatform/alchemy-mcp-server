@@ -16,6 +16,7 @@ const server = new McpServer({
 // Fetch the price of a token by it's symbol eg. "BTC" or "ETH"
 server.tool('fetchTokenPriceBySymbol', {
   symbols: z.array(z.string()).describe('A list of blockchaintoken symbols to query. e.g. ["BTC", "ETH"]'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getTokenPriceBySymbol(params);
@@ -43,6 +44,7 @@ server.tool('fetchTokenPriceByAddress', {
     address: z.string().describe('The token contract address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     network: z.string().describe('The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet"')
   })).describe('A list of token contract address and network pairs'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getTokenPriceByAddress(params);
@@ -69,7 +71,8 @@ server.tool('fetchTokenPriceHistoryBySymbol', {
   symbol: z.string().describe('The token symbol to query. e.g. "BTC" or "ETH"'),
   startTime: z.string().describe('The start time date to query. e.g. "2021-01-01"'),
   endTime: z.string().describe('The end time date to query. e.g. "2021-01-01"'),
-  interval: z.string().describe('The interval to query. e.g. "1d" or "1h"')
+  interval: z.string().describe('The interval to query. e.g. "1d" or "1h"'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getTokenPriceHistoryBySymbol({
@@ -101,6 +104,7 @@ server.tool('fetchTokenPriceHistoryByTimeFrame', {
   timeFrame: z.string().describe('Time frame like "last-week", "past-7d", "ytd", "last-month", etc. or use natural language like "last week"'),
   interval: z.string().default('1d').describe('The interval to query. e.g. "1d" or "1h"'),
   useNaturalLanguageProcessing: z.boolean().default(false).describe('If true, will interpret timeFrame as natural language'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     // Process time frame - either directly or through NLP
@@ -108,18 +112,19 @@ server.tool('fetchTokenPriceHistoryByTimeFrame', {
     if (params.useNaturalLanguageProcessing) {
       timeFrame = parseNaturalLanguageTimeFrame(params.timeFrame);
     }
-    
+
     // Calculate date range
     const { startDate, endDate } = calculateDateRange(timeFrame);
-    
+
     // Fetch the data
     const result = await alchemyApi.getTokenPriceHistoryBySymbol({
       symbol: params.symbol,
       startTime: startDate,
       endTime: endDate,
-      interval: params.interval
+      interval: params.interval,
+      accessKey: params.accessKey
     });
-    
+
     return {
       content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
     };
@@ -147,6 +152,7 @@ server.tool('fetchTokensOwnedByMultichainAddresses', {
     address: z.string().describe('The wallet address to query. e.g. "0x1234567890123456789012345678901234567890"'),
     networks: z.array(z.string()).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]')
   })).describe('A list of wallet address and network pairs'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getTokensByMultichainAddress(params);
@@ -179,7 +185,8 @@ server.tool('fetchAddressTransactionHistory', {
   })).describe('A list of wallet address and network pairs'),
   before: z.string().optional().describe('The cursor that points to the previous set of results. Use this to paginate through the results.'),
   after: z.string().optional().describe('The cursor that points to the next set of results. Use this to paginate through the results.'),
-  limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100')
+  limit: z.number().default(25).optional().describe('The number of results to return. Default is 25. Max is 100'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {  
   try {
     let result = await alchemyApi.getTransactionHistoryByMultichainAddress(params);
@@ -225,7 +232,7 @@ server.tool('fetchTransfers', {
   maxCount: z.string().default('0xA').describe('The maximum number of results to return. e.g. "0x3E8".'),
   pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
   network: z.string().default('eth-mainnet').describe('The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet").'),
-  
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getAssetTransfers(params);
@@ -261,6 +268,7 @@ server.tool('fetchNftsOwnedByMultichainAddresses', {
   withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
   pageKey: z.string().optional().describe('The cursor to start the search from. Use this to paginate through the results.'),
   pageSize: z.number().default(10).describe('The number of results to return. Default is 100. Max is 100'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getNftsForAddress(params);
@@ -290,6 +298,7 @@ server.tool('fetchNftContractDataByMultichainAddress', {
     networks: z.array(z.string()).default(['eth-mainnet']).describe('The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]'),
   })).describe('A list of wallet address and network pairs'),
   withMetadata: z.boolean().default(true).describe('Whether to include metadata in the results.'),
+  accessKey: z.string().optional().describe('Optional Alchemy API access key. If not provided, uses ALCHEMY_API_KEY from environment variables.')
 }, async (params) => {
   try {
     const result = await alchemyApi.getNftContractsByAddress(params);
@@ -354,6 +363,81 @@ server.tool('swap', {
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error in swap:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// || ** AGENTS API ** ||
+
+// Create a new team with billing setup and admin access key
+server.tool('createAdminAccessKey', {
+  bypassPayment: z.boolean().default(false).optional().describe('Set to true to bypass X402 payment verification for testing. Default: false'),
+  paymentSignature: z.string().optional().describe('Base64-encoded payment signature for X402 payment verification')
+}, async (params) => {
+  try {
+    const result = await alchemyApi.createAdminAccessKey(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in createAdminAccessKey:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// Add credits to a team's account
+server.tool('purchaseCredits', {
+  accessKey: z.string().describe('Valid API key obtained from the Create Admin Access Key endpoint. e.g. "alcht_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"')
+}, async (params) => {
+  try {
+    const result = await alchemyApi.purchaseCredits(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in purchaseCredits:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// Get the current credit balance for a team
+server.tool('getCreditBalance', {
+  accessKey: z.string().describe('Valid API key obtained from the Create Admin Access Key endpoint. e.g. "alcht_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"')
+}, async (params) => {
+  try {
+    const result = await alchemyApi.getCreditBalance(params);
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in getCreditBalance:', error);
       return {
         content: [{ type: "text", text: `Error: ${error.message}` }],
         isError: true

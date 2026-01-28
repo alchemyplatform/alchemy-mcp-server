@@ -1,10 +1,12 @@
 // || ** Prices API ** ||
 export interface TokenPriceBySymbol {
   symbols: string[];
+  accessKey?: string;
 }
 
 export interface TokenPriceByAddress {
   addresses: TokenPriceByAddressPair[];
+  accessKey?: string;
 }
 
 export interface TokenPriceByAddressPair {
@@ -17,11 +19,13 @@ export interface TokenPriceHistoryBySymbol {
   startTime: string;
   endTime: string;
   interval: string;
+  accessKey?: string;
 }
 
 // || ** MultiChain Token API ** ||
 export interface MultiChainTokenByAddress {
   addresses: AddressPair[];
+  accessKey?: string;
 }
 
 // || ** MultiChain Transaction History API ** ||
@@ -45,6 +49,7 @@ export interface AssetTransfersParams {
   maxCount: string;
   pageKey?: string;
   network: string;
+  accessKey?: string;
 }
 
 // || ** NFT API ** ||
@@ -53,6 +58,7 @@ export interface NftsByAddressParams {
   withMetadata: boolean;
   pageKey?: string;
   pageSize: number;
+  accessKey?: string;
 }
 
 export interface NftsByAddressPair {
@@ -66,6 +72,7 @@ export interface NftsByAddressPair {
 export interface NftContractsByAddressParams {
   addresses: AddressPair[];
   withMetadata: boolean;
+  accessKey?: string;
 }
 
 // || ** Wallet API ** ||
@@ -93,4 +100,19 @@ export interface AddressPair {
 export interface DateRange {
   startDate: string;
   endDate: string;
+}
+
+// || ** Agents API ** ||
+
+export interface CreateAdminAccessKeyParams {
+  bypassPayment?: boolean;
+  paymentSignature?: string;
+}
+
+export interface PurchaseCreditsParams {
+  accessKey: string;
+}
+
+export interface GetCreditBalanceParams {
+  accessKey: string;
 }
