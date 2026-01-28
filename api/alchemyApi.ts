@@ -7,198 +7,160 @@ import { AxiosError } from 'axios';
 
 const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
 
-// Helper function to check if error is a 429 rate limit error
-function is429Error(error: any): boolean {
-  return error?.response?.status === 429 || error?.status === 429;
-}
+// Helper function to enhance error messages for 429 errors
+function enhance429Error(error: any, accessKey?: string): Error {
+  if (error?.response?.status === 429 || error?.status === 429) {
+    const message = accessKey
+      ? `Rate limit exceeded (429). You can purchase more credits using the 'purchaseCredits' tool with your access key, then retry this request.`
+      : `Rate limit exceeded (429). To purchase credits, provide an access key with your requests.`;
 
-// Helper function to retry API call after purchasing credits
-async function withRetryOn429<T>(
-  apiCall: () => Promise<T>,
-  accessKey?: string,
-  retryCount = 0
-): Promise<T> {
-  try {
-    return await apiCall();
-  } catch (error) {
-    // Only retry once and only if we have an accessKey
-    if (is429Error(error) && accessKey && retryCount === 0) {
-      console.log('Received 429 rate limit error. Attempting to purchase credits...');
-
-      try {
-        // Purchase credits
-        await alchemyApi.purchaseCredits({ accessKey });
-        console.log('Successfully purchased credits. Retrying request...');
-
-        // Retry the original request
-        return await apiCall();
-      } catch (purchaseError) {
-        console.error('Failed to purchase credits:', purchaseError);
-        // Throw the original error if credit purchase fails
-        throw error;
-      }
-    }
-
-    // If no accessKey, already retried, or not a 429, throw the original error
-    throw error;
+    const enhancedError = new Error(message);
+    (enhancedError as any).originalError = error;
+    (enhancedError as any).statusCode = 429;
+    return enhancedError;
   }
+  return error;
 }
 
 export const alchemyApi = {
 
   async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createPricesClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createPricesClient(accessKey);
+      const urlParams = new URLSearchParams();
+      queryParams.symbols.forEach(symbol => {
+        urlParams.append('symbols', symbol.toUpperCase());
+      });
 
-        const urlParams = new URLSearchParams();
-        queryParams.symbols.forEach(symbol => {
-          urlParams.append('symbols', symbol.toUpperCase());
-        });
-
-        const response = await client.get(`/by-symbol?${urlParams}`);
-        return response.data;
-      },
-      accessKey
-    );
+      const response = await client.get(`/by-symbol?${urlParams}`);
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getTokenPriceByAddress(params: TokenPriceByAddress) {
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createPricesClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createPricesClient(accessKey);
+      const response = await client.post('/by-address', {
+        addresses: queryParams.addresses.map((pair: TokenPriceByAddressPair) => ({
+          address: pair.address,
+          network: pair.network
+        }))
+      });
 
-        const response = await client.post('/by-address', {
-          addresses: queryParams.addresses.map((pair: TokenPriceByAddressPair) => ({
-            address: pair.address,
-            network: pair.network
-          }))
-        });
-
-        console.log('Successfully fetched token price:', response.data);
-        return response.data;
-      },
-      accessKey
-    );
+      console.log('Successfully fetched token price:', response.data);
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
     console.log('Fetching token price history for symbol:', params.symbol);
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createPricesClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createPricesClient(accessKey);
+      const response = await client.post('/historical', {
+        ...queryParams
+      });
 
-        const response = await client.post('/historical', {
-          ...queryParams
-        });
-
-        console.log('Successfully fetched token price history:', response.data);
-        return response.data;
-      },
-      accessKey
-    );
+      console.log('Successfully fetched token price history:', response.data);
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createMultiChainTokenClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createMultiChainTokenClient(accessKey);
+      const response = await client.post('/by-address', {
+        addresses: queryParams.addresses.map((pair: AddressPair) => ({
+          address: pair.address,
+          networks: pair.networks
+        }))
+      });
 
-        const response = await client.post('/by-address', {
-          addresses: queryParams.addresses.map((pair: AddressPair) => ({
-            address: pair.address,
-            networks: pair.networks
-          }))
-        });
-
-        const responseData = convertHexBalanceToDecimal(response);
-        return responseData;
-      },
-      accessKey
-    );
+      const responseData = convertHexBalanceToDecimal(response);
+      return responseData;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
-    const { accessKey, addresses, ...otherParams } = params;
+    try {
+      const { accessKey, addresses, ...otherParams } = params;
+      const client = createMultiChainTransactionHistoryClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createMultiChainTransactionHistoryClient(accessKey);
+      const response = await client.post('/by-address', {
+        addresses: addresses.map((pair: AddressPair) => ({
+          address: pair.address,
+          networks: pair.networks
+        })),
+        ...otherParams
+      });
 
-        const response = await client.post('/by-address', {
-          addresses: addresses.map((pair: AddressPair) => ({
-            address: pair.address,
-            networks: pair.networks
-          })),
-          ...otherParams
-        });
-
-        return response.data;
-      },
-      accessKey
-    );
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getAssetTransfers(params: AssetTransfersParams) {
-    const { accessKey, network, ...otherParams } = params;
+    try {
+      const { accessKey, network, ...otherParams } = params;
+      const client = createAlchemyJsonRpcClient(network, accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createAlchemyJsonRpcClient(network, accessKey);
+      const response = await client.post('', {
+        method: "alchemy_getAssetTransfers",
+        params: [{
+          ...otherParams
+        }]
+      });
 
-        const response = await client.post('', {
-          method: "alchemy_getAssetTransfers",
-          params: [{
-            ...otherParams
-          }]
-        });
-
-        return response.data;
-      },
-      accessKey
-    );
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getNftsForAddress(params: NftsByAddressParams) {
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createNftClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createNftClient(accessKey);
+      const response = await client.post('/by-address', {
+        ...queryParams
+      });
 
-        const response = await client.post('/by-address', {
-          ...queryParams
-        });
-
-        return response.data;
-      },
-      accessKey
-    );
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async getNftContractsByAddress(params: NftContractsByAddressParams) {
-    const { accessKey, ...queryParams } = params;
+    try {
+      const { accessKey, ...queryParams } = params;
+      const client = createNftClient(accessKey);
 
-    return withRetryOn429(
-      async () => {
-        const client = createNftClient(accessKey);
+      const response = await client.post('/by-address', {
+        ...queryParams
+      });
 
-        const response = await client.post('/by-address', {
-          ...queryParams
-        });
-
-        return response.data;
-      },
-      accessKey
-    );
+      return response.data;
+    } catch (error) {
+      throw enhance429Error(error, params.accessKey);
+    }
   },
 
   async sendTransaction(params: SendTransactionParams) {
