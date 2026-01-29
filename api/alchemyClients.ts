@@ -9,7 +9,7 @@ const BREADCRUMB_HEADER = "alchemy-mcp"
 export const createPricesClient = (apiKey?: string) => {
   const key = apiKey || API_KEY;
   return axios.create({
-    baseURL: `https://api.g.alchemy.com/prices/v1/${key}/tokens`,
+    baseURL: `https://api.g.alchemypreview.com/prices/v1/${key}/tokens`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
@@ -21,7 +21,7 @@ export const createPricesClient = (apiKey?: string) => {
 export const createMultiChainTokenClient = (apiKey?: string) => {
   const key = apiKey || API_KEY;
   return axios.create({
-    baseURL: `https://api.g.alchemy.com/data/v1/${key}/assets/tokens`,
+    baseURL: `https://api.g.alchemypreview.com/data/v1/${key}/assets/tokens`,
     headers: {
         'accept': 'application/json',
         'content-type': 'application/json',
@@ -33,7 +33,7 @@ export const createMultiChainTokenClient = (apiKey?: string) => {
 export const createMultiChainTransactionHistoryClient = (apiKey?: string) => {
   const key = apiKey || API_KEY;
   return axios.create({
-    baseURL: `https://api.g.alchemy.com/data/v1/${key}/transactions/history`,
+    baseURL: `https://api.g.alchemypreview.com/data/v1/${key}/transactions/history`,
     headers: {
         'accept': 'application/json',
         'content-type': 'application/json',
@@ -45,7 +45,7 @@ export const createMultiChainTransactionHistoryClient = (apiKey?: string) => {
 export const createAlchemyJsonRpcClient = (network = 'eth-mainnet', apiKey?: string) => {
   const key = apiKey || API_KEY;
   const client = axios.create({
-    baseURL: `https://${network}.g.alchemy.com/v2/${key}`,
+    baseURL: `https://${network}.g.alchemypreview.com/v2/${key}`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json',
@@ -71,7 +71,7 @@ export const createAlchemyJsonRpcClient = (network = 'eth-mainnet', apiKey?: str
 export const createNftClient = (apiKey?: string) => {
   const key = apiKey || API_KEY;
   return axios.create({
-    baseURL: `https://api.g.alchemy.com/data/v1/${key}/assets/nfts`,
+    baseURL: `https://api.g.alchemypreview.com/data/v1/${key}/assets/nfts`,
     headers: {
         'accept': 'application/json',
         'content-type': 'application/json',
@@ -82,7 +82,7 @@ export const createNftClient = (apiKey?: string) => {
 
 export const createWalletClient = () => {
   const client = axios.create({
-    baseURL: `https://api.g.alchemy.com/v2/${API_KEY}`,
+    baseURL: `https://api.g.alchemypreview.com/v2/${API_KEY}`,
     headers: {
       'accept': 'application/json',
       'content-type': 'application/json'
