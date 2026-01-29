@@ -26,8 +26,9 @@ export const alchemyApi = {
 
   async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createPricesClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createPricesClient(key);
 
       const urlParams = new URLSearchParams();
       queryParams.symbols.forEach(symbol => {
@@ -37,14 +38,15 @@ export const alchemyApi = {
       const response = await client.get(`/by-symbol?${urlParams}`);
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getTokenPriceByAddress(params: TokenPriceByAddress) {
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createPricesClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createPricesClient(key);
 
       const response = await client.post('/by-address', {
         addresses: queryParams.addresses.map((pair: TokenPriceByAddressPair) => ({
@@ -56,15 +58,16 @@ export const alchemyApi = {
       console.log('Successfully fetched token price:', response.data);
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
     console.log('Fetching token price history for symbol:', params.symbol);
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createPricesClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createPricesClient(key);
 
       const response = await client.post('/historical', {
         ...queryParams
@@ -73,14 +76,15 @@ export const alchemyApi = {
       console.log('Successfully fetched token price history:', response.data);
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createMultiChainTokenClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createMultiChainTokenClient(key);
 
       const response = await client.post('/by-address', {
         addresses: queryParams.addresses.map((pair: AddressPair) => ({
@@ -92,14 +96,15 @@ export const alchemyApi = {
       const responseData = convertHexBalanceToDecimal(response);
       return responseData;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
     try {
-      const { accessKey, addresses, ...otherParams } = params;
-      const client = createMultiChainTransactionHistoryClient(accessKey);
+      const { apiKey, accessKey, addresses, ...otherParams } = params;
+      const key = apiKey || accessKey;
+      const client = createMultiChainTransactionHistoryClient(key);
 
       const response = await client.post('/by-address', {
         addresses: addresses.map((pair: AddressPair) => ({
@@ -111,14 +116,15 @@ export const alchemyApi = {
 
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getAssetTransfers(params: AssetTransfersParams) {
     try {
-      const { accessKey, network, ...otherParams } = params;
-      const client = createAlchemyJsonRpcClient(network, accessKey);
+      const { apiKey, accessKey, network, ...otherParams } = params;
+      const key = apiKey || accessKey;
+      const client = createAlchemyJsonRpcClient(network, key);
 
       const response = await client.post('', {
         method: "alchemy_getAssetTransfers",
@@ -129,14 +135,15 @@ export const alchemyApi = {
 
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getNftsForAddress(params: NftsByAddressParams) {
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createNftClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createNftClient(key);
 
       const response = await client.post('/by-address', {
         ...queryParams
@@ -144,14 +151,15 @@ export const alchemyApi = {
 
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
   async getNftContractsByAddress(params: NftContractsByAddressParams) {
     try {
-      const { accessKey, ...queryParams } = params;
-      const client = createNftClient(accessKey);
+      const { apiKey, accessKey, ...queryParams } = params;
+      const key = apiKey || accessKey;
+      const client = createNftClient(key);
 
       const response = await client.post('/by-address', {
         ...queryParams
@@ -159,7 +167,7 @@ export const alchemyApi = {
 
       return response.data;
     } catch (error) {
-      throw enhance429Error(error, params.accessKey);
+      throw enhance429Error(error, params.apiKey || params.accessKey);
     }
   },
 
@@ -241,7 +249,8 @@ export const alchemyApi = {
       const client = createAgentsApiClient();
 
       const response = await client.post('/credits/purchase', {
-        accessKey: params.accessKey
+        accessKey: params.accessKey,
+        amount: params.amount
       });
 
       return response.data;

@@ -1,12 +1,14 @@
 // || ** Prices API ** ||
 export interface TokenPriceBySymbol {
   symbols: string[];
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 export interface TokenPriceByAddress {
   addresses: TokenPriceByAddressPair[];
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 export interface TokenPriceByAddressPair {
@@ -19,13 +21,15 @@ export interface TokenPriceHistoryBySymbol {
   startTime: string;
   endTime: string;
   interval: string;
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 // || ** MultiChain Token API ** ||
 export interface MultiChainTokenByAddress {
   addresses: AddressPair[];
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 // || ** MultiChain Transaction History API ** ||
@@ -49,7 +53,8 @@ export interface AssetTransfersParams {
   maxCount: string;
   pageKey?: string;
   network: string;
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 // || ** NFT API ** ||
@@ -58,7 +63,8 @@ export interface NftsByAddressParams {
   withMetadata: boolean;
   pageKey?: string;
   pageSize: number;
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 export interface NftsByAddressPair {
@@ -72,7 +78,8 @@ export interface NftsByAddressPair {
 export interface NftContractsByAddressParams {
   addresses: AddressPair[];
   withMetadata: boolean;
-  accessKey?: string;
+  apiKey?: string;
+  accessKey?: string; // Deprecated: use apiKey instead
 }
 
 // || ** Wallet API ** ||
@@ -110,6 +117,7 @@ export interface CreateAdminAccessKeyParams {
 
 export interface PurchaseCreditsParams {
   accessKey: string;
+  amount: number;
 }
 
 export interface GetCreditBalanceParams {
