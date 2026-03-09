@@ -4,6 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { alchemyApi } from './api/alchemyApi.js';
+import { isX402Mode, getX402AccountStatus } from './api/x402Client.js';
 import { convertTimestampToDate } from './utils/convertTimestampToDate.js';
 import { convertWeiToEth } from './utils/ethConversions.js';
 import { calculateDateRange, parseNaturalLanguageTimeFrame, toISO8601 } from './utils/dateUtils.js';
@@ -354,6 +355,36 @@ server.tool('swap', {
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error in swap:', error);
+      return {
+        content: [{ type: "text", text: `Error: ${error.message}` }],
+        isError: true
+      };
+    }
+    return {
+      content: [{ type: "text", text: 'Unknown error occurred' }],
+      isError: true
+    };
+  }
+});
+
+// || ** x402 ACCOUNT STATUS API ** ||
+
+server.tool('getX402AccountStatus', {}, async () => {
+  if (!isX402Mode()) {
+    return {
+      content: [{ type: "text", text: 'x402 mode is not enabled. Set WALLET_PRIVATE_KEY environment variable to use x402 authentication.' }],
+      isError: true
+    };
+  }
+
+  try {
+    const result = await getX402AccountStatus();
+    return {
+      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+    };
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error in getX402AccountStatus:', error);
       return {
         content: [{ type: "text", text: `Error: ${error.message}` }],
         isError: true

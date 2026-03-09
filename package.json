@@ -23,8 +23,14 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.14.0",
+    "@solana/kit": "^5.5.1",
+    "@x402/evm": "^2.6.0",
+    "@x402/fetch": "^2.6.0",
+    "@x402/svm": "^2.6.0",
     "axios": "^1.13.2",
     "dotenv": "^16.6.1",
+    "siwe": "^3.0.0",
+    "viem": "^2.47.0",
     "zod": "^3.25.71"
   },
   "devDependencies": {

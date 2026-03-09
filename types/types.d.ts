@@ -94,3 +94,19 @@ export interface DateRange {
   startDate: string;
   endDate: string;
 }
+
+// || ** x402 API ** ||
+
+export interface X402AccountStatus {
+  walletAddress: string;
+  keyType: 'evm' | 'solana';
+  status: 'active' | 'payment_required';
+  paymentRequirements?: {
+    accepts: Array<{
+      scheme: string;
+      network: string;
+      amount: string;
+      asset: string;
+    }>;
+  };
+}
