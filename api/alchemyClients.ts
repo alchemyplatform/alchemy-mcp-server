@@ -14,7 +14,7 @@ export const createPricesClient = () => axios.create({
     'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
   },
 });
-  
+
 export const createMultiChainTokenClient = () => axios.create({
   baseURL: `https://api.g.alchemy.com/data/v1/${API_KEY}/assets/tokens`,
   headers: {
@@ -43,7 +43,7 @@ export const createAlchemyJsonRpcClient = (network = 'eth-mainnet') => {
       'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
     }
   });
-  
+
   client.interceptors.request.use((config) => {
     if (config.method === 'post') {
       config.data = {
@@ -54,7 +54,7 @@ export const createAlchemyJsonRpcClient = (network = 'eth-mainnet') => {
     }
     return config;
   });
-  
+
   return client;
 };
 
@@ -75,7 +75,7 @@ export const createWalletClient = () => {
       'content-type': 'application/json'
     }
   });
-  
+
   client.interceptors.request.use((config) => {
     if (config.method === 'post') {
       if (config.data && config.data.method) {
@@ -89,6 +89,72 @@ export const createWalletClient = () => {
     }
     return config;
   });
-  
+
   return client;
 };
+
+export const createNftV3Client = (network = 'eth-mainnet') => axios.create({
+  baseURL: `https://${network}.g.alchemy.com/nft/v3/${API_KEY}`,
+  headers: {
+    'accept': 'application/json',
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+  },
+});
+
+export const createSolanaJsonRpcClient = (network = 'solana-mainnet') => {
+  const client = axios.create({
+    baseURL: `https://${network}.g.alchemy.com/v2/${API_KEY}`,
+    headers: {
+      'accept': 'application/json',
+      'content-type': 'application/json',
+      'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+    }
+  });
+
+  client.interceptors.request.use((config) => {
+    if (config.method === 'post') {
+      config.data = {
+        id: 1,
+        jsonrpc: "2.0",
+        ...config.data
+      };
+    }
+    return config;
+  });
+
+  return client;
+};
+
+export const createEthBeaconClient = () => axios.create({
+  baseURL: `https://eth-mainnetbeacon.g.alchemy.com/v2/${API_KEY}`,
+  headers: {
+    'accept': 'application/json',
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+  },
+});
+
+export const createAptosClient = () => axios.create({
+  baseURL: `https://aptos-mainnet.g.alchemy.com/v2/${API_KEY}`,
+  headers: {
+    'accept': 'application/json',
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+  },
+});
+
+export const createNotifyClient = () => axios.create({
+  baseURL: `https://dashboard.alchemy.com/api`,
+  headers: {
+    'accept': 'application/json',
+    'X-Alchemy-Token': API_KEY,
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+  },
+});
+
+export const createAdminClient = () => axios.create({
+  baseURL: `https://manage.g.alchemy.com`,
+  headers: {
+    'accept': 'application/json',
+    'Authorization': `Bearer ${API_KEY}`,
+    'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER
+  },
+});
