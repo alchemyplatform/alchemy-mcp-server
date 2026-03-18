@@ -1,36 +1,44 @@
-import dotenv from 'dotenv';
-dotenv.config();
-import { createPricesClient, createMultiChainTokenClient, createMultiChainTransactionHistoryClient, createAlchemyJsonRpcClient, createNftClient } from './alchemyClients.js';
-import { TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol, MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams, NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams } from '../types/types.js';
+import { injectable, inject } from 'inversify';
+import type { AxiosInstance } from 'axios';
+import { DI_SYMBOLS } from '../di/di-symbols.js';
+import { JsonRpcClientProvider } from './client-providers.js';
+import {
+  TokenPriceBySymbol, TokenPriceByAddress, TokenPriceByAddressPair, TokenPriceHistoryBySymbol,
+  MultiChainTokenByAddress, MultiChainTransactionHistoryByAddress, AssetTransfersParams,
+  NftsByAddressParams, NftContractsByAddressParams, AddressPair, SendTransactionParams, SwapParams
+} from '../types/types.js';
 import convertHexBalanceToDecimal from '../utils/convertHexBalanceToDecimal.js';
 
-const AGENT_WALLET_SERVER = process.env.AGENT_WALLET_SERVER;
+@injectable()
+export class AlchemyApi {
+  constructor(
+    @inject(DI_SYMBOLS.PricesClient) private pricesClient: AxiosInstance,
+    @inject(DI_SYMBOLS.MultiChainTokenClient) private multiChainTokenClient: AxiosInstance,
+    @inject(DI_SYMBOLS.MultiChainTransactionHistoryClient) private multiChainTransactionHistoryClient: AxiosInstance,
+    @inject(DI_SYMBOLS.NftClient) private nftClient: AxiosInstance,
+    @inject(DI_SYMBOLS.AgentWalletServer) private agentWalletServer: string,
+    @inject(JsonRpcClientProvider) private jsonRpcProvider: JsonRpcClientProvider,
+  ) {}
 
-export const alchemyApi = {
-  
   async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
     try {
-      const client = createPricesClient();
-      
       const queryParams = new URLSearchParams();
       params.symbols.forEach(symbol => {
         queryParams.append('symbols', symbol.toUpperCase());
       });
-      
-      const response = await client.get(`/by-symbol?${queryParams}`);
-      
+
+      const response = await this.pricesClient.get(`/by-symbol?${queryParams}`);
+
       return response.data;
     } catch (error) {
       console.error('Error fetching token prices:', error);
       throw error;
     }
-  },
-  
+  }
+
   async getTokenPriceByAddress(params: TokenPriceByAddress) {
     try {
-      const client = createPricesClient();
-      
-      const response = await client.post('/by-address', {
+      const response = await this.pricesClient.post('/by-address', {
         addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
           address: pair.address,
           network: pair.network
@@ -43,30 +51,26 @@ export const alchemyApi = {
       console.error('Error fetching token price:', error);
       throw error;
     }
-  },
-  
+  }
+
   async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
     console.log('Fetching token price history for symbol:', params.symbol);
     try {
-      const client = createPricesClient();
-      
-      const response = await client.post('/historical', {
+      const response = await this.pricesClient.post('/historical', {
         ...params
       });
 
       console.log('Successfully fetched token price history:', response.data);
-      return response.data;  
+      return response.data;
     } catch (error) {
       console.error('Error fetching token price history:', error);
       throw error;
     }
-  },
-  
+  }
+
   async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
     try {
-      const client = createMultiChainTokenClient();
-      
-      const response = await client.post('/by-address', {
+      const response = await this.multiChainTokenClient.post('/by-address', {
         addresses: params.addresses.map((pair: AddressPair) => ({
           address: pair.address,
           networks: pair.networks
@@ -79,16 +83,15 @@ export const alchemyApi = {
       console.error('Error fetching token data:', error);
       throw error;
     }
-  },
-  
+  }
+
   async getTransactionHistoryByMultichainAddress(params: MultiChainTransactionHistoryByAddress) {
     try {
       const { addresses, ...otherParams } = params;
-      const client = createMultiChainTransactionHistoryClient();
-      
-      const response = await client.post('/by-address', {
+
+      const response = await this.multiChainTransactionHistoryClient.post('/by-address', {
         addresses: params.addresses.map((pair: AddressPair) => ({
-          address: pair.address,  
+          address: pair.address,
           networks: pair.networks
         })),
         ...otherParams
@@ -99,13 +102,13 @@ export const alchemyApi = {
       console.error('Error fetching transaction history:', error);
       throw error;
     }
-  },
+  }
 
   async getAssetTransfers(params: AssetTransfersParams) {
     const { network, ...otherParams } = params;
     try {
-      const client = createAlchemyJsonRpcClient(network);
-      
+      const client = this.jsonRpcProvider.get(network);
+
       const response = await client.post('', {
         method: "alchemy_getAssetTransfers",
         params: [{
@@ -118,13 +121,11 @@ export const alchemyApi = {
       console.error('Error fetching asset transfers:', error);
       throw error;
     }
-  },
+  }
 
   async getNftsForAddress(params: NftsByAddressParams) {
     try {
-      const client = createNftClient();
-      
-      const response = await client.post('/by-address', { 
+      const response = await this.nftClient.post('/by-address', {
         ...params
       });
 
@@ -133,13 +134,11 @@ export const alchemyApi = {
       console.error('Error fetching NFTs for address:', error);
       throw error;
     }
-  },
+  }
 
   async getNftContractsByAddress(params: NftContractsByAddressParams) {
     try {
-      const client = createNftClient();
-      
-      const response = await client.post('/by-address', {
+      const response = await this.nftClient.post('/by-address', {
         ...params
       });
 
@@ -148,12 +147,12 @@ export const alchemyApi = {
       console.error('Error fetching NFT contracts by address:', error);
       throw error;
     }
-  },
+  }
 
   async sendTransaction(params: SendTransactionParams) {
     const { ownerScaAccountAddress, signerAddress, toAddress, value, callData } = params;
     try {
-      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/send`, {
+      const response = await fetch(`${this.agentWalletServer}/transactions/send`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -178,13 +177,13 @@ export const alchemyApi = {
       console.error('Error sending transaction:', error);
       throw error;
     }
-  },
-  
+  }
+
   async swap(params: SwapParams) {
     const { ownerScaAccountAddress, signerAddress } = params;
     console.error('SWAPPING TOKENS');
     try {
-      const response = await fetch(`${AGENT_WALLET_SERVER}/transactions/swap`, {
+      const response = await fetch(`${this.agentWalletServer}/transactions/swap`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -209,6 +208,4 @@ export const alchemyApi = {
       throw error;
     }
   }
-};
-
-
+}

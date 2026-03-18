@@ -4,7 +4,7 @@ dist/
 *.log
 .DS_Store 
 .cursor/
-tests/
+
 .claude/
 CLAUDE.md
 plans/

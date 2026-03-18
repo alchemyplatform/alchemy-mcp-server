@@ -2,16 +2,18 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "outDir": "./dist",
     "rootDir": "."
   },
-  "include": ["index.ts", "api", "types", "utils", "libs"],
+  "include": ["index.ts", "api", "types", "utils", "libs", "di"],
   "exclude": ["node_modules", "dist"]
 }
