@@ -33,3 +33,45 @@ export class JsonRpcClientProvider {
     return this.cache.get(network)!;
   }
 }
+
+@injectable()
+export class NftV3ClientProvider {
+  private cache = new Map<string, AxiosInstance>();
+
+  constructor(@inject(DI_SYMBOLS.AlchemyApiKey) private apiKey: string) {}
+
+  get(network = "eth-mainnet"): AxiosInstance {
+    if (!this.cache.has(network)) {
+      const client = axios.create({
+        baseURL: `https://${network}.g.alchemy.com/nft/v3/${this.apiKey}`,
+        headers: {
+          accept: "application/json",
+          "x-alchemy-client-breadcrumb": BREADCRUMB_HEADER,
+        },
+      });
+      this.cache.set(network, client);
+    }
+    return this.cache.get(network)!;
+  }
+}
+
+@injectable()
+export class BeaconClientProvider {
+  private cache = new Map<string, AxiosInstance>();
+
+  constructor(@inject(DI_SYMBOLS.AlchemyApiKey) private apiKey: string) {}
+
+  get(network = "eth-mainnet"): AxiosInstance {
+    if (!this.cache.has(network)) {
+      const client = axios.create({
+        baseURL: `https://${network}beacon.g.alchemy.com/v2/${this.apiKey}`,
+        headers: {
+          accept: "application/json",
+          "x-alchemy-client-breadcrumb": BREADCRUMB_HEADER,
+        },
+      });
+      this.cache.set(network, client);
+    }
+    return this.cache.get(network)!;
+  }
+}
