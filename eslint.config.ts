@@ -56,6 +56,7 @@ export default tseslint.config(
     files: ["tests/**/*.ts"],
     rules: {
       "@typescript-eslint/no-floating-promises": "off",
+      "@typescript-eslint/require-await": "off",
     },
   },
   {
