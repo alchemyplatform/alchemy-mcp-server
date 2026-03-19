@@ -1,6 +1,7 @@
-import { injectable, inject } from 'inversify';
-import axios, { type AxiosInstance } from 'axios';
-import { DI_SYMBOLS } from '../di/di-symbols.js';
+import axios, { type AxiosInstance } from "axios";
+import { inject, injectable } from "inversify";
+
+import { DI_SYMBOLS } from "../di/di-symbols.js";
 
 const BREADCRUMB_HEADER = "alchemy-mcp";
 
@@ -10,19 +11,19 @@ export class JsonRpcClientProvider {
 
   constructor(@inject(DI_SYMBOLS.AlchemyApiKey) private apiKey: string) {}
 
-  get(network = 'eth-mainnet'): AxiosInstance {
+  get(network = "eth-mainnet"): AxiosInstance {
     if (!this.cache.has(network)) {
       const client = axios.create({
         baseURL: `https://${network}.g.alchemy.com/v2/${this.apiKey}`,
         headers: {
-          'accept': 'application/json',
-          'content-type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'x-alchemy-client-breadcrumb': BREADCRUMB_HEADER,
+          accept: "application/json",
+          "content-type": "application/json",
+          Authorization: `Bearer ${this.apiKey}`,
+          "x-alchemy-client-breadcrumb": BREADCRUMB_HEADER,
         },
       });
       client.interceptors.request.use((config) => {
-        if (config.method === 'post') {
+        if (config.method === "post") {
           config.data = { id: 1, jsonrpc: "2.0", ...config.data };
         }
         return config;

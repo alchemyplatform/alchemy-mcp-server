@@ -1,4 +1,4 @@
-import { Container, ContainerModule } from 'inversify';
+import { Container, ContainerModule } from "inversify";
 
 export type DiModule = ContainerModule;
 
