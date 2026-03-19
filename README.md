@@ -9,6 +9,7 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with Al
 ## General Usage
 
 This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs, allowing agents to:
+
 - Query token prices and price history (including flexible time frame queries)
 - Get NFT ownership information and contract data
 - View transaction history across multiple networks
@@ -27,10 +28,7 @@ To quickly set up the MCP server, use the following configuration in your MCP co
   "mcpServers": {
     "alchemy": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@alchemy/mcp-server"
-      ],
+      "args": ["-y", "@alchemy/mcp-server"],
       "env": {
         "ALCHEMY_API_KEY": "YOUR_API_KEY"
       }
@@ -120,12 +118,14 @@ You can prompt your AI agent to use the following methods:
 ### Installation
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/alchemyplatform/alchemy-mcp.git
 cd alchemy-mcp
 ```
 
 2. Install dependencies
+
 ```bash
 pnpm install
 ```
@@ -151,6 +151,7 @@ pnpm inspector
 ```
 
 This will start the MCP Inspector which you can access in your browser. It allows you to:
+
 - See all available methods
 - Test methods with different parameters
 - View the response data
@@ -189,4 +190,5 @@ What ERC-20 transfers happened to address 0x1234...5678 in the last 100 blocks?
 ## API Reference
 
 For more information about Alchemy's APIs, refer to:
+
 - [Alchemy API Documentation](https://docs.alchemy.com/)

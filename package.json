@@ -16,22 +16,45 @@
   ],
   "scripts": {
     "build": "tsc && shx chmod +x dist/*.js",
-    "prepare": "npm run build",
+    "prepare": "husky",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector node dist/index.js",
-    "test": "node --test tests/*.test.ts --loader=tsx/esm"
+    "test": "npx tsx --test tests/*.test.ts",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "lint-staged": {
+    "**/*.json": [
+      "prettier --write"
+    ],
+    "**/*.{js,ts}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.14.0",
     "axios": "^1.13.2",
     "dotenv": "^16.6.1",
+    "inversify": "^8.1.0",
+    "reflect-metadata": "^0.2.2",
     "zod": "^3.25.71"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.19.4",
+    "eslint": "^10.0.3",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.1.7",
+    "jiti": "^2.6.1",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.1",
     "shx": "^0.4.0",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.57.1"
   },
   "packageManager": "pnpm@10.7.0+sha512.6b865ad4b62a1d9842b61d674a393903b871d9244954f652b8842c2b553c72176b278f64c463e52d40fff8aba385c235c8c9ecf5cc7de4fd78b8bb6d49633ab6"
 }

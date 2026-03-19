@@ -58,9 +58,9 @@ export interface NftsByAddressParams {
 export interface NftsByAddressPair {
   address: string;
   networks: string[];
-  excludeFilters: Array<'SPAM' | 'AIRDROPS'>;
-  includeFilters: Array<'SPAM' | 'AIRDROPS'>;
-  spamConfidenceLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'VERY_HIGH';
+  excludeFilters: Array<"SPAM" | "AIRDROPS">;
+  includeFilters: Array<"SPAM" | "AIRDROPS">;
+  spamConfidenceLevel: "LOW" | "MEDIUM" | "HIGH" | "VERY_HIGH";
 }
 
 export interface NftContractsByAddressParams {
