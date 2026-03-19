@@ -1,7 +1,7 @@
 import "reflect-metadata";
 
 import assert from "node:assert";
-import { describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it } from "node:test";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
@@ -554,9 +554,19 @@ function parseToolResponse(result: { content: Array<{ text?: string }> }) {
 // ========================================
 
 describe("Tool Behavior", () => {
-  it("fetchTokenPriceBySymbol returns price data", async () => {
-    const { client, server } = await setupTestClient();
+  let client: Client;
+  let server: McpServer;
 
+  beforeEach(async () => {
+    ({ client, server } = await setupTestClient());
+  });
+
+  afterEach(async () => {
+    await client.close();
+    await server.close();
+  });
+
+  it("fetchTokenPriceBySymbol returns price data", async () => {
     const result = await client.callTool({
       name: "fetchTokenPriceBySymbol",
       arguments: { symbols: ["ETH", "BTC"] },
@@ -567,14 +577,9 @@ describe("Tool Behavior", () => {
     assert.strictEqual(data.data.length, 2, "Should return 2 prices");
     assert.strictEqual(data.data[0].symbol, "ETH");
     assert.strictEqual(data.data[1].price, "65000.00");
-
-    await client.close();
-    await server.close();
   });
 
   it("fetchTokenPriceByAddress returns price data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "fetchTokenPriceByAddress",
       arguments: {
@@ -590,14 +595,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.data, "Response should have data field");
     assert.strictEqual(data.data[0].price, "1.00");
-
-    await client.close();
-    await server.close();
   });
 
   it("fetchAddressTransactionHistory enriches transactions with date and ethValue", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "fetchAddressTransactionHistory",
       arguments: {
@@ -611,14 +611,9 @@ describe("Tool Behavior", () => {
     assert.ok(tx.ethValue, "Transaction should have enriched 'ethValue' field");
     assert.strictEqual(tx.hash, "0xdef");
     assert.ok(data.cursor, "Response should have cursor for pagination");
-
-    await client.close();
-    await server.close();
   });
 
   it("fetchTokensOwnedByMultichainAddresses returns token data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "fetchTokensOwnedByMultichainAddresses",
       arguments: {
@@ -629,14 +624,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.tokens, "Response should have tokens field");
     assert.strictEqual(data.tokens[0].address, "0xABC");
-
-    await client.close();
-    await server.close();
   });
 
   it("fetchTransfers returns transfer data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "fetchTransfers",
       arguments: {
@@ -647,14 +637,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.transfers, "Response should have transfers");
     assert.strictEqual(data.result.transfers[0].asset, "ETH");
-
-    await client.close();
-    await server.close();
   });
 
   it("fetchNftsOwnedByMultichainAddresses returns NFT data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "fetchNftsOwnedByMultichainAddresses",
       arguments: {
@@ -673,14 +658,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.nfts, "Response should have nfts field");
     assert.strictEqual(data.nfts[0].tokenId, "1234");
-
-    await client.close();
-    await server.close();
   });
 
   it("sendTransaction returns transaction hash", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "sendTransaction",
       arguments: {
@@ -694,9 +674,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.hash, "0x123abc");
     assert.strictEqual(data.status, "sent");
-
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -704,8 +681,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("getNFTsForOwner returns owned NFTs", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getNFTsForOwner",
       arguments: { owner: "0xaaa", network: "eth-mainnet" },
@@ -715,14 +690,9 @@ describe("Tool Behavior", () => {
     assert.ok(data.ownedNfts, "Response should have ownedNfts field");
     assert.strictEqual(data.ownedNfts.length, 1);
     assert.strictEqual(data.totalCount, 1);
-
-    await client.close();
-    await server.close();
   });
 
   it("getNFTsForContract returns NFTs for a contract", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getNFTsForContract",
       arguments: {
@@ -734,14 +704,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.nfts, "Response should have nfts field");
     assert.strictEqual(data.nfts.length, 1);
-
-    await client.close();
-    await server.close();
   });
 
   it("getNFTsForCollection returns NFTs for a collection", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getNFTsForCollection",
       arguments: {
@@ -752,14 +717,9 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.ok(data.nfts, "Response should have nfts field");
-
-    await client.close();
-    await server.close();
   });
 
   it("getNFTMetadata returns metadata for a specific NFT", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getNFTMetadata",
       arguments: {
@@ -773,14 +733,9 @@ describe("Tool Behavior", () => {
     assert.strictEqual(data.tokenId, "1234");
     assert.strictEqual(data.tokenType, "ERC721");
     assert.ok(data.name, "Response should have name field");
-
-    await client.close();
-    await server.close();
   });
 
   it("getContractMetadata returns contract-level metadata", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getContractMetadata",
       arguments: {
@@ -793,14 +748,9 @@ describe("Tool Behavior", () => {
     assert.strictEqual(data.name, "BoredApeYachtClub");
     assert.strictEqual(data.symbol, "BAYC");
     assert.strictEqual(data.totalSupply, "10000");
-
-    await client.close();
-    await server.close();
   });
 
   it("getCollectionMetadata returns collection metadata", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getCollectionMetadata",
       arguments: {
@@ -812,14 +762,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.collectionSlug, "boredapeyachtclub");
     assert.ok(data.name, "Response should have name field");
-
-    await client.close();
-    await server.close();
   });
 
   it("invalidateNFTContractCache returns invalidation result", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "invalidateNFTContractCache",
       arguments: {
@@ -831,14 +776,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.success, true);
     assert.strictEqual(data.numTokensInvalidated, 10000);
-
-    await client.close();
-    await server.close();
   });
 
   it("getOwnersForNFT returns owners of a specific token", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getOwnersForNFT",
       arguments: {
@@ -851,14 +791,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.owners, "Response should have owners field");
     assert.strictEqual(data.owners.length, 2);
-
-    await client.close();
-    await server.close();
   });
 
   it("getOwnersForContract returns owners of a contract", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getOwnersForContract",
       arguments: {
@@ -870,14 +805,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.owners, "Response should have owners field");
     assert.strictEqual(data.owners[0].ownerAddress, "0xaaa");
-
-    await client.close();
-    await server.close();
   });
 
   it("getSpamContracts returns list of spam contracts", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getSpamContracts",
       arguments: { network: "eth-mainnet" },
@@ -889,14 +819,9 @@ describe("Tool Behavior", () => {
       "Response should have contractAddresses field",
     );
     assert.strictEqual(data.contractAddresses.length, 2);
-
-    await client.close();
-    await server.close();
   });
 
   it("isSpamContract returns spam status", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "isSpamContract",
       arguments: {
@@ -907,14 +832,9 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.isSpamContract, false);
-
-    await client.close();
-    await server.close();
   });
 
   it("isAirdropNFT returns airdrop status", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "isAirdropNFT",
       arguments: {
@@ -926,14 +846,9 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.isAirdrop, false);
-
-    await client.close();
-    await server.close();
   });
 
   it("summarizeNFTAttributes returns attribute summary", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "summarizeNFTAttributes",
       arguments: {
@@ -945,14 +860,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.totalSupply, "10000");
     assert.ok(data.summary, "Response should have summary field");
-
-    await client.close();
-    await server.close();
   });
 
   it("getFloorPrice returns marketplace floor prices", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getFloorPrice",
       arguments: {
@@ -965,14 +875,9 @@ describe("Tool Behavior", () => {
     assert.ok(data.openSea, "Response should have openSea field");
     assert.strictEqual(data.openSea.floorPrice, 30.5);
     assert.strictEqual(data.openSea.priceCurrency, "ETH");
-
-    await client.close();
-    await server.close();
   });
 
   it("searchContractMetadata returns matching contracts", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "searchContractMetadata",
       arguments: {
@@ -984,14 +889,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(Array.isArray(data), "Response should be an array");
     assert.strictEqual(data[0].name, "BoredApeYachtClub");
-
-    await client.close();
-    await server.close();
   });
 
   it("isHolderOfContract returns holder status", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "isHolderOfContract",
       arguments: {
@@ -1003,14 +903,9 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.isHolderOfContract, true);
-
-    await client.close();
-    await server.close();
   });
 
   it("computeRarity returns rarity data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "computeRarity",
       arguments: {
@@ -1024,14 +919,9 @@ describe("Tool Behavior", () => {
     assert.ok(data.rarities, "Response should have rarities field");
     assert.strictEqual(data.rarities.length, 2);
     assert.strictEqual(data.rarities[0].trait_type, "Background");
-
-    await client.close();
-    await server.close();
   });
 
   it("getNFTSales returns sales data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getNFTSales",
       arguments: {
@@ -1043,14 +933,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.nftSales, "Response should have nftSales field");
     assert.strictEqual(data.nftSales[0].marketplace, "seaport");
-
-    await client.close();
-    await server.close();
   });
 
   it("getContractsForOwner returns contracts owned by address", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getContractsForOwner",
       arguments: {
@@ -1062,14 +947,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.contracts, "Response should have contracts field");
     assert.strictEqual(data.totalCount, 1);
-
-    await client.close();
-    await server.close();
   });
 
   it("getCollectionsForOwner returns collections owned by address", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getCollectionsForOwner",
       arguments: {
@@ -1081,14 +961,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.collections, "Response should have collections field");
     assert.strictEqual(data.totalCount, 1);
-
-    await client.close();
-    await server.close();
   });
 
   it("reportSpam returns confirmation message", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "reportSpam",
       arguments: {
@@ -1100,9 +975,6 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.strictEqual(data, "Address was successfully reported as spam");
-
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1110,8 +982,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("getTokenAllowance returns allowance data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getTokenAllowance",
       arguments: {
@@ -1124,14 +994,9 @@ describe("Tool Behavior", () => {
 
     const data = parseToolResponse(result as never);
     assert.ok(data.result !== undefined, "Response should have result field");
-
-    await client.close();
-    await server.close();
   });
 
   it("getTokenBalances returns token balance data", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getTokenBalances",
       arguments: {
@@ -1144,14 +1009,9 @@ describe("Tool Behavior", () => {
     assert.ok(data.result, "Response should have result field");
     assert.ok(data.result.tokenBalances, "Result should have tokenBalances");
     assert.strictEqual(data.result.tokenBalances.length, 1);
-
-    await client.close();
-    await server.close();
   });
 
   it("getTokenMetadata returns token metadata", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getTokenMetadata",
       arguments: {
@@ -1165,9 +1025,6 @@ describe("Tool Behavior", () => {
     assert.strictEqual(data.result.name, "USD Coin");
     assert.strictEqual(data.result.symbol, "USDC");
     assert.strictEqual(data.result.decimals, 6);
-
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1175,8 +1032,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("getTransactionReceipts returns receipts for a block", async () => {
-    const { client, server } = await setupTestClient();
-
     const result = await client.callTool({
       name: "getTransactionReceipts",
       arguments: {
@@ -1190,9 +1045,6 @@ describe("Tool Behavior", () => {
     assert.ok(data.result.receipts, "Result should have receipts");
     assert.strictEqual(data.result.receipts[0].status, 1);
     assert.strictEqual(data.result.receipts[0].blockNumber, "0xF1D1C6");
-
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1200,31 +1052,24 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("debugGetRawBlock returns RLP-encoded block", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "debugGetRawBlock",
       arguments: { network: "eth-mainnet", blockNumberOrTag: "latest" },
     });
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.result, "0xrlpdata");
-    await client.close();
-    await server.close();
   });
 
   it("debugGetRawHeader returns RLP-encoded header", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "debugGetRawHeader",
       arguments: { network: "eth-mainnet", blockNumberOrTag: "latest" },
     });
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.result, "0xrlpheader");
-    await client.close();
-    await server.close();
   });
 
   it("debugGetRawReceipts returns array of receipts", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "debugGetRawReceipts",
       arguments: { network: "eth-mainnet", blockNumberOrTag: "latest" },
@@ -1232,12 +1077,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(Array.isArray(data.result));
     assert.strictEqual(data.result.length, 2);
-    await client.close();
-    await server.close();
   });
 
   it("debugTraceBlockByHash returns block traces", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "debugTraceBlockByHash",
       arguments: {
@@ -1248,20 +1090,15 @@ describe("Tool Behavior", () => {
     });
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
-    await client.close();
-    await server.close();
   });
 
   it("debugTraceTransaction returns transaction trace", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "debugTraceTransaction",
       arguments: { network: "eth-mainnet", transactionHash: "0xabc" },
     });
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.result.type, "call");
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1269,7 +1106,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("traceBlock returns block traces", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "traceBlock",
       arguments: { network: "eth-mainnet", blockIdentifier: "latest" },
@@ -1277,24 +1113,18 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
     assert.strictEqual(data.result[0].type, "call");
-    await client.close();
-    await server.close();
   });
 
   it("traceTransaction returns transaction traces", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "traceTransaction",
       arguments: { network: "eth-mainnet", transactionHash: "0xabc" },
     });
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
-    await client.close();
-    await server.close();
   });
 
   it("traceFilter returns filtered traces", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "traceFilter",
       arguments: { network: "eth-mainnet", fromBlock: "0x1", toBlock: "0x2" },
@@ -1302,8 +1132,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
     assert.strictEqual(data.result[0].action.callType, "call");
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1311,7 +1139,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("simulateAssetChanges returns simulated changes", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "simulateAssetChanges",
       arguments: {
@@ -1322,12 +1149,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.changes);
     assert.strictEqual(data.result.changes[0].assetType, "ERC20");
-    await client.close();
-    await server.close();
   });
 
   it("simulateExecution returns execution traces", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "simulateExecution",
       arguments: {
@@ -1337,8 +1161,6 @@ describe("Tool Behavior", () => {
     });
     const data = parseToolResponse(result as never);
     assert.ok(data.result.calls);
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1346,43 +1168,33 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("getMaxPriorityFeePerGas returns fee estimate", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getMaxPriorityFeePerGas",
       arguments: { network: "eth-mainnet" },
     });
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.result, "0x5f5e100");
-    await client.close();
-    await server.close();
   });
 
   it("getUserOperationReceipt returns receipt data", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getUserOperationReceipt",
       arguments: { network: "eth-mainnet", userOpHash: "0xabc" },
     });
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.result.success, true);
-    await client.close();
-    await server.close();
   });
 
   it("getSupportedEntryPoints returns entry points", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getSupportedEntryPoints",
       arguments: { network: "eth-mainnet" },
     });
     const data = parseToolResponse(result as never);
     assert.ok(Array.isArray(data.result));
-    await client.close();
-    await server.close();
   });
 
   it("estimateUserOperationGas returns gas estimates", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "estimateUserOperationGas",
       arguments: {
@@ -1394,8 +1206,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.preVerificationGas);
     assert.ok(data.result.callGasLimit);
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1403,7 +1213,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("simulateUserOperationAssetChanges returns asset changes", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "simulateUserOperationAssetChanges",
       arguments: {
@@ -1415,8 +1224,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.changes);
     assert.strictEqual(data.result.changes[0].assetType, "NATIVE");
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1424,7 +1231,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("getBeaconGenesis returns genesis data", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconGenesis",
       arguments: { network: "eth-mainnet" },
@@ -1432,12 +1238,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.data.genesis_time);
     assert.ok(data.data.genesis_validators_root);
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconBlock returns block data", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconBlock",
       arguments: { network: "eth-mainnet", blockId: "head" },
@@ -1445,24 +1248,18 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.data.message);
     assert.strictEqual(data.data.message.slot, "1234");
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconBlockRoot returns block root", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconBlockRoot",
       arguments: { network: "eth-mainnet", blockId: "head" },
     });
     const data = parseToolResponse(result as never);
     assert.ok(data.data.root);
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconStateFinalityCheckpoints returns finality data", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconStateFinalityCheckpoints",
       arguments: { network: "eth-mainnet", stateId: "head" },
@@ -1470,12 +1267,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.data.finalized);
     assert.ok(data.data.finalized.epoch);
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconStateValidators returns validator list", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconStateValidators",
       arguments: { network: "eth-mainnet", stateId: "head" },
@@ -1483,12 +1277,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.data);
     assert.strictEqual(data.data[0].status, "active_ongoing");
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconNodeSyncing returns sync status", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconNodeSyncing",
       arguments: { network: "eth-mainnet" },
@@ -1496,12 +1287,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.data.is_syncing, false);
     assert.ok(data.data.head_slot);
-    await client.close();
-    await server.close();
   });
 
   it("getBeaconConfigSpec returns chain config", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "getBeaconConfigSpec",
       arguments: { network: "eth-mainnet" },
@@ -1509,8 +1297,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.strictEqual(data.data.SECONDS_PER_SLOT, "12");
     assert.strictEqual(data.data.SLOTS_PER_EPOCH, "32");
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1518,7 +1304,6 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("solanaGetAsset returns asset data", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaGetAsset",
       arguments: { network: "solana-mainnet", id: "abc123" },
@@ -1526,12 +1311,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
     assert.strictEqual(data.result.id, "abc123");
-    await client.close();
-    await server.close();
   });
 
   it("solanaGetAssets returns multiple assets", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaGetAssets",
       arguments: { network: "solana-mainnet", ids: ["abc123", "def456"] },
@@ -1539,12 +1321,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result);
     assert.strictEqual(data.result.length, 2);
-    await client.close();
-    await server.close();
   });
 
   it("solanaGetAssetProof returns merkle proof", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaGetAssetProof",
       arguments: { network: "solana-mainnet", id: "abc123" },
@@ -1552,12 +1331,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.root);
     assert.ok(data.result.proof);
-    await client.close();
-    await server.close();
   });
 
   it("solanaGetAssetsByOwner returns owner's assets", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaGetAssetsByOwner",
       arguments: { network: "solana-mainnet", ownerAddress: "owner123" },
@@ -1565,12 +1341,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.items);
     assert.strictEqual(data.result.total, 1);
-    await client.close();
-    await server.close();
   });
 
   it("solanaSearchAssets returns search results", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaSearchAssets",
       arguments: { network: "solana-mainnet", ownerAddress: "owner123" },
@@ -1578,12 +1351,9 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.items);
     assert.strictEqual(data.result.total, 1);
-    await client.close();
-    await server.close();
   });
 
   it("solanaGetTokenAccounts returns token accounts", async () => {
-    const { client, server } = await setupTestClient();
     const result = await client.callTool({
       name: "solanaGetTokenAccounts",
       arguments: { network: "solana-mainnet", ownerAddress: "owner123" },
@@ -1591,8 +1361,6 @@ describe("Tool Behavior", () => {
     const data = parseToolResponse(result as never);
     assert.ok(data.result.items);
     assert.strictEqual(data.result.items[0].mint, "mint123");
-    await client.close();
-    await server.close();
   });
 
   // ========================================
@@ -1600,23 +1368,30 @@ describe("Tool Behavior", () => {
   // ========================================
 
   it("tool errors return structured error response", async () => {
+    // This test uses its own setup since it needs a custom mock
+    await client.close();
+    await server.close();
+
     const alchemyApi = createMockAlchemyApi();
     // Override one method to throw
     alchemyApi.getTokenPriceBySymbol = async () => {
       throw new Error("API rate limit exceeded");
     };
 
-    const server = new McpServer({ name: "test-server", version: "0.0.1" });
-    registerTools(server, alchemyApi);
+    const errorServer = new McpServer({
+      name: "test-server",
+      version: "0.0.1",
+    });
+    registerTools(errorServer, alchemyApi);
 
     const [clientTransport, serverTransport] =
       InMemoryTransport.createLinkedPair();
-    const client = new Client({ name: "test-client", version: "0.0.1" });
+    const errorClient = new Client({ name: "test-client", version: "0.0.1" });
 
-    await server.connect(serverTransport);
-    await client.connect(clientTransport);
+    await errorServer.connect(serverTransport);
+    await errorClient.connect(clientTransport);
 
-    const result = await client.callTool({
+    const result = await errorClient.callTool({
       name: "fetchTokenPriceBySymbol",
       arguments: { symbols: ["ETH"] },
     });
@@ -1631,7 +1406,10 @@ describe("Tool Behavior", () => {
       "Error message should be passed through",
     );
 
-    await client.close();
-    await server.close();
+    await errorClient.close();
+    await errorServer.close();
+
+    // Re-setup for afterEach to close cleanly
+    ({ client, server } = await setupTestClient());
   });
 });

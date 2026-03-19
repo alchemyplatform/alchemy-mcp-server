@@ -442,11 +442,6 @@ export interface BeaconValidatorByIdParams extends BeaconStateIdParams {
   validatorId: string;
 }
 
-export interface BeaconPeersParams extends BeaconNetworkParams {
-  state?: string[];
-  direction?: string[];
-}
-
 // || ** Solana DAS API (JSON-RPC) ** ||
 
 export interface SolanaGetAssetParams {

@@ -51,6 +51,7 @@ import type {
   MultiChainTransactionHistoryByAddress,
   NftContractsByAddressParams,
   NftsByAddressParams,
+  NftV3BaseParams,
   ReportSpamParams,
   SearchContractMetadataParams,
   SendTransactionParams,
@@ -112,96 +113,139 @@ export class AlchemyApi {
   ) {}
 
   async getTokenPriceBySymbol(params: TokenPriceBySymbol) {
-    const queryParams = new URLSearchParams();
-    params.symbols.forEach((symbol) => {
-      queryParams.append("symbols", symbol.toUpperCase());
-    });
+    try {
+      const queryParams = new URLSearchParams();
+      params.symbols.forEach((symbol) => {
+        queryParams.append("symbols", symbol.toUpperCase());
+      });
 
-    const response = await this.pricesClient.get(`/by-symbol?${queryParams}`);
+      const response = await this.pricesClient.get(`/by-symbol?${queryParams}`);
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token prices:", error);
+      throw error;
+    }
   }
 
   async getTokenPriceByAddress(params: TokenPriceByAddress) {
-    const response = await this.pricesClient.post("/by-address", {
-      addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
-        address: pair.address,
-        network: pair.network,
-      })),
-    });
+    try {
+      const response = await this.pricesClient.post("/by-address", {
+        addresses: params.addresses.map((pair: TokenPriceByAddressPair) => ({
+          address: pair.address,
+          network: pair.network,
+        })),
+      });
 
-    return response.data;
+      console.log("Successfully fetched token price:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token price:", error);
+      throw error;
+    }
   }
 
   async getTokenPriceHistoryBySymbol(params: TokenPriceHistoryBySymbol) {
-    const response = await this.pricesClient.post("/historical", {
-      ...params,
-    });
+    console.log("Fetching token price history for symbol:", params.symbol);
+    try {
+      const response = await this.pricesClient.post("/historical", {
+        ...params,
+      });
 
-    return response.data;
+      console.log("Successfully fetched token price history:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token price history:", error);
+      throw error;
+    }
   }
 
   async getTokensByMultichainAddress(params: MultiChainTokenByAddress) {
-    const response = await this.multiChainTokenClient.post("/by-address", {
-      addresses: params.addresses.map((pair: AddressPair) => ({
-        address: pair.address,
-        networks: pair.networks,
-      })),
-    });
+    try {
+      const response = await this.multiChainTokenClient.post("/by-address", {
+        addresses: params.addresses.map((pair: AddressPair) => ({
+          address: pair.address,
+          networks: pair.networks,
+        })),
+      });
 
-    const responseData = convertHexBalanceToDecimal(response);
-    return responseData;
+      const responseData = convertHexBalanceToDecimal(response);
+      return responseData;
+    } catch (error) {
+      console.error("Error fetching token data:", error);
+      throw error;
+    }
   }
 
   async getTransactionHistoryByMultichainAddress(
     params: MultiChainTransactionHistoryByAddress,
   ) {
-    const { addresses: _addresses, ...otherParams } = params;
+    try {
+      const { addresses: _addresses, ...otherParams } = params;
 
-    const response = await this.multiChainTransactionHistoryClient.post(
-      "/by-address",
-      {
-        addresses: params.addresses.map((pair: AddressPair) => ({
-          address: pair.address,
-          networks: pair.networks,
-        })),
-        ...otherParams,
-      },
-    );
+      const response = await this.multiChainTransactionHistoryClient.post(
+        "/by-address",
+        {
+          addresses: params.addresses.map((pair: AddressPair) => ({
+            address: pair.address,
+            networks: pair.networks,
+          })),
+          ...otherParams,
+        },
+      );
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching transaction history:", error);
+      throw error;
+    }
   }
 
   async getAssetTransfers(params: AssetTransfersParams) {
     const { network, ...otherParams } = params;
-    const client = this.jsonRpcProvider.get(network);
+    try {
+      const client = this.jsonRpcProvider.get(network);
 
-    const response = await client.post("", {
-      method: "alchemy_getAssetTransfers",
-      params: [
-        {
-          ...otherParams,
-        },
-      ],
-    });
+      const response = await client.post("", {
+        method: "alchemy_getAssetTransfers",
+        params: [
+          {
+            ...otherParams,
+          },
+        ],
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching asset transfers:", error);
+      throw error;
+    }
   }
 
   async getNftsForAddress(params: NftsByAddressParams) {
-    const response = await this.nftClient.post("/by-address", {
-      ...params,
-    });
+    try {
+      const response = await this.nftClient.post("/by-address", {
+        ...params,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching NFTs for address:", error);
+      throw error;
+    }
   }
 
   async getNftContractsByAddress(params: NftContractsByAddressParams) {
-    const response = await this.nftClient.post("/by-address", {
-      ...params,
-    });
+    try {
+      const response = await this.nftClient.post("/by-address", {
+        ...params,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching NFT contracts by address:", error);
+      throw error;
+    }
   }
 
   async sendTransaction(params: SendTransactionParams) {
@@ -212,59 +256,72 @@ export class AlchemyApi {
       value,
       callData,
     } = params;
-    const response = await fetch(
-      `${this.agentWalletServer}/transactions/send`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await fetch(
+        `${this.agentWalletServer}/transactions/send`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ownerScaAccountAddress,
+            signerAddress,
+            toAddress,
+            value,
+            callData,
+          }),
         },
-        body: JSON.stringify({
-          ownerScaAccountAddress,
-          signerAddress,
-          toAddress,
-          value,
-          callData,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error || `HTTP ${response.status}: ${response.statusText}`,
       );
-    }
 
-    const result = await response.json();
-    return result.data;
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+        );
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Error sending transaction:", error);
+      throw error;
+    }
   }
 
   async swap(params: SwapParams) {
     const { ownerScaAccountAddress, signerAddress } = params;
-    const response = await fetch(
-      `${this.agentWalletServer}/transactions/swap`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    console.error("SWAPPING TOKENS");
+    try {
+      const response = await fetch(
+        `${this.agentWalletServer}/transactions/swap`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ownerScaAccountAddress,
+            signerAddress,
+          }),
         },
-        body: JSON.stringify({
-          ownerScaAccountAddress,
-          signerAddress,
-        }),
-      },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error || `HTTP ${response.status}: ${response.statusText}`,
       );
-    }
 
-    const result = await response.json();
-    return result.data;
+      console.error("SWAPPING TOKENS RESPONSE", response);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP ${response.status}: ${response.statusText}`,
+        );
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Error in swap:", error);
+      throw error;
+    }
   }
 
   // ========================================
@@ -292,171 +349,104 @@ export class AlchemyApi {
     return qs.toString();
   }
 
+  private async nftV3Get(endpoint: string, params: NftV3BaseParams) {
+    const { network, ...rest } = params as NftV3BaseParams &
+      Record<string, unknown>;
+    try {
+      const client = this.nftV3Provider.get(network);
+      const qs = this.buildNftV3QueryString(rest);
+      const response = await client.get(
+        qs ? `/${endpoint}?${qs}` : `/${endpoint}`,
+      );
+      return response.data;
+    } catch (error) {
+      console.error(`Error in NFT V3 ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
   async getNFTsForOwner(params: GetNFTsForOwnerParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getNFTsForOwner?${qs}`);
-    return response.data;
+    return this.nftV3Get("getNFTsForOwner", params);
   }
 
   async getNFTsForContract(params: GetNFTsForContractParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getNFTsForContract?${qs}`);
-    return response.data;
+    return this.nftV3Get("getNFTsForContract", params);
   }
 
   async getNFTsForCollection(params: GetNFTsForCollectionParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getNFTsForCollection?${qs}`);
-    return response.data;
+    return this.nftV3Get("getNFTsForCollection", params);
   }
 
   async getNFTMetadata(params: GetNFTMetadataParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getNFTMetadata?${qs}`);
-    return response.data;
+    return this.nftV3Get("getNFTMetadata", params);
   }
 
   async getContractMetadata(params: GetContractMetadataParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getContractMetadata?${qs}`);
-    return response.data;
+    return this.nftV3Get("getContractMetadata", params);
   }
 
   async getCollectionMetadata(params: GetCollectionMetadataParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getCollectionMetadata?${qs}`);
-    return response.data;
+    return this.nftV3Get("getCollectionMetadata", params);
   }
 
   async invalidateContract(params: InvalidateContractParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/invalidateContract?${qs}`);
-    return response.data;
+    return this.nftV3Get("invalidateContract", params);
   }
 
   async getOwnersForNFT(params: GetOwnersForNFTParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getOwnersForNFT?${qs}`);
-    return response.data;
+    return this.nftV3Get("getOwnersForNFT", params);
   }
 
   async getOwnersForContract(params: GetOwnersForContractParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getOwnersForContract?${qs}`);
-    return response.data;
+    return this.nftV3Get("getOwnersForContract", params);
   }
 
   async getSpamContracts(params: GetSpamContractsParams) {
-    const { network } = params;
-    const client = this.nftV3Provider.get(network);
-    const response = await client.get("/getSpamContracts");
-    return response.data;
+    return this.nftV3Get("getSpamContracts", params);
   }
 
   async isSpamContract(params: IsSpamContractParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/isSpamContract?${qs}`);
-    return response.data;
+    return this.nftV3Get("isSpamContract", params);
   }
 
   async isAirdropNFT(params: IsAirdropNFTParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/isAirdropNFT?${qs}`);
-    return response.data;
+    return this.nftV3Get("isAirdropNFT", params);
   }
 
   async summarizeNFTAttributes(params: SummarizeNFTAttributesParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/summarizeNFTAttributes?${qs}`);
-    return response.data;
+    return this.nftV3Get("summarizeNFTAttributes", params);
   }
 
   async getFloorPrice(params: GetFloorPriceParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getFloorPrice?${qs}`);
-    return response.data;
+    return this.nftV3Get("getFloorPrice", params);
   }
 
   async searchContractMetadata(params: SearchContractMetadataParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/searchContractMetadata?${qs}`);
-    return response.data;
+    return this.nftV3Get("searchContractMetadata", params);
   }
 
   async isHolderOfContract(params: IsHolderOfContractParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/isHolderOfContract?${qs}`);
-    return response.data;
+    return this.nftV3Get("isHolderOfContract", params);
   }
 
   async computeRarity(params: ComputeRarityParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/computeRarity?${qs}`);
-    return response.data;
+    return this.nftV3Get("computeRarity", params);
   }
 
   async getNFTSales(params: GetNFTSalesParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getNFTSales?${qs}`);
-    return response.data;
+    return this.nftV3Get("getNFTSales", params);
   }
 
   async getContractsForOwner(params: GetContractsForOwnerParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getContractsForOwner?${qs}`);
-    return response.data;
+    return this.nftV3Get("getContractsForOwner", params);
   }
 
   async getCollectionsForOwner(params: GetCollectionsForOwnerParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/getCollectionsForOwner?${qs}`);
-    return response.data;
+    return this.nftV3Get("getCollectionsForOwner", params);
   }
 
   async reportSpam(params: ReportSpamParams) {
-    const { network, ...rest } = params;
-    const client = this.nftV3Provider.get(network);
-    const qs = this.buildNftV3QueryString(rest);
-    const response = await client.get(`/reportSpam?${qs}`);
-    return response.data;
+    return this.nftV3Get("reportSpam", params);
   }
 
   // ========================================
@@ -465,44 +455,59 @@ export class AlchemyApi {
 
   async getTokenAllowance(params: GetTokenAllowanceParams) {
     const { network, contract, owner, spender } = params;
-    const client = this.jsonRpcProvider.get(network);
-    const response = await client.post("", {
-      method: "alchemy_getTokenAllowance",
-      params: [{ contract, owner, spender }],
-    });
-    return response.data;
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      const response = await client.post("", {
+        method: "alchemy_getTokenAllowance",
+        params: [{ contract, owner, spender }],
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token allowance:", error);
+      throw error;
+    }
   }
 
   async getTokenBalances(params: GetTokenBalancesParams) {
     const { network, address, tokenSpec, pageKey, maxCount } = params;
-    const client = this.jsonRpcProvider.get(network);
-    const rpcParams: unknown[] = [address];
-    if (tokenSpec !== undefined) {
-      rpcParams.push(tokenSpec);
-    } else {
-      rpcParams.push("erc20");
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      const rpcParams: unknown[] = [address];
+      if (tokenSpec !== undefined) {
+        rpcParams.push(tokenSpec);
+      } else {
+        rpcParams.push("erc20");
+      }
+      if (pageKey !== undefined || maxCount !== undefined) {
+        const options: Record<string, unknown> = {};
+        if (pageKey !== undefined) options.pageKey = pageKey;
+        if (maxCount !== undefined) options.maxCount = maxCount;
+        rpcParams.push(options);
+      }
+      const response = await client.post("", {
+        method: "alchemy_getTokenBalances",
+        params: rpcParams,
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token balances:", error);
+      throw error;
     }
-    if (pageKey !== undefined || maxCount !== undefined) {
-      const options: Record<string, unknown> = {};
-      if (pageKey !== undefined) options.pageKey = pageKey;
-      if (maxCount !== undefined) options.maxCount = maxCount;
-      rpcParams.push(options);
-    }
-    const response = await client.post("", {
-      method: "alchemy_getTokenBalances",
-      params: rpcParams,
-    });
-    return response.data;
   }
 
   async getTokenMetadata(params: GetTokenMetadataParams) {
     const { network, contractAddress } = params;
-    const client = this.jsonRpcProvider.get(network);
-    const response = await client.post("", {
-      method: "alchemy_getTokenMetadata",
-      params: [contractAddress],
-    });
-    return response.data;
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      const response = await client.post("", {
+        method: "alchemy_getTokenMetadata",
+        params: [contractAddress],
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching token metadata:", error);
+      throw error;
+    }
   }
 
   // ========================================
@@ -511,15 +516,20 @@ export class AlchemyApi {
 
   async getTransactionReceipts(params: GetTransactionReceiptsParams) {
     const { network, blockNumber, blockHash } = params;
-    const client = this.jsonRpcProvider.get(network);
-    const requestParams: Record<string, string> = {};
-    if (blockNumber) requestParams.blockNumber = blockNumber;
-    if (blockHash) requestParams.blockHash = blockHash;
-    const response = await client.post("", {
-      method: "alchemy_getTransactionReceipts",
-      params: [requestParams],
-    });
-    return response.data;
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      const requestParams: Record<string, string> = {};
+      if (blockNumber) requestParams.blockNumber = blockNumber;
+      if (blockHash) requestParams.blockHash = blockHash;
+      const response = await client.post("", {
+        method: "alchemy_getTransactionReceipts",
+        params: [requestParams],
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching transaction receipts:", error);
+      throw error;
+    }
   }
 
   // ========================================
@@ -531,25 +541,30 @@ export class AlchemyApi {
     method: string,
     params: unknown[],
   ) {
-    const client = this.jsonRpcProvider.get(network);
-    const response = await client.post("", { method, params });
-    return response.data;
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      const response = await client.post("", { method, params });
+      return response.data;
+    } catch (error) {
+      console.error(`Error in ${method}:`, error);
+      throw error;
+    }
   }
 
   async debugGetRawBlock(params: DebugBlockParams) {
-    return await this.callJsonRpc(params.network, "debug_getRawBlock", [
+    return this.callJsonRpc(params.network, "debug_getRawBlock", [
       params.blockNumberOrTag,
     ]);
   }
 
   async debugGetRawHeader(params: DebugBlockParams) {
-    return await this.callJsonRpc(params.network, "debug_getRawHeader", [
+    return this.callJsonRpc(params.network, "debug_getRawHeader", [
       params.blockNumberOrTag,
     ]);
   }
 
   async debugGetRawReceipts(params: DebugBlockParams) {
-    return await this.callJsonRpc(params.network, "debug_getRawReceipts", [
+    return this.callJsonRpc(params.network, "debug_getRawReceipts", [
       params.blockNumberOrTag,
     ]);
   }
@@ -557,7 +572,7 @@ export class AlchemyApi {
   async debugTraceBlockByHash(params: DebugTraceBlockByHashParams) {
     const rpcParams: unknown[] = [params.blockHash];
     if (params.tracer) rpcParams.push(params.tracer);
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "debug_traceBlockByHash",
       rpcParams,
@@ -567,7 +582,7 @@ export class AlchemyApi {
   async debugTraceBlockByNumber(params: DebugTraceBlockByNumberParams) {
     const rpcParams: unknown[] = [params.blockNumberOrTag];
     if (params.tracer) rpcParams.push(params.tracer);
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "debug_traceBlockByNumber",
       rpcParams,
@@ -577,13 +592,13 @@ export class AlchemyApi {
   async debugTraceCall(params: DebugTraceCallParams) {
     const rpcParams: unknown[] = [params.transaction, params.blockIdentifier];
     if (params.options) rpcParams.push(params.options);
-    return await this.callJsonRpc(params.network, "debug_traceCall", rpcParams);
+    return this.callJsonRpc(params.network, "debug_traceCall", rpcParams);
   }
 
   async debugTraceTransaction(params: DebugTraceTransactionParams) {
     const rpcParams: unknown[] = [params.transactionHash];
     if (params.options) rpcParams.push(params.options);
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "debug_traceTransaction",
       rpcParams,
@@ -595,7 +610,7 @@ export class AlchemyApi {
   // ========================================
 
   async traceBlock(params: TraceBlockParams) {
-    return await this.callJsonRpc(params.network, "trace_block", [
+    return this.callJsonRpc(params.network, "trace_block", [
       params.blockIdentifier,
     ]);
   }
@@ -603,18 +618,18 @@ export class AlchemyApi {
   async traceCall(params: TraceCallParams) {
     const rpcParams: unknown[] = [params.transaction, params.traceTypes];
     if (params.blockIdentifier) rpcParams.push(params.blockIdentifier);
-    return await this.callJsonRpc(params.network, "trace_call", rpcParams);
+    return this.callJsonRpc(params.network, "trace_call", rpcParams);
   }
 
   async traceGet(params: TraceGetParams) {
-    return await this.callJsonRpc(params.network, "trace_get", [
+    return this.callJsonRpc(params.network, "trace_get", [
       params.transactionHash,
       params.traceIndexes,
     ]);
   }
 
   async traceRawTransaction(params: TraceRawTransactionParams) {
-    return await this.callJsonRpc(params.network, "trace_rawTransaction", [
+    return this.callJsonRpc(params.network, "trace_rawTransaction", [
       params.rawTransaction,
       params.traceTypes,
     ]);
@@ -623,29 +638,28 @@ export class AlchemyApi {
   async traceReplayBlockTransactions(
     params: TraceReplayBlockTransactionsParams,
   ) {
-    return await this.callJsonRpc(
-      params.network,
-      "trace_replayBlockTransactions",
-      [params.blockIdentifier, params.traceTypes],
-    );
+    return this.callJsonRpc(params.network, "trace_replayBlockTransactions", [
+      params.blockIdentifier,
+      params.traceTypes,
+    ]);
   }
 
   async traceReplayTransaction(params: TraceReplayTransactionParams) {
-    return await this.callJsonRpc(params.network, "trace_replayTransaction", [
+    return this.callJsonRpc(params.network, "trace_replayTransaction", [
       params.transactionHash,
       params.traceTypes,
     ]);
   }
 
   async traceTransaction(params: TraceTransactionParams) {
-    return await this.callJsonRpc(params.network, "trace_transaction", [
+    return this.callJsonRpc(params.network, "trace_transaction", [
       params.transactionHash,
     ]);
   }
 
   async traceFilter(params: TraceFilterParams) {
     const { network, ...filter } = params;
-    return await this.callJsonRpc(network, "trace_filter", [filter]);
+    return this.callJsonRpc(network, "trace_filter", [filter]);
   }
 
   // ========================================
@@ -653,15 +667,13 @@ export class AlchemyApi {
   // ========================================
 
   async simulateAssetChanges(params: SimulateAssetChangesParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "alchemy_simulateAssetChanges",
-      [params.transaction],
-    );
+    return this.callJsonRpc(params.network, "alchemy_simulateAssetChanges", [
+      params.transaction,
+    ]);
   }
 
   async simulateAssetChangesBundle(params: SimulateAssetChangesBundleParams) {
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "alchemy_simulateAssetChangesBundle",
       [params.transactions],
@@ -669,17 +681,15 @@ export class AlchemyApi {
   }
 
   async simulateExecution(params: SimulateExecutionParams) {
-    return await this.callJsonRpc(params.network, "alchemy_simulateExecution", [
+    return this.callJsonRpc(params.network, "alchemy_simulateExecution", [
       params.transaction,
     ]);
   }
 
   async simulateExecutionBundle(params: SimulateExecutionBundleParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "alchemy_simulateExecutionBundle",
-      [params.transactions],
-    );
+    return this.callJsonRpc(params.network, "alchemy_simulateExecutionBundle", [
+      params.transactions,
+    ]);
   }
 
   // ========================================
@@ -687,41 +697,29 @@ export class AlchemyApi {
   // ========================================
 
   async getMaxPriorityFeePerGas(params: BundlerNetworkParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "rundler_maxPriorityFeePerGas",
-      [],
-    );
+    return this.callJsonRpc(params.network, "rundler_maxPriorityFeePerGas", []);
   }
 
   async getUserOperationReceipt(params: GetUserOperationReceiptParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "eth_getUserOperationReceipt",
-      [params.userOpHash],
-    );
+    return this.callJsonRpc(params.network, "eth_getUserOperationReceipt", [
+      params.userOpHash,
+    ]);
   }
 
   async getSupportedEntryPoints(params: BundlerNetworkParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "eth_supportedEntryPoints",
-      [],
-    );
+    return this.callJsonRpc(params.network, "eth_supportedEntryPoints", []);
   }
 
   async getUserOperationByHash(params: GetUserOperationByHashParams) {
-    return await this.callJsonRpc(
-      params.network,
-      "eth_getUserOperationByHash",
-      [params.userOpHash],
-    );
+    return this.callJsonRpc(params.network, "eth_getUserOperationByHash", [
+      params.userOpHash,
+    ]);
   }
 
   async estimateUserOperationGas(params: EstimateUserOperationGasParams) {
     const rpcParams: unknown[] = [params.userOperation, params.entryPoint];
     if (params.stateOverrideSet) rpcParams.push(params.stateOverrideSet);
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "eth_estimateUserOperationGas",
       rpcParams,
@@ -737,7 +735,7 @@ export class AlchemyApi {
   ) {
     const rpcParams: unknown[] = [params.userOperation, params.entryPoint];
     if (params.blockNumber) rpcParams.push(params.blockNumber);
-    return await this.callJsonRpc(
+    return this.callJsonRpc(
       params.network,
       "alchemy_simulateUserOperationAssetChanges",
       rpcParams,
@@ -766,43 +764,48 @@ export class AlchemyApi {
     return str ? `?${str}` : "";
   }
 
+  private async beaconGet(path: string, network: string) {
+    try {
+      const client = this.beaconProvider.get(network);
+      const response = await client.get(path);
+      return response.data;
+    } catch (error) {
+      console.error(`Error in beacon GET ${path}:`, error);
+      throw error;
+    }
+  }
+
   async getBeaconGenesis(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/beacon/genesis");
-    return response.data;
+    return this.beaconGet("/eth/v1/beacon/genesis", params.network);
   }
 
   async getBeaconBlock(params: BeaconBlockIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
-      `/eth/v1/beacon/blocks/${params.blockId}`,
+    return this.beaconGet(
+      `/eth/v2/beacon/blocks/${params.blockId}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconBlockAttestations(params: BeaconBlockIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
-      `/eth/v1/beacon/blocks/${params.blockId}/attestations`,
+    return this.beaconGet(
+      `/eth/v2/beacon/blocks/${params.blockId}/attestations`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconBlockRoot(params: BeaconBlockIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/blocks/${params.blockId}/root`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconBlobSidecars(params: BeaconBlobSidecarsParams) {
     const qs = this.buildBeaconQueryString({ indices: params.indices });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/blob_sidecars/${params.blockId}${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconHeaders(params: BeaconHeadersParams) {
@@ -810,29 +813,25 @@ export class AlchemyApi {
       slot: params.slot,
       parent_root: params.parentRoot,
     });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(`/eth/v1/beacon/headers${qs}`);
-    return response.data;
+    return this.beaconGet(`/eth/v1/beacon/headers${qs}`, params.network);
   }
 
   async getBeaconHeaderByBlockId(params: BeaconBlockIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/headers/${params.blockId}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconPoolVoluntaryExits(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/beacon/pool/voluntary_exits");
-    return response.data;
+    return this.beaconGet(
+      "/eth/v1/beacon/pool/voluntary_exits",
+      params.network,
+    );
   }
 
   async getBeaconPoolAttestations(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/beacon/pool/attestations");
-    return response.data;
+    return this.beaconGet("/eth/v2/beacon/pool/attestations", params.network);
   }
 
   async getBeaconStateCommittees(params: BeaconCommitteesParams) {
@@ -841,70 +840,62 @@ export class AlchemyApi {
       index: params.index,
       slot: params.slot,
     });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/committees${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateFinalityCheckpoints(params: BeaconStateIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/finality_checkpoints`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateFork(params: BeaconStateIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/fork`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStatePendingConsolidations(params: BeaconStateIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/pending_consolidations`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateRoot(params: BeaconStateIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/root`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateSyncCommittees(params: BeaconSyncCommitteesParams) {
     const qs = this.buildBeaconQueryString({ epoch: params.epoch });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/sync_committees${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateRandao(params: BeaconRandaoParams) {
     const qs = this.buildBeaconQueryString({ epoch: params.epoch });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/randao${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateValidatorBalances(params: BeaconValidatorBalancesParams) {
     const qs = this.buildBeaconQueryString({ id: params.id });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/validator_balances${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateValidators(params: BeaconValidatorsParams) {
@@ -912,45 +903,36 @@ export class AlchemyApi {
       id: params.id,
       status: params.status,
     });
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/validators${qs}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconStateValidatorById(params: BeaconValidatorByIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/states/${params.stateId}/validators/${params.validatorId}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconBlockRewards(params: BeaconBlockIdParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get(
+    return this.beaconGet(
       `/eth/v1/beacon/rewards/blocks/${params.blockId}`,
+      params.network,
     );
-    return response.data;
   }
 
   async getBeaconConfigSpec(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/config/spec");
-    return response.data;
+    return this.beaconGet("/eth/v1/config/spec", params.network);
   }
 
   async getBeaconNodeSyncing(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/node/syncing");
-    return response.data;
+    return this.beaconGet("/eth/v1/node/syncing", params.network);
   }
 
   async getBeaconNodeVersion(params: BeaconNetworkParams) {
-    const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v1/node/version");
-    return response.data;
+    return this.beaconGet("/eth/v1/node/version", params.network);
   }
 
   // ========================================
@@ -962,73 +944,78 @@ export class AlchemyApi {
     method: string,
     params: Record<string, unknown>,
   ) {
-    const client = this.jsonRpcProvider.get(network);
-    // Solana DAS uses by-name params, but still in JSON-RPC format
-    const response = await client.post("", { method, params });
-    return response.data;
+    try {
+      const client = this.jsonRpcProvider.get(network);
+      // Solana DAS uses by-name params, but still in JSON-RPC format
+      const response = await client.post("", { method, params });
+      return response.data;
+    } catch (error) {
+      console.error(`Error in ${method}:`, error);
+      throw error;
+    }
   }
 
   async solanaGetAsset(params: SolanaGetAssetParams) {
-    return await this.callSolanaRpc(params.network, "getAsset", {
+    return this.callSolanaRpc(params.network, "getAsset", {
       id: params.id,
     });
   }
 
   async solanaGetAssets(params: SolanaGetAssetsParams) {
-    return await this.callSolanaRpc(params.network, "getAssets", {
+    return this.callSolanaRpc(params.network, "getAssets", {
       ids: params.ids,
     });
   }
 
   async solanaGetAssetProof(params: SolanaGetAssetProofParams) {
-    return await this.callSolanaRpc(params.network, "getAssetProof", {
+    return this.callSolanaRpc(params.network, "getAssetProof", {
       id: params.id,
     });
   }
 
   async solanaGetAssetProofs(params: SolanaGetAssetProofsParams) {
-    return await this.callSolanaRpc(params.network, "getAssetProofs", {
+    return this.callSolanaRpc(params.network, "getAssetProofs", {
       ids: params.ids,
     });
   }
 
   async solanaGetAssetsByAuthority(params: SolanaGetAssetsByAuthorityParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getAssetsByAuthority", rest);
+    return this.callSolanaRpc(network, "getAssetsByAuthority", rest);
   }
 
   async solanaGetAssetsByCreator(params: SolanaGetAssetsByCreatorParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getAssetsByCreator", rest);
+    return this.callSolanaRpc(network, "getAssetsByCreator", rest);
   }
 
   async solanaGetAssetsByGroup(params: SolanaGetAssetsByGroupParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getAssetsByGroup", rest);
+    return this.callSolanaRpc(network, "getAssetsByGroup", rest);
   }
 
   async solanaGetAssetsByOwner(params: SolanaGetAssetsByOwnerParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getAssetsByOwner", rest);
+    return this.callSolanaRpc(network, "getAssetsByOwner", rest);
   }
 
   async solanaGetAssetSignatures(params: SolanaGetAssetSignaturesParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getAssetSignatures", rest);
+    return this.callSolanaRpc(network, "getAssetSignatures", rest);
   }
 
   async solanaGetNftEditions(params: SolanaGetNftEditionsParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getNftEditions", rest);
+    return this.callSolanaRpc(network, "getNftEditions", rest);
   }
 
   async solanaGetTokenAccounts(params: SolanaGetTokenAccountsParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "getTokenAccounts", rest);
+    return this.callSolanaRpc(network, "getTokenAccounts", rest);
   }
 
   async solanaSearchAssets(params: SolanaSearchAssetsParams) {
     const { network, ...rest } = params;
-    return await this.callSolanaRpc(network, "searchAssets", rest);
+    return this.callSolanaRpc(network, "searchAssets", rest);
   }
 }
