@@ -9,3 +9,4 @@ dist/
 !.claude/skills/
 CLAUDE.md
 plans/
+tests/results/

@@ -8,7 +8,11 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import { AlchemyApi } from "../api/alchemyApi.js";
-import { JsonRpcClientProvider } from "../api/client-providers.js";
+import {
+  BeaconClientProvider,
+  JsonRpcClientProvider,
+  NftV3ClientProvider,
+} from "../api/client-providers.js";
 import { registerTools } from "../api/registerTools.js";
 import { setupDi } from "../di/di-container.js";
 import { ClientsModule } from "../di/modules/clients.module.js";
@@ -18,6 +22,8 @@ import { ClientsModule } from "../di/modules/clients.module.js";
 // ========================================
 
 const EXPECTED_TOOLS = [
+  // Network Discovery
+  "listSupportedNetworks",
   // Prices API
   "fetchTokenPriceBySymbol",
   "fetchTokenPriceByAddress",
@@ -36,6 +42,101 @@ const EXPECTED_TOOLS = [
   "sendTransaction",
   // Swap API
   "swap",
+  // NFT V3 API (single-chain GET endpoints)
+  "getNFTsForOwner",
+  "getNFTsForContract",
+  "getNFTsForCollection",
+  "getNFTMetadata",
+  "getContractMetadata",
+  "getCollectionMetadata",
+  "invalidateNFTContractCache",
+  "getOwnersForNFT",
+  "getOwnersForContract",
+  "getSpamContracts",
+  "isSpamContract",
+  "isAirdropNFT",
+  "summarizeNFTAttributes",
+  "getFloorPrice",
+  "searchContractMetadata",
+  "isHolderOfContract",
+  "computeRarity",
+  "getNFTSales",
+  "getContractsForOwner",
+  "getCollectionsForOwner",
+  "reportSpam",
+  // Token API (JSON-RPC)
+  "getTokenAllowance",
+  "getTokenBalances",
+  "getTokenMetadata",
+  // Transaction Receipt API (JSON-RPC)
+  "getTransactionReceipts",
+  // Debug API (JSON-RPC)
+  "debugGetRawBlock",
+  "debugGetRawHeader",
+  "debugGetRawReceipts",
+  "debugTraceBlockByHash",
+  "debugTraceBlockByNumber",
+  "debugTraceCall",
+  "debugTraceTransaction",
+  // Trace API (JSON-RPC)
+  "traceBlock",
+  "traceCall",
+  "traceGet",
+  "traceRawTransaction",
+  "traceReplayBlockTransactions",
+  "traceReplayTransaction",
+  "traceTransaction",
+  "traceFilter",
+  // Transaction Simulation API (JSON-RPC)
+  "simulateAssetChanges",
+  "simulateAssetChangesBundle",
+  "simulateExecution",
+  "simulateExecutionBundle",
+  // Bundler API (JSON-RPC)
+  "getMaxPriorityFeePerGas",
+  "getUserOperationReceipt",
+  "getSupportedEntryPoints",
+  "getUserOperationByHash",
+  "estimateUserOperationGas",
+  // UserOp Simulation API (JSON-RPC)
+  "simulateUserOperationAssetChanges",
+  // Beacon API (REST GET)
+  "getBeaconGenesis",
+  "getBeaconBlock",
+  "getBeaconBlockAttestations",
+  "getBeaconBlockRoot",
+  "getBeaconBlobSidecars",
+  "getBeaconHeaders",
+  "getBeaconHeaderByBlockId",
+  "getBeaconPoolVoluntaryExits",
+  "getBeaconPoolAttestations",
+  "getBeaconStateCommittees",
+  "getBeaconStateFinalityCheckpoints",
+  "getBeaconStateFork",
+  "getBeaconStatePendingConsolidations",
+  "getBeaconStateRoot",
+  "getBeaconStateSyncCommittees",
+  "getBeaconStateRandao",
+  "getBeaconStateValidatorBalances",
+  "getBeaconStateValidators",
+  "getBeaconStateValidatorById",
+  "getBeaconBlockRewards",
+  "getBeaconConfigSpec",
+  "getBeaconNodeSyncing",
+  "getBeaconNodeVersion",
+  // Solana DAS API (JSON-RPC)
+  "solanaGetAsset",
+  "solanaGetAssets",
+  "solanaGetAssetProof",
+  "solanaGetAssetProofs",
+  "solanaGetAssetsByAuthority",
+  "solanaGetAssetsByCreator",
+  "solanaGetAssetsByGroup",
+  "solanaGetAssetsByOwner",
+  "solanaGetAssetSignatures",
+  "solanaGetNftEditions",
+  "solanaGetTokenAccounts",
+  "solanaSearchAssets",
 ].sort();
 
 // ========================================
@@ -104,6 +205,68 @@ describe("Client Providers", () => {
     assert.ok(
       baseURL.includes("eth-mainnet.g.alchemy.com/v2/"),
       `Base URL should contain network: ${baseURL}`,
+    );
+  });
+
+  it("NftV3ClientProvider should cache clients by network", () => {
+    const container = setupDi([new ClientsModule()]);
+    const provider = container.get(NftV3ClientProvider);
+
+    const client1 = provider.get("eth-mainnet");
+    const client2 = provider.get("eth-mainnet");
+    const client3 = provider.get("base-mainnet");
+
+    assert.strictEqual(
+      client1,
+      client2,
+      "Same network should return cached client",
+    );
+    assert.notStrictEqual(
+      client1,
+      client3,
+      "Different networks should return different clients",
+    );
+  });
+
+  it("NftV3ClientProvider should use correct base URL pattern", () => {
+    const container = setupDi([new ClientsModule()]);
+    const provider = container.get(NftV3ClientProvider);
+    const client = provider.get("eth-mainnet");
+    const baseURL = (client.defaults as any).baseURL as string;
+    assert.ok(
+      baseURL.includes("eth-mainnet.g.alchemy.com/nft/v3/"),
+      `Base URL should contain NFT v3 path: ${baseURL}`,
+    );
+  });
+
+  it("BeaconClientProvider should cache clients by network", () => {
+    const container = setupDi([new ClientsModule()]);
+    const provider = container.get(BeaconClientProvider);
+
+    const client1 = provider.get("eth-mainnet");
+    const client2 = provider.get("eth-mainnet");
+    const client3 = provider.get("eth-sepolia");
+
+    assert.strictEqual(
+      client1,
+      client2,
+      "Same network should return cached client",
+    );
+    assert.notStrictEqual(
+      client1,
+      client3,
+      "Different networks should return different clients",
+    );
+  });
+
+  it("BeaconClientProvider should use correct base URL pattern", () => {
+    const container = setupDi([new ClientsModule()]);
+    const provider = container.get(BeaconClientProvider);
+    const client = provider.get("eth-mainnet");
+    const baseURL = (client.defaults as any).baseURL as string;
+    assert.ok(
+      baseURL.includes("eth-mainnetbeacon.g.alchemy.com/v2/"),
+      `Base URL should contain beacon path: ${baseURL}`,
     );
   });
 });

@@ -2,7 +2,11 @@ import axios from "axios";
 import { ContainerModule } from "inversify";
 
 import { AlchemyApi } from "../../api/alchemyApi.js";
-import { JsonRpcClientProvider } from "../../api/client-providers.js";
+import {
+  BeaconClientProvider,
+  JsonRpcClientProvider,
+  NftV3ClientProvider,
+} from "../../api/client-providers.js";
 import { DI_SYMBOLS } from "../di-symbols.js";
 
 const BREADCRUMB_HEADER = "alchemy-mcp";
@@ -63,8 +67,10 @@ export class ClientsModule extends ContainerModule {
         }),
       );
 
-      // Network-parameterized client provider
+      // Network-parameterized client providers
       bind(JsonRpcClientProvider).toSelf().inSingletonScope();
+      bind(NftV3ClientProvider).toSelf().inSingletonScope();
+      bind(BeaconClientProvider).toSelf().inSingletonScope();
 
       // API service
       bind(AlchemyApi).toSelf().inSingletonScope();
