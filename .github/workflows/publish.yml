@@ -1,0 +1,121 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: Publish even when no changesets are present
+        required: false
+        default: "false"
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: read
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v6
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
+      - run: pnpm run build
+      - run: pnpm test
+      - name: Check for changesets
+        id: changesets
+        run: |
+          if ls .changeset/*.md 1>/dev/null 2>&1; then
+            echo "has_changesets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changesets=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Version packages
+        if: steps.changesets.outputs.has_changesets == 'true'
+        run: pnpm run version-packages
+        env:
+          # Use workflow token for Changesets GitHub changelog lookups.
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Create signed commit and push via API
+        if: steps.changesets.outputs.has_changesets == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+
+          # Get the current commit SHA and tree
+          head_sha=$(gh api repos/${{ github.repository }}/git/ref/heads/main --jq '.object.sha')
+          base_tree=$(gh api repos/${{ github.repository }}/git/commits/${head_sha} --jq '.tree.sha')
+
+          # Upload changed files as blobs and build tree entries
+          tree_entries='[]'
+          for file in $(git diff --diff-filter=d --name-only HEAD); do
+            blob_sha=$(gh api repos/${{ github.repository }}/git/blobs \
+              -f content="$(base64 -w 0 "$file")" \
+              -f encoding="base64" \
+              --jq '.sha')
+            tree_entries=$(echo "$tree_entries" | jq \
+              --arg path "$file" \
+              --arg sha "$blob_sha" \
+              '. + [{"path": $path, "mode": "100644", "type": "blob", "sha": $sha}]')
+          done
+
+          # Handle deleted files (consumed changesets)
+          for file in $(git diff --diff-filter=D --name-only HEAD); do
+            tree_entries=$(echo "$tree_entries" | jq \
+              --arg path "$file" \
+              '. + [{"path": $path, "mode": "100644", "type": "blob", "sha": null}]')
+          done
+
+          # Create a new tree with all changed files
+          new_tree=$(jq -n --argjson tree "$tree_entries" --arg base "$base_tree" \
+            '{base_tree: $base, tree: $tree}' | \
+            gh api repos/${{ github.repository }}/git/trees --input - --jq '.sha')
+
+          # Create a signed commit
+          new_commit=$(gh api repos/${{ github.repository }}/git/commits \
+            -f message="chore: release v${VERSION}" \
+            -f tree="${new_tree}" \
+            -f "parents[]=${head_sha}" \
+            --jq '.sha')
+
+          # Update main branch ref to point to the new commit
+          gh api repos/${{ github.repository }}/git/refs/heads/main \
+            -X PATCH \
+            -f sha="${new_commit}"
+      - name: Publish to npm
+        if: steps.changesets.outputs.has_changesets == 'true' || github.event.inputs.force_publish == 'true'
+        run: pnpm run release
+      - name: Create GitHub release
+        if: steps.changesets.outputs.has_changesets == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          # Extract release notes from CHANGELOG.md for this version
+          NOTES=$(sed -n "/^## ${VERSION}$/,/^## /{ /^## ${VERSION}$/d; /^## /d; p; }" CHANGELOG.md)
+          # Create a tag and release via gh CLI
+          gh release create "v${VERSION}" \
+            --repo ${{ github.repository }} \
+            --title "v${VERSION}" \
+            --notes "${NOTES}" \
+            --target main
