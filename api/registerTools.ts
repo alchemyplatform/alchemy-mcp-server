@@ -9,6 +9,7 @@ import {
 } from "../utils/dateUtils.js";
 import { convertWeiToEth } from "../utils/ethConversions.js";
 import { AlchemyApi } from "./alchemyApi.js";
+import { SUPPORTED_NETWORKS } from "./networks.js";
 
 // Standard tool handler to reduce boilerplate for tools that just call an API method and return JSON
 const handleToolCall =
@@ -36,6 +37,19 @@ const handleToolCall =
   };
 
 export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
+  // ========================================
+  // NETWORK DISCOVERY
+  // ========================================
+
+  server.tool("listSupportedNetworks", {}, () => ({
+    content: [
+      {
+        type: "text" as const,
+        text: JSON.stringify(SUPPORTED_NETWORKS, null, 2),
+      },
+    ],
+  }));
+
   // ========================================
   // PRICES API
   // ========================================
@@ -69,7 +83,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
             network: z
               .string()
               .describe(
-                'The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet"',
+                'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
               ),
           }),
         )
@@ -159,7 +173,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
             networks: z
               .array(z.string())
               .describe(
-                'The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]',
+                'Network IDs. Call listSupportedNetworks for all options. e.g. ["eth-mainnet", "base-mainnet"]',
               ),
           }),
         )
@@ -189,7 +203,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
             networks: z
               .array(z.string())
               .describe(
-                'The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]',
+                'Network IDs. Call listSupportedNetworks for all options. e.g. ["eth-mainnet", "base-mainnet"]',
               ),
           }),
         )
@@ -289,7 +303,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .default("eth-mainnet")
         .describe(
-          'The blockchain network to query. e.g. "eth-mainnet" or "base-mainnet").',
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
         ),
     },
     handleToolCall(
@@ -317,7 +331,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
               .array(z.string())
               .default(["eth-mainnet"])
               .describe(
-                'The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]',
+                'Network IDs. Call listSupportedNetworks for all options. e.g. ["eth-mainnet", "base-mainnet"]',
               ),
             excludeFilters: z
               .array(z.enum(["SPAM", "AIRDROPS"]))
@@ -378,7 +392,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
               .array(z.string())
               .default(["eth-mainnet"])
               .describe(
-                'The blockchain networks to query. e.g. ["eth-mainnet", "base-mainnet"]',
+                'Network IDs. Call listSupportedNetworks for all options. e.g. ["eth-mainnet", "base-mainnet"]',
               ),
           }),
         )
@@ -447,7 +461,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       owner: z
         .string()
         .describe(
@@ -506,7 +522,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address for the NFT collection."),
@@ -539,7 +557,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .optional()
@@ -577,7 +597,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z.string().describe("Contract address of the NFT."),
       tokenId: z
         .string()
@@ -607,7 +629,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address for the NFT contract."),
@@ -624,7 +648,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       collectionSlug: z
         .string()
         .describe("OpenSea slug for the NFT collection."),
@@ -641,7 +667,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address to invalidate cached metadata for."),
@@ -658,7 +686,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z.string().describe("Contract address for the NFT."),
       tokenId: z.string().describe("The token ID to get owners for."),
     },
@@ -674,7 +704,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address for the NFT contract."),
@@ -699,7 +731,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getSpamContracts(params),
@@ -713,7 +747,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address to check for spam status."),
@@ -730,7 +766,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z.string().describe("Contract address of the NFT."),
       tokenId: z.string().describe("The token ID to check."),
     },
@@ -743,7 +781,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address of the NFT collection."),
@@ -760,7 +800,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .optional()
@@ -782,7 +824,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       query: z
         .string()
         .describe("Search keyword to match against NFT contract metadata."),
@@ -799,7 +843,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       wallet: z
         .string()
         .describe("Wallet address to check for contract ownership."),
@@ -819,7 +865,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("Contract address of the NFT collection."),
@@ -839,7 +887,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       fromBlock: z
         .string()
         .optional()
@@ -893,7 +943,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       owner: z.string().describe("Owner address to get NFT contracts for."),
       pageKey: z
         .string()
@@ -933,7 +985,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       owner: z.string().describe("Owner address to get NFT collections for."),
       pageKey: z
         .string()
@@ -968,7 +1022,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       address: z.string().describe("The address to report as spam."),
       isSpam: z.boolean().describe("Whether the address is spam."),
     },
@@ -985,7 +1041,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contract: z.string().describe("The token contract address."),
       owner: z.string().describe("The address of the token owner."),
       spender: z.string().describe("The address of the spender."),
@@ -1002,7 +1060,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       address: z
         .string()
         .describe("The wallet address to get token balances for."),
@@ -1036,7 +1096,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       contractAddress: z
         .string()
         .describe("The token contract address to get metadata for."),
@@ -1057,7 +1119,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockNumber: z
         .string()
         .optional()
@@ -1087,7 +1151,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockNumberOrTag: z
         .string()
         .describe("Block number in hex or tag like 'latest'"),
@@ -1104,7 +1170,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockNumberOrTag: z
         .string()
         .describe("Block number in hex or tag like 'latest'"),
@@ -1121,7 +1189,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockNumberOrTag: z
         .string()
         .describe("Block number in hex or tag like 'latest'"),
@@ -1138,7 +1208,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockHash: z.string().describe("32-byte block hash"),
       tracer: z.object({}).passthrough().optional().describe("Tracer options"),
     },
@@ -1154,7 +1226,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockNumberOrTag: z
         .string()
         .describe("Block number in hex or tag like 'latest'"),
@@ -1172,7 +1246,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transaction: z
         .object({})
         .passthrough()
@@ -1196,7 +1272,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactionHash: z.string().describe("Transaction hash"),
       options: z
         .object({})
@@ -1220,7 +1298,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockIdentifier: z
         .string()
         .default("latest")
@@ -1235,7 +1315,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transaction: z
         .object({})
         .passthrough()
@@ -1257,7 +1339,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactionHash: z.string().describe("Transaction hash"),
       traceIndexes: z.array(z.string()).describe("Hex index positions"),
     },
@@ -1270,7 +1354,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       rawTransaction: z.string().describe("Raw transaction data"),
       traceTypes: z
         .array(z.string())
@@ -1288,7 +1374,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockIdentifier: z
         .string()
         .describe("Block identifier (number, hash, or tag)"),
@@ -1308,7 +1396,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactionHash: z.string().describe("Transaction hash"),
       traceTypes: z
         .array(z.string())
@@ -1326,7 +1416,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactionHash: z.string().describe("Transaction hash"),
     },
     handleToolCall(
@@ -1341,7 +1433,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       fromBlock: z
         .string()
         .optional()
@@ -1374,7 +1468,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transaction: z
         .object({
           to: z.string().describe("The recipient address"),
@@ -1397,7 +1493,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactions: z
         .array(
           z.object({
@@ -1424,7 +1522,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transaction: z
         .object({
           to: z.string().describe("The recipient address"),
@@ -1447,7 +1547,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       transactions: z
         .array(
           z.object({
@@ -1478,7 +1580,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getMaxPriorityFeePerGas(params),
@@ -1492,7 +1596,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       userOpHash: z.string().describe("The user operation hash"),
     },
     handleToolCall(
@@ -1507,7 +1613,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getSupportedEntryPoints(params),
@@ -1521,7 +1629,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       userOpHash: z.string().describe("The user operation hash"),
     },
     handleToolCall(
@@ -1536,7 +1646,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       userOperation: z
         .object({})
         .passthrough()
@@ -1564,7 +1676,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       userOperation: z
         .object({})
         .passthrough()
@@ -1591,7 +1705,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconGenesis(params),
@@ -1605,7 +1721,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1624,7 +1742,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1643,7 +1763,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1662,7 +1784,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1685,7 +1809,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       slot: z.string().optional().describe("Slot number to filter by"),
       parentRoot: z.string().optional().describe("Parent root to filter by"),
     },
@@ -1701,7 +1827,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1720,7 +1848,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconPoolVoluntaryExits(params),
@@ -1734,7 +1864,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconPoolAttestations(params),
@@ -1748,7 +1880,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1768,7 +1902,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1785,7 +1921,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1802,7 +1940,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1819,7 +1959,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1836,7 +1978,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1854,7 +1998,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1872,7 +2018,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1893,7 +2041,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1918,7 +2068,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
@@ -1936,7 +2088,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
       blockId: z
         .string()
         .describe(
@@ -1955,7 +2109,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconConfigSpec(params),
@@ -1969,7 +2125,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconNodeSyncing(params),
@@ -1983,7 +2141,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("eth-mainnet")
-        .describe('The blockchain network to query. e.g. "eth-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "eth-mainnet"',
+        ),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconNodeVersion(params),
@@ -2001,7 +2161,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       id: z.string().describe("Asset ID base-58 encoded"),
     },
     handleToolCall(
@@ -2016,7 +2178,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       ids: z.array(z.string()).describe("Array of asset IDs base-58 encoded"),
     },
     handleToolCall(
@@ -2031,7 +2195,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       id: z.string().describe("Asset ID base-58 encoded"),
     },
     handleToolCall(
@@ -2046,7 +2212,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       ids: z.array(z.string()).describe("Array of asset IDs base-58 encoded"),
     },
     handleToolCall(
@@ -2061,7 +2229,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       authorityAddress: z
         .string()
         .describe("Authority address to query assets for"),
@@ -2090,7 +2260,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       creatorAddress: z
         .string()
         .describe("Creator address to query assets for"),
@@ -2123,7 +2295,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       groupKey: z.string().describe("Group key to query by"),
       groupValue: z.string().describe("Group value to query by"),
       sortBy: z
@@ -2151,7 +2325,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       ownerAddress: z.string().describe("Owner address to query assets for"),
       sortBy: z
         .object({})
@@ -2178,7 +2354,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       id: z.string().describe("Asset ID to get signatures for"),
       limit: z.number().optional().describe("Number of results to return"),
       page: z.number().optional().describe("Page number for pagination"),
@@ -2197,7 +2375,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       mintAddress: z.string().describe("Mint address of the NFT"),
       limit: z.number().optional().describe("Number of results to return"),
       page: z.number().optional().describe("Page number for pagination"),
@@ -2214,7 +2394,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       mintAddress: z.string().optional().describe("Mint address to filter by"),
       ownerAddress: z
         .string()
@@ -2235,7 +2417,9 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z
         .string()
         .default("solana-mainnet")
-        .describe('The Solana network to query. e.g. "solana-mainnet"'),
+        .describe(
+          'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"',
+        ),
       ownerAddress: z
         .string()
         .optional()

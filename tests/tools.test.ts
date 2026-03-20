@@ -22,6 +22,8 @@ import { ClientsModule } from "../di/modules/clients.module.js";
 // ========================================
 
 const EXPECTED_TOOLS = [
+  // Network Discovery
+  "listSupportedNetworks",
   // Prices API
   "fetchTokenPriceBySymbol",
   "fetchTokenPriceByAddress",
