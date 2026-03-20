@@ -8,3 +8,4 @@ dist/
 .claude/
 CLAUDE.md
 plans/
+tests/results/

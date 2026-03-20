@@ -56,6 +56,11 @@ function extractMessage(data: unknown): string | undefined {
   return undefined;
 }
 
+// Errors that indicate a method/feature is not supported on a given network.
+// These are expected and not actionable — no need to log them.
+const NOT_SUPPORTED_RE =
+  /not supported|unsupported|not available|does not support|not enabled|isn't enabled|enotfound|error 404|error 500|unable to complete request|internal error|contact the alchemy team|is required for|expect \d+ arguments/i;
+
 // Standard tool handler to reduce boilerplate for tools that just call an API method and return JSON
 const handleToolCall =
   (fn: (params: any) => Promise<any>, name: string) => async (params: any) => {
@@ -68,7 +73,13 @@ const handleToolCall =
       };
     } catch (error) {
       const message = formatError(error);
-      console.error(`Error in ${name}: ${message}`);
+      if (!NOT_SUPPORTED_RE.test(message)) {
+        const network =
+          params?.network || params?.addresses?.[0]?.network || "";
+        console.error(
+          `Error in ${name}${network ? ` [${network}]` : ""}: ${message}`,
+        );
+      }
       return {
         content: [{ type: "text" as const, text: message }],
         isError: true,
@@ -1693,7 +1704,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
-      epoch: z.string().describe("Epoch number to get RANDAO for"),
+      epoch: z.string().optional().describe("Epoch number to get RANDAO for"),
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateRandao(params),

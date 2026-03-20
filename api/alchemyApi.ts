@@ -775,7 +775,7 @@ export class AlchemyApi {
   async getBeaconBlock(params: BeaconBlockIdParams) {
     const client = this.beaconProvider.get(params.network);
     const response = await client.get(
-      `/eth/v2/beacon/blocks/${params.blockId}`,
+      `/eth/v1/beacon/blocks/${params.blockId}`,
     );
     return response.data;
   }
@@ -783,7 +783,7 @@ export class AlchemyApi {
   async getBeaconBlockAttestations(params: BeaconBlockIdParams) {
     const client = this.beaconProvider.get(params.network);
     const response = await client.get(
-      `/eth/v2/beacon/blocks/${params.blockId}/attestations`,
+      `/eth/v1/beacon/blocks/${params.blockId}/attestations`,
     );
     return response.data;
   }
@@ -831,7 +831,7 @@ export class AlchemyApi {
 
   async getBeaconPoolAttestations(params: BeaconNetworkParams) {
     const client = this.beaconProvider.get(params.network);
-    const response = await client.get("/eth/v2/beacon/pool/attestations");
+    const response = await client.get("/eth/v1/beacon/pool/attestations");
     return response.data;
   }
 

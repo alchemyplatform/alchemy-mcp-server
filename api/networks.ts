@@ -67,11 +67,6 @@ export const SUPPORTED_NETWORKS = {
       testnets: ["worldchain-sepolia"],
     },
     {
-      chain: "StarkNet",
-      mainnet: "starknet-mainnet",
-      testnets: ["starknet-sepolia"],
-    },
-    {
       chain: "Hyperliquid",
       mainnet: "hyperliquid-mainnet",
       testnets: ["hyperliquid-testnet"],
@@ -181,6 +176,11 @@ export const SUPPORTED_NETWORKS = {
     { chain: "Aptos", mainnet: "aptos-mainnet", testnets: ["aptos-testnet"] },
     { chain: "Sui", mainnet: "sui-mainnet", testnets: ["sui-testnet"] },
     { chain: "Tron", mainnet: "tron-mainnet", testnets: ["tron-testnet"] },
+    {
+      chain: "StarkNet",
+      mainnet: "starknet-mainnet",
+      testnets: ["starknet-sepolia"],
+    },
   ],
   testnetOnly: [
     { chain: "ARC", testnets: ["arc-testnet"] },
