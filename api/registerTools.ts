@@ -20,24 +20,40 @@ const NETWORKS_DESC =
 const SOLANA_NETWORK_DESC =
   'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"';
 
-// Extract a useful error message from an Axios error, including the API response body
+// Extract a concise, human-readable message from an API error.
+// Alchemy responses use several shapes — this pulls the deepest message it can find.
 function formatError(error: unknown): string {
   if (isAxiosError(error)) {
     const status = error.response?.status;
     const data = error.response?.data;
-    // Alchemy returns JSON error details in the response body
-    const detail =
-      typeof data === "string"
-        ? data
-        : data
-          ? JSON.stringify(data)
-          : error.message;
-    return status ? `Error ${status}: ${detail}` : `Error: ${detail}`;
+    const message = extractMessage(data) ?? error.message;
+    return status ? `Error ${status}: ${message}` : `Error: ${message}`;
   }
   if (error instanceof Error) {
     return `Error: ${error.message}`;
   }
   return "Unknown error occurred";
+}
+
+// Walk common Alchemy / JSON-RPC / REST error shapes to find the message string.
+function extractMessage(data: unknown): string | undefined {
+  if (data == null) return undefined;
+  if (typeof data === "string") return data;
+  if (typeof data !== "object") return String(data); // eslint-disable-line @typescript-eslint/no-base-to-string
+
+  const obj = data as Record<string, unknown>;
+
+  // JSON-RPC: { error: { message: "..." } }
+  if (obj.error && typeof obj.error === "object") {
+    const inner = obj.error as Record<string, unknown>;
+    if (typeof inner.message === "string") return inner.message;
+  }
+  // REST: { error: "..." }
+  if (typeof obj.error === "string") return obj.error;
+  // REST: { message: "..." }
+  if (typeof obj.message === "string") return obj.message;
+
+  return undefined;
 }
 
 // Standard tool handler to reduce boilerplate for tools that just call an API method and return JSON
@@ -51,9 +67,10 @@ const handleToolCall =
         ],
       };
     } catch (error) {
-      console.error(`Error in ${name}:`, error);
+      const message = formatError(error);
+      console.error(`Error in ${name}: ${message}`);
       return {
-        content: [{ type: "text" as const, text: formatError(error) }],
+        content: [{ type: "text" as const, text: message }],
         isError: true,
       };
     }
