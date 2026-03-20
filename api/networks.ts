@@ -161,7 +161,6 @@ export const SUPPORTED_NETWORKS = {
       testnets: [],
     },
     { chain: "Synd", mainnet: "synd-mainnet", testnets: [] },
-    { chain: "Geist", mainnet: "geist-mainnet", testnets: [] },
   ],
   beacon: [
     {
@@ -188,8 +187,7 @@ export const SUPPORTED_NETWORKS = {
     { chain: "OpenLoot", testnets: ["openloot-sepolia"] },
     { chain: "RISA", testnets: ["risa-testnet"] },
     { chain: "RISE", testnets: ["rise-testnet"] },
-    { chain: "Tea", testnets: ["tea-sepolia"] },
-    { chain: "Tempo", testnets: ["tempo-testnet"] },
+    { chain: "Tempo", testnets: ["tempo-moderato"] },
   ],
   alchemyInternal: [
     "alchemy-internal",
