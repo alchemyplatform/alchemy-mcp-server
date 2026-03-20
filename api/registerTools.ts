@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { isAxiosError } from "axios";
 import { z } from "zod";
 
 import { convertTimestampToDate } from "../utils/convertTimestampToDate.js";
@@ -19,6 +20,26 @@ const NETWORKS_DESC =
 const SOLANA_NETWORK_DESC =
   'Network ID. Call listSupportedNetworks for all options. e.g. "solana-mainnet"';
 
+// Extract a useful error message from an Axios error, including the API response body
+function formatError(error: unknown): string {
+  if (isAxiosError(error)) {
+    const status = error.response?.status;
+    const data = error.response?.data;
+    // Alchemy returns JSON error details in the response body
+    const detail =
+      typeof data === "string"
+        ? data
+        : data
+          ? JSON.stringify(data)
+          : error.message;
+    return status ? `Error ${status}: ${detail}` : `Error: ${detail}`;
+  }
+  if (error instanceof Error) {
+    return `Error: ${error.message}`;
+  }
+  return "Unknown error occurred";
+}
+
 // Standard tool handler to reduce boilerplate for tools that just call an API method and return JSON
 const handleToolCall =
   (fn: (params: any) => Promise<any>, name: string) => async (params: any) => {
@@ -30,15 +51,9 @@ const handleToolCall =
         ],
       };
     } catch (error) {
-      if (error instanceof Error) {
-        console.error(`Error in ${name}:`, error);
-        return {
-          content: [{ type: "text" as const, text: `Error: ${error.message}` }],
-          isError: true,
-        };
-      }
+      console.error(`Error in ${name}:`, error);
       return {
-        content: [{ type: "text" as const, text: "Unknown error occurred" }],
+        content: [{ type: "text" as const, text: formatError(error) }],
         isError: true,
       };
     }
