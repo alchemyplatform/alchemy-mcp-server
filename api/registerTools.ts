@@ -92,14 +92,19 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
   // NETWORK DISCOVERY
   // ========================================
 
-  server.tool("listSupportedNetworks", {}, () => ({
-    content: [
-      {
-        type: "text" as const,
-        text: JSON.stringify(SUPPORTED_NETWORKS, null, 2),
-      },
-    ],
-  }));
+  server.tool(
+    "listSupportedNetworks",
+    "List all blockchain networks supported by Alchemy, including EVM and Solana chains",
+    {},
+    () => ({
+      content: [
+        {
+          type: "text" as const,
+          text: JSON.stringify(SUPPORTED_NETWORKS, null, 2),
+        },
+      ],
+    }),
+  );
 
   // ========================================
   // PRICES API
@@ -107,6 +112,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTokenPriceBySymbol",
+    "Get current USD prices for tokens by their ticker symbol (e.g. BTC, ETH)",
     {
       symbols: z
         .array(z.string())
@@ -122,6 +128,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTokenPriceByAddress",
+    "Get current USD prices for tokens by their contract address and network",
     {
       addresses: z
         .array(
@@ -144,6 +151,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTokenPriceHistoryBySymbol",
+    "Get historical token price data over a date range with configurable interval",
     {
       symbol: z
         .string()
@@ -169,6 +177,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTokenPriceHistoryByTimeFrame",
+    'Get historical token prices using natural language time frames like "last week" or "past 7 days"',
     {
       symbol: z
         .string()
@@ -208,6 +217,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTokensOwnedByMultichainAddresses",
+    "Get all ERC-20 tokens owned by wallet addresses across multiple chains",
     {
       addresses: z
         .array(
@@ -234,6 +244,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchAddressTransactionHistory",
+    "Get transaction history for wallet addresses across multiple chains, with human-readable dates and ETH values",
     {
       addresses: z
         .array(
@@ -283,6 +294,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchTransfers",
+    "Get token and ETH transfers filtered by address, block range, or contract",
     {
       fromBlock: z
         .string()
@@ -352,6 +364,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchNftsOwnedByMultichainAddresses",
+    "Get NFTs owned by wallet addresses across multiple chains, with spam filtering",
     {
       addresses: z
         .array(
@@ -411,6 +424,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "fetchNftContractDataByMultichainAddress",
+    "Get NFT contract data for wallet addresses across multiple chains",
     {
       addresses: z
         .array(
@@ -444,6 +458,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "sendTransaction",
+    "Send a transaction from a smart contract account (SCA) via the Alchemy wallet API. Requires AGENT_WALLET_SERVER",
     {
       ownerScaAccountAddress: z
         .string()
@@ -470,6 +485,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "swap",
+    "Initiate a token swap from a smart contract account (SCA) via the Alchemy wallet API. Requires AGENT_WALLET_SERVER",
     {
       ownerScaAccountAddress: z
         .string()
@@ -487,6 +503,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getNFTsForOwner",
+    "Get all NFTs owned by an address on a single network, with metadata and spam filtering options",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       owner: z
@@ -543,6 +560,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getNFTsForContract",
+    "Get all NFTs in a specific contract or collection with optional metadata",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -573,6 +591,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getNFTsForCollection",
+    "Get all NFTs in a collection by contract address or OpenSea slug",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -608,6 +627,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getNFTMetadata",
+    "Get metadata for a specific NFT by contract address and token ID",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z.string().describe("Contract address of the NFT."),
@@ -635,6 +655,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getContractMetadata",
+    "Get metadata for an NFT contract (name, symbol, total supply, etc.)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -649,6 +670,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getCollectionMetadata",
+    "Get metadata for an NFT collection by its OpenSea slug",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       collectionSlug: z
@@ -663,6 +685,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "invalidateNFTContractCache",
+    "Invalidate cached metadata for an NFT contract to force a refresh on next query",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -677,6 +700,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getOwnersForNFT",
+    "Get all owner addresses for a specific NFT token",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z.string().describe("Contract address for the NFT."),
@@ -690,6 +714,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getOwnersForContract",
+    "Get all owner addresses for an NFT contract, optionally with token balances",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -712,6 +737,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getSpamContracts",
+    "Get a list of all known spam NFT contract addresses on a network",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -723,6 +749,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "isSpamContract",
+    "Check if a specific contract address is flagged as spam",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -737,6 +764,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "isAirdropNFT",
+    "Check if a specific NFT is flagged as an airdrop",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z.string().describe("Contract address of the NFT."),
@@ -747,6 +775,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "summarizeNFTAttributes",
+    "Get a summary of trait/attribute distribution for an NFT collection",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -761,6 +790,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getFloorPrice",
+    "Get the marketplace floor price for an NFT collection",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -780,6 +810,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "searchContractMetadata",
+    "Search for NFT contracts by keyword in their metadata",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       query: z
@@ -794,6 +825,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "isHolderOfContract",
+    "Check if a wallet address owns any NFTs from a specific contract",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       wallet: z
@@ -811,6 +843,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "computeRarity",
+    "Compute the rarity score for a specific NFT within its collection",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -828,6 +861,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getNFTSales",
+    "Get historical NFT sales data, filterable by marketplace, contract, buyer, or seller",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       fromBlock: z
@@ -879,6 +913,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getContractsForOwner",
+    "Get all NFT contracts that an address owns tokens in",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       owner: z.string().describe("Owner address to get NFT contracts for."),
@@ -916,6 +951,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getCollectionsForOwner",
+    "Get all NFT collections that an address owns tokens in",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       owner: z.string().describe("Owner address to get NFT collections for."),
@@ -948,6 +984,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "reportSpam",
+    "Report an NFT contract address as spam or not spam",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       address: z.string().describe("The address to report as spam."),
@@ -962,6 +999,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getTokenAllowance",
+    "Get the ERC-20 token allowance a spender has been granted by an owner",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contract: z.string().describe("The token contract address."),
@@ -976,6 +1014,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getTokenBalances",
+    "Get ERC-20 token balances for a wallet address on a single network",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       address: z
@@ -1007,6 +1046,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getTokenMetadata",
+    "Get metadata (name, symbol, decimals, logo) for an ERC-20 token contract",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z
@@ -1025,6 +1065,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getTransactionReceipts",
+    "Get all transaction receipts for a given block by number or hash",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockNumber: z
@@ -1052,6 +1093,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugGetRawBlock",
+    "Get the raw RLP-encoded block data for a given block number or tag",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockNumberOrTag: z
@@ -1066,6 +1108,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugGetRawHeader",
+    "Get the raw RLP-encoded block header for a given block number or tag",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockNumberOrTag: z
@@ -1080,6 +1123,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugGetRawReceipts",
+    "Get the raw receipt data for all transactions in a block",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockNumberOrTag: z
@@ -1094,6 +1138,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugTraceBlockByHash",
+    "Replay and trace all transactions in a block identified by its hash",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockHash: z.string().describe("32-byte block hash"),
@@ -1107,6 +1152,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugTraceBlockByNumber",
+    "Replay and trace all transactions in a block identified by its number",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockNumberOrTag: z
@@ -1122,6 +1168,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugTraceCall",
+    "Trace a call without executing it on-chain — useful for debugging contract interactions",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transaction: z
@@ -1143,6 +1190,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "debugTraceTransaction",
+    "Get a detailed execution trace of an already-mined transaction",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
@@ -1164,6 +1212,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceBlock",
+    "Get Parity-style execution traces for all transactions in a block",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockIdentifier: z
@@ -1176,6 +1225,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceCall",
+    "Execute and trace a call without broadcasting it (Parity-style tracing)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transaction: z
@@ -1195,6 +1245,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceGet",
+    "Get a specific sub-trace within a transaction by index position",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
@@ -1205,6 +1256,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceRawTransaction",
+    "Trace a raw signed transaction without broadcasting it to the network",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       rawTransaction: z.string().describe("Raw transaction data"),
@@ -1220,6 +1272,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceReplayBlockTransactions",
+    "Replay all transactions in a block and return traces with optional state diffs",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockIdentifier: z
@@ -1237,6 +1290,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceReplayTransaction",
+    "Replay a specific transaction and return its trace with optional state diffs",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
@@ -1252,6 +1306,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceTransaction",
+    "Get the Parity-style execution trace of an already-mined transaction",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
@@ -1264,6 +1319,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "traceFilter",
+    "Search for traces matching criteria like sender, recipient, and block range",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       fromBlock: z
@@ -1294,6 +1350,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "simulateAssetChanges",
+    "Simulate a transaction and preview what asset changes (token transfers, ETH movements) would occur",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transaction: z
@@ -1314,6 +1371,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "simulateAssetChangesBundle",
+    "Simulate a bundle of 1-2 transactions and preview the combined asset changes",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactions: z
@@ -1338,6 +1396,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "simulateExecution",
+    "Simulate full transaction execution and get detailed call traces, logs, and return data",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transaction: z
@@ -1358,6 +1417,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "simulateExecutionBundle",
+    "Simulate execution of a bundle of 1-2 transactions with full call traces",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactions: z
@@ -1386,6 +1446,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getMaxPriorityFeePerGas",
+    "Get the recommended max priority fee per gas for EIP-1559 transactions",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1397,6 +1458,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getUserOperationReceipt",
+    "Get the receipt for an ERC-4337 user operation by its hash",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOpHash: z.string().describe("The user operation hash"),
@@ -1409,6 +1471,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getSupportedEntryPoints",
+    "Get the entry point contract addresses supported for ERC-4337 account abstraction",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1420,6 +1483,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getUserOperationByHash",
+    "Get details of an ERC-4337 user operation by its hash",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOpHash: z.string().describe("The user operation hash"),
@@ -1432,6 +1496,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "estimateUserOperationGas",
+    "Estimate gas costs for an ERC-4337 user operation against an entry point",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOperation: z
@@ -1457,6 +1522,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "simulateUserOperationAssetChanges",
+    "Simulate an ERC-4337 user operation and preview the predicted asset changes",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOperation: z
@@ -1481,6 +1547,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconGenesis",
+    "Get Ethereum Beacon Chain genesis information (time, validator root, fork version)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1492,6 +1559,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconBlock",
+    "Get a Beacon Chain block by slot number, root, or keyword (head, finalized, genesis)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1508,6 +1576,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconBlockAttestations",
+    "Get attestations included in a specific Beacon Chain block",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1524,6 +1593,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconBlockRoot",
+    "Get the root hash of a specific Beacon Chain block",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1540,6 +1610,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconBlobSidecars",
+    "Get blob sidecars for a Beacon Chain block (EIP-4844 blob data)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1560,6 +1631,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconHeaders",
+    "Get Beacon Chain block headers, optionally filtered by slot or parent root",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       slot: z.string().optional().describe("Slot number to filter by"),
@@ -1573,6 +1645,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconHeaderByBlockId",
+    "Get a specific Beacon Chain block header by its block ID",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1589,6 +1662,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconPoolVoluntaryExits",
+    "Get voluntary validator exit messages currently in the Beacon Chain mempool",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1600,6 +1674,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconPoolAttestations",
+    "Get attestations currently pending in the Beacon Chain mempool",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1611,6 +1686,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateCommittees",
+    "Get beacon committee assignments for a given state, optionally filtered by epoch/slot",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1628,6 +1704,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateFinalityCheckpoints",
+    "Get finality checkpoints (justified and finalized epochs) for a given state",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1642,6 +1719,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateFork",
+    "Get the fork version information for a given Beacon Chain state",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1656,6 +1734,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStatePendingConsolidations",
+    "Get pending validator consolidation requests for a given state",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1670,6 +1749,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateRoot",
+    "Get the state root hash for a given Beacon Chain state",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1684,6 +1764,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateSyncCommittees",
+    "Get sync committee assignments for a given state and optional epoch",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1699,6 +1780,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateRandao",
+    "Get the RANDAO mix value for a given Beacon Chain state and optional epoch",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1714,6 +1796,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateValidatorBalances",
+    "Get validator ETH balances for a given state, optionally filtered by validator ID",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1732,6 +1815,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateValidators",
+    "Get validator details for a given state, optionally filtered by ID or status",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1754,6 +1838,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconStateValidatorById",
+    "Get full details for a specific Beacon Chain validator by index or public key",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       stateId: z
@@ -1769,6 +1854,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconBlockRewards",
+    "Get the block rewards breakdown (proposer, attestation, sync committee) for a Beacon block",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockId: z
@@ -1785,6 +1871,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconConfigSpec",
+    "Get the full Beacon Chain configuration specification and protocol constants",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1796,6 +1883,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconNodeSyncing",
+    "Check whether a Beacon Chain node is currently syncing and its sync progress",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1807,6 +1895,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "getBeaconNodeVersion",
+    "Get the software version string of the Beacon Chain node",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
@@ -1822,6 +1911,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAsset",
+    "Get detailed information about a Solana asset (token, NFT, or compressed NFT) by its mint ID",
     {
       network: z
         .string()
@@ -1837,6 +1927,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssets",
+    "Get detailed information about multiple Solana assets by their mint IDs in a single request",
     {
       network: z
         .string()
@@ -1852,6 +1943,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetProof",
+    "Get the Merkle proof for a compressed Solana asset, needed for on-chain verification",
     {
       network: z
         .string()
@@ -1867,6 +1959,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetProofs",
+    "Get Merkle proofs for multiple compressed Solana assets in a single request",
     {
       network: z
         .string()
@@ -1882,6 +1975,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetsByAuthority",
+    "Get all Solana assets managed by a specific authority address",
     {
       network: z
         .string()
@@ -1911,6 +2005,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetsByCreator",
+    "Get all Solana assets created by a specific address, with optional verification filter",
     {
       network: z
         .string()
@@ -1944,6 +2039,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetsByGroup",
+    "Get all Solana assets in a specific group (e.g. an NFT collection)",
     {
       network: z
         .string()
@@ -1972,6 +2068,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetsByOwner",
+    "Get all Solana assets (tokens, NFTs) owned by a specific wallet address",
     {
       network: z
         .string()
@@ -1999,6 +2096,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetAssetSignatures",
+    "Get transaction signatures associated with a specific Solana asset",
     {
       network: z
         .string()
@@ -2018,6 +2116,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetNftEditions",
+    "Get edition information (master/print editions) for a Solana NFT",
     {
       network: z
         .string()
@@ -2035,6 +2134,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaGetTokenAccounts",
+    "Get Solana SPL token accounts filtered by mint address or owner",
     {
       network: z
         .string()
@@ -2056,6 +2156,7 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
 
   server.tool(
     "solanaSearchAssets",
+    "Search for Solana assets with flexible filters (owner, creator, authority, burnt, frozen status)",
     {
       network: z
         .string()
