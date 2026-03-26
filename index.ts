@@ -10,6 +10,7 @@ import { AlchemyApi } from "./api/alchemyApi.js";
 import { registerTools } from "./api/registerTools.js";
 import { setupDi } from "./di/di-container.js";
 import { ClientsModule } from "./di/modules/clients.module.js";
+import pkg from "./package.json" with { type: "json" };
 
 dotenv.config();
 
@@ -23,7 +24,15 @@ async function runServer() {
 
   const server = new McpServer({
     name: "alchemy-mcp-server",
-    version: "0.2.0-rc.0",
+    version: pkg.version,
+    instructions:
+      "Alchemy MCP Server provides access to blockchain data across EVM chains (Ethereum, Base, Polygon, Arbitrum, etc.) and Solana. " +
+      "Use listSupportedNetworks to discover available chains. " +
+      "For token prices use fetchTokenPrice* tools. For wallet balances use getTokenBalances or fetchTokensOwnedByMultichainAddresses. " +
+      "For NFTs use getNFTs*/getOwnersFor*/getFloorPrice tools. For transaction history use fetchAddressTransactionHistory or fetchTransfers. " +
+      "For transaction simulation use simulate* tools. For low-level debugging use debug*/trace* tools. " +
+      "For Solana assets use solana* tools. For Beacon Chain data use getBeacon* tools. " +
+      "Most tools accept a 'network' parameter — default is 'eth-mainnet'.",
   });
 
   registerTools(server, alchemyApi);
