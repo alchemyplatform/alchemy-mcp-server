@@ -192,3 +192,8 @@ What ERC-20 transfers happened to address 0x1234...5678 in the last 100 blocks?
 For more information about Alchemy's APIs, refer to:
 
 - [Alchemy API Documentation](https://docs.alchemy.com/)
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/alchemy-alchemy-mcp-server).
+
