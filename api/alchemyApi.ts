@@ -205,6 +205,11 @@ export class AlchemyApi {
   }
 
   async sendTransaction(params: SendTransactionParams) {
+    if (!this.agentWalletServer) {
+      throw new Error(
+        "AGENT_WALLET_SERVER is not configured. This feature requires a running wallet agent server. See the README for setup instructions.",
+      );
+    }
     const {
       ownerScaAccountAddress,
       signerAddress,
@@ -241,6 +246,11 @@ export class AlchemyApi {
   }
 
   async swap(params: SwapParams) {
+    if (!this.agentWalletServer) {
+      throw new Error(
+        "AGENT_WALLET_SERVER is not configured. This feature requires a running wallet agent server. See the README for setup instructions.",
+      );
+    }
     const { ownerScaAccountAddress, signerAddress } = params;
     const response = await fetch(
       `${this.agentWalletServer}/transactions/swap`,
