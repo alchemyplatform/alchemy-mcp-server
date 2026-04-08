@@ -14,15 +14,15 @@ The fastest way to get started is to connect to the hosted remote server at `htt
 
 > **Note:** The hosted server at `mcp.alchemy.com` and this open-source repo are maintained separately and may not be in sync.
 
-| Client | Setup |
-|--------|-------|
-| **Claude Code** | `claude mcp add alchemy --transport http https://mcp.alchemy.com/mcp` |
-| **Codex** | `codex mcp add alchemy --url https://mcp.alchemy.com/mcp` |
-| **Cursor** | Add to `~/.cursor/mcp.json` or `.cursor/mcp.json` — see JSON config below |
-| **Windsurf** | Add to `~/.codeium/windsurf/mcp_config.json` — see JSON config below |
-| **VS Code Copilot** | Add to `.vscode/mcp.json` — see JSON config below |
-| **Claude Desktop** | Add to `claude_desktop_config.json` — see JSON config below |
-| **Cline** | Open `Cline: MCP Servers` from the VS Code command palette — see JSON config below |
+| Client              | Setup                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| **Claude Code**     | `claude mcp add alchemy --transport http https://mcp.alchemy.com/mcp`              |
+| **Codex**           | `codex mcp add alchemy --url https://mcp.alchemy.com/mcp`                          |
+| **Cursor**          | Add to `~/.cursor/mcp.json` or `.cursor/mcp.json` — see JSON config below          |
+| **Windsurf**        | Add to `~/.codeium/windsurf/mcp_config.json` — see JSON config below               |
+| **VS Code Copilot** | Add to `.vscode/mcp.json` — see JSON config below                                  |
+| **Claude Desktop**  | Add to `claude_desktop_config.json` — see JSON config below                        |
+| **Cline**           | Open `Cline: MCP Servers` from the VS Code command palette — see JSON config below |
 
 <details>
 <summary>JSON config for Cursor / Windsurf / Claude Desktop / Cline</summary>
