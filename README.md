@@ -10,6 +10,8 @@ A Model Context Protocol (MCP) server that enables AI agents to interact with Al
 
 The fastest way to get started is to connect to the hosted remote server at `https://mcp.alchemy.com/mcp`. It authenticates via OAuth — just sign in with your Alchemy account when prompted. No API key or local install required.
 
+**Full documentation:** [alchemy.com/docs/alchemy-mcp-server](https://www.alchemy.com/docs/alchemy-mcp-server)
+
 > **Note:** The hosted server at `mcp.alchemy.com` and this open-source repo are maintained separately and may not be in sync.
 
 | Client | Setup |
