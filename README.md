@@ -99,9 +99,9 @@ The MCP server requires the following environment variable:
 
 **For transaction and swap functionality**, you must also configure:
 
-- `AGENT_WALLET_SERVER` - URL of a configured wallet agent server that handles Smart Contract Account operations
+- `AGENT_WALLET_SERVER` - URL of a separately running wallet agent server that handles Smart Contract Account (SCA) signing and broadcasting
 
-⚠️ **Important**: The `sendTransaction` and `swap` methods will not function without a properly configured wallet agent server. These methods require external wallet infrastructure to handle signing and broadcasting transactions.
+⚠️ **Important**: `AGENT_WALLET_SERVER` is **not an API key** — it is the base URL (e.g. `http://localhost:3000`) of an external HTTP server you run alongside this MCP server. That server is responsible for holding your wallet credentials, signing transactions, and submitting them to the network. Without it, calling `sendTransaction` or `swap` will throw a clear configuration error. The `ALCHEMY_API_KEY` alone is not sufficient for these features.
 
 ## Available Methods
 
