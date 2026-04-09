@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.alchemyplatform/alchemy-mcp-server",
+  "title": "Alchemy",
+  "description": "Alchemy's hosted MCP server for blockchain APIs and onchain data.",
+  "repository": {
+    "url": "https://github.com/alchemyplatform/alchemy-mcp-server",
+    "source": "github"
+  },
+  "version": "0.3.0-remote.1",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.alchemy.com/mcp"
+    }
+  ]
+}
