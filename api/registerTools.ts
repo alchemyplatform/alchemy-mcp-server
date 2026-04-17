@@ -96,6 +96,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "listSupportedNetworks",
     "List all blockchain networks supported by Alchemy, including EVM and Solana chains",
     {},
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     () => ({
       content: [
         {
@@ -120,6 +126,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           'A list of blockchaintoken symbols to query. e.g. ["BTC", "ETH"]',
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getTokenPriceBySymbol(params),
       "fetchTokenPriceBySymbol",
@@ -143,6 +155,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         )
         .describe("A list of token contract address and network pairs"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getTokenPriceByAddress(params),
       "fetchTokenPriceByAddress",
@@ -163,6 +181,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe('The end time date to query. e.g. "2021-01-01"'),
       interval: z.string().describe('The interval to query. e.g. "1d" or "1h"'),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) =>
@@ -195,6 +219,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .boolean()
         .default(false)
         .describe("If true, will interpret timeFrame as natural language"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall((params) => {
       let timeFrame = params.timeFrame;
@@ -231,6 +261,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           }),
         )
         .describe("A list of wallet address and network pairs"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getTokensByMultichainAddress(params),
@@ -275,6 +311,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .default(25)
         .optional()
         .describe("The number of results to return. Default is 25. Max is 100"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(async (params) => {
       const result =
@@ -352,6 +394,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         ),
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getAssetTransfers(params),
       "fetchTransfers",
@@ -416,6 +464,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "The number of results to return. Default is 100. Max is 100",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getNftsForAddress(params),
       "fetchNftsOwnedByMultichainAddresses",
@@ -446,6 +500,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .default(true)
         .describe("Whether to include metadata in the results."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getNftContractsByAddress(params),
       "fetchNftContractDataByMultichainAddress",
@@ -473,6 +533,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe("The value of the transaction in ETH."),
       callData: z.string().optional().describe("The data of the transaction."),
     },
+    {
+      readOnlyHint: false,
+      destructiveHint: true,
+      openWorldHint: true,
+      idempotentHint: false,
+    },
     handleToolCall(
       (params) => alchemyApi.sendTransaction(params),
       "sendTransaction",
@@ -493,6 +559,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       signerAddress: z
         .string()
         .describe("The signer address to send the transaction from."),
+    },
+    {
+      readOnlyHint: false,
+      destructiveHint: true,
+      openWorldHint: true,
+      idempotentHint: false,
     },
     handleToolCall((params) => alchemyApi.swap(params), "swap"),
   );
@@ -552,6 +624,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Number of NFTs to return per page. Max 100."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getNFTsForOwner(params),
       "getNFTsForOwner",
@@ -582,6 +660,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .number()
         .optional()
         .describe("Timeout in ms for metadata URI resolution."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getNFTsForContract(params),
@@ -619,6 +703,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Timeout in ms for metadata URI resolution."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getNFTsForCollection(params),
       "getNFTsForCollection",
@@ -647,6 +737,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("If true, refreshes the cached metadata."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getNFTMetadata(params),
       "getNFTMetadata",
@@ -661,6 +757,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       contractAddress: z
         .string()
         .describe("Contract address for the NFT contract."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getContractMetadata(params),
@@ -677,6 +779,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("OpenSea slug for the NFT collection."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getCollectionMetadata(params),
       "getCollectionMetadata",
@@ -692,6 +800,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Contract address to invalidate cached metadata for."),
     },
+    {
+      readOnlyHint: false,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.invalidateContract(params),
       "invalidateNFTContractCache",
@@ -705,6 +819,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       contractAddress: z.string().describe("Contract address for the NFT."),
       tokenId: z.string().describe("The token ID to get owners for."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getOwnersForNFT(params),
@@ -729,6 +849,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Pagination key for contracts with >50,000 owners."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getOwnersForContract(params),
       "getOwnersForContract",
@@ -740,6 +866,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get a list of all known spam NFT contract addresses on a network",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getSpamContracts(params),
@@ -756,6 +888,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Contract address to check for spam status."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.isSpamContract(params),
       "isSpamContract",
@@ -770,6 +908,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       contractAddress: z.string().describe("Contract address of the NFT."),
       tokenId: z.string().describe("The token ID to check."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall((params) => alchemyApi.isAirdropNFT(params), "isAirdropNFT"),
   );
 
@@ -781,6 +925,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       contractAddress: z
         .string()
         .describe("Contract address of the NFT collection."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.summarizeNFTAttributes(params),
@@ -802,6 +952,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("OpenSea slug for the NFT collection."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getFloorPrice(params),
       "getFloorPrice",
@@ -816,6 +972,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       query: z
         .string()
         .describe("Search keyword to match against NFT contract metadata."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.searchContractMetadata(params),
@@ -835,6 +997,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Contract address for the NFT contract."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.isHolderOfContract(params),
       "isHolderOfContract",
@@ -852,6 +1020,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       tokenId: z
         .string()
         .describe("Token ID of the NFT to compute rarity for."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.computeRarity(params),
@@ -908,6 +1082,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Pagination key from a previous response."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall((params) => alchemyApi.getNFTSales(params), "getNFTSales"),
   );
 
@@ -943,6 +1123,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Spam confidence level to filter at."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getContractsForOwner(params),
       "getContractsForOwner",
@@ -976,6 +1162,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Filters to exclude."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getCollectionsForOwner(params),
       "getCollectionsForOwner",
@@ -989,6 +1181,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       address: z.string().describe("The address to report as spam."),
       isSpam: z.boolean().describe("Whether the address is spam."),
+    },
+    {
+      readOnlyHint: false,
+      destructiveHint: false,
+      openWorldHint: true,
+      idempotentHint: false,
     },
     handleToolCall((params) => alchemyApi.reportSpam(params), "reportSpam"),
   );
@@ -1005,6 +1203,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       contract: z.string().describe("The token contract address."),
       owner: z.string().describe("The address of the token owner."),
       spender: z.string().describe("The address of the spender."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getTokenAllowance(params),
@@ -1038,6 +1242,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Max number of token balances to return. Capped at 100."),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getTokenBalances(params),
       "getTokenBalances",
@@ -1052,6 +1262,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       contractAddress: z
         .string()
         .describe("The token contract address to get metadata for."),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getTokenMetadata(params),
@@ -1081,6 +1297,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "Block hash in hex. One of blockNumber or blockHash must be provided.",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getTransactionReceipts(params),
       "getTransactionReceipts",
@@ -1100,6 +1322,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Block number in hex or tag like 'latest'"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.debugGetRawBlock(params),
       "debugGetRawBlock",
@@ -1114,6 +1342,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       blockNumberOrTag: z
         .string()
         .describe("Block number in hex or tag like 'latest'"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.debugGetRawHeader(params),
@@ -1130,6 +1364,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Block number in hex or tag like 'latest'"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.debugGetRawReceipts(params),
       "debugGetRawReceipts",
@@ -1143,6 +1383,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       blockHash: z.string().describe("32-byte block hash"),
       tracer: z.object({}).passthrough().optional().describe("Tracer options"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.debugTraceBlockByHash(params),
@@ -1159,6 +1405,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("Block number in hex or tag like 'latest'"),
       tracer: z.object({}).passthrough().optional().describe("Tracer options"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.debugTraceBlockByNumber(params),
@@ -1182,6 +1434,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Tracer and state override options"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.debugTraceCall(params),
       "debugTraceCall",
@@ -1199,6 +1457,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .passthrough()
         .optional()
         .describe("Options including tracer type and config"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.debugTraceTransaction(params),
@@ -1220,6 +1484,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .default("latest")
         .describe("Block identifier (number, hash, or tag)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall((params) => alchemyApi.traceBlock(params), "traceBlock"),
   );
 
@@ -1240,6 +1510,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Block identifier (number, hash, or tag)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall((params) => alchemyApi.traceCall(params), "traceCall"),
   );
 
@@ -1250,6 +1526,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
       traceIndexes: z.array(z.string()).describe("Hex index positions"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall((params) => alchemyApi.traceGet(params), "traceGet"),
   );
@@ -1263,6 +1545,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       traceTypes: z
         .array(z.string())
         .describe('Array of trace types. e.g. ["trace", "stateDiff"]'),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.traceRawTransaction(params),
@@ -1282,6 +1570,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .array(z.string())
         .describe('Array of trace types. e.g. ["trace", "stateDiff"]'),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.traceReplayBlockTransactions(params),
       "traceReplayBlockTransactions",
@@ -1298,6 +1592,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .array(z.string())
         .describe('Array of trace types. e.g. ["trace", "stateDiff"]'),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.traceReplayTransaction(params),
       "traceReplayTransaction",
@@ -1310,6 +1610,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       transactionHash: z.string().describe("Transaction hash"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.traceTransaction(params),
@@ -1341,6 +1647,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       after: z.string().optional().describe("Offset trace number"),
       count: z.number().optional().describe("Number of traces to return"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall((params) => alchemyApi.traceFilter(params), "traceFilter"),
   );
 
@@ -1362,6 +1674,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           gas: z.string().optional().describe("The gas limit"),
         })
         .describe("Transaction object to simulate"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.simulateAssetChanges(params),
@@ -1388,6 +1706,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .max(2)
         .describe("Array of transaction objects to simulate (1-2 items)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.simulateAssetChangesBundle(params),
       "simulateAssetChangesBundle",
@@ -1408,6 +1732,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           gas: z.string().optional().describe("The gas limit"),
         })
         .describe("Transaction object to simulate"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.simulateExecution(params),
@@ -1434,6 +1764,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .max(2)
         .describe("Array of transaction objects to simulate (1-2 items)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.simulateExecutionBundle(params),
       "simulateExecutionBundle",
@@ -1450,6 +1786,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getMaxPriorityFeePerGas(params),
       "getMaxPriorityFeePerGas",
@@ -1463,6 +1805,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOpHash: z.string().describe("The user operation hash"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getUserOperationReceipt(params),
       "getUserOperationReceipt",
@@ -1474,6 +1822,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get the entry point contract addresses supported for ERC-4337 account abstraction",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getSupportedEntryPoints(params),
@@ -1487,6 +1841,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       userOpHash: z.string().describe("The user operation hash"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getUserOperationByHash(params),
@@ -1509,6 +1869,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .passthrough()
         .optional()
         .describe("State override set for gas estimation"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.estimateUserOperationGas(params),
@@ -1535,6 +1901,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Block number for simulation context"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.simulateUserOperationAssetChanges(params),
       "simulateUserOperationAssetChanges",
@@ -1550,6 +1922,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get Ethereum Beacon Chain genesis information (time, validator root, fork version)",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconGenesis(params),
@@ -1568,6 +1946,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "Block ID: head, genesis, finalized, slot number, or 0x-prefixed block root",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconBlock(params),
       "getBeaconBlock",
@@ -1585,6 +1969,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "Block ID: head, genesis, finalized, slot number, or 0x-prefixed block root",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconBlockAttestations(params),
       "getBeaconBlockAttestations",
@@ -1601,6 +1991,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe(
           "Block ID: head, genesis, finalized, slot number, or 0x-prefixed block root",
         ),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconBlockRoot(params),
@@ -1623,6 +2019,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Array of blob indices to filter by"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconBlobSidecars(params),
       "getBeaconBlobSidecars",
@@ -1636,6 +2038,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
       slot: z.string().optional().describe("Slot number to filter by"),
       parentRoot: z.string().optional().describe("Parent root to filter by"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconHeaders(params),
@@ -1654,6 +2062,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "Block ID: head, genesis, finalized, slot number, or 0x-prefixed block root",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconHeaderByBlockId(params),
       "getBeaconHeaderByBlockId",
@@ -1666,6 +2080,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconPoolVoluntaryExits(params),
       "getBeaconPoolVoluntaryExits",
@@ -1677,6 +2097,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get attestations currently pending in the Beacon Chain mempool",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconPoolAttestations(params),
@@ -1696,6 +2122,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       index: z.string().optional().describe("Committee index to filter by"),
       slot: z.string().optional().describe("Slot number to filter by"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateCommittees(params),
       "getBeaconStateCommittees",
@@ -1710,6 +2142,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateFinalityCheckpoints(params),
@@ -1726,6 +2164,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateFork(params),
       "getBeaconStateFork",
@@ -1741,6 +2185,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconStatePendingConsolidations(params),
       "getBeaconStatePendingConsolidations",
@@ -1755,6 +2205,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       stateId: z
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateRoot(params),
@@ -1772,6 +2228,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe("State ID: head, genesis, finalized, slot, or state root"),
       epoch: z.string().optional().describe("Epoch number to filter by"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateSyncCommittees(params),
       "getBeaconStateSyncCommittees",
@@ -1787,6 +2249,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
       epoch: z.string().optional().describe("Epoch number to get RANDAO for"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateRandao(params),
@@ -1806,6 +2274,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .array(z.string())
         .optional()
         .describe("Validator indices or pubkeys to filter by"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateValidatorBalances(params),
@@ -1830,6 +2304,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .optional()
         .describe("Validator statuses to filter by"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateValidators(params),
       "getBeaconStateValidators",
@@ -1845,6 +2325,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .string()
         .describe("State ID: head, genesis, finalized, slot, or state root"),
       validatorId: z.string().describe("Validator index or pubkey"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconStateValidatorById(params),
@@ -1863,6 +2349,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
           "Block ID: head, genesis, finalized, slot number, or 0x-prefixed block root",
         ),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconBlockRewards(params),
       "getBeaconBlockRewards",
@@ -1874,6 +2366,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get the full Beacon Chain configuration specification and protocol constants",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconConfigSpec(params),
@@ -1887,6 +2385,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.getBeaconNodeSyncing(params),
       "getBeaconNodeSyncing",
@@ -1898,6 +2402,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
     "Get the software version string of the Beacon Chain node",
     {
       network: z.string().default("eth-mainnet").describe(NETWORK_DESC),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.getBeaconNodeVersion(params),
@@ -1919,6 +2429,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe(SOLANA_NETWORK_DESC),
       id: z.string().describe("Asset ID base-58 encoded"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAsset(params),
       "solanaGetAsset",
@@ -1934,6 +2450,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .default("solana-mainnet")
         .describe(SOLANA_NETWORK_DESC),
       ids: z.array(z.string()).describe("Array of asset IDs base-58 encoded"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssets(params),
@@ -1951,6 +2473,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe(SOLANA_NETWORK_DESC),
       id: z.string().describe("Asset ID base-58 encoded"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetProof(params),
       "solanaGetAssetProof",
@@ -1966,6 +2494,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .default("solana-mainnet")
         .describe(SOLANA_NETWORK_DESC),
       ids: z.array(z.string()).describe("Array of asset IDs base-58 encoded"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetProofs(params),
@@ -1996,6 +2530,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       page: z.number().optional().describe("Page number for pagination"),
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetsByAuthority(params),
@@ -2031,6 +2571,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetsByCreator(params),
       "solanaGetAssetsByCreator",
@@ -2060,6 +2606,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetsByGroup(params),
       "solanaGetAssetsByGroup",
@@ -2088,6 +2640,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetsByOwner(params),
       "solanaGetAssetsByOwner",
@@ -2108,6 +2666,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
     },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
+    },
     handleToolCall(
       (params) => alchemyApi.solanaGetAssetSignatures(params),
       "solanaGetAssetSignatures",
@@ -2125,6 +2689,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       mintAddress: z.string().describe("Mint address of the NFT"),
       limit: z.number().optional().describe("Number of results to return"),
       page: z.number().optional().describe("Page number for pagination"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaGetNftEditions(params),
@@ -2147,6 +2717,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
         .describe("Owner address to filter by"),
       limit: z.number().optional().describe("Number of results to return"),
       cursor: z.string().optional().describe("Cursor for pagination"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaGetTokenAccounts(params),
@@ -2191,6 +2767,12 @@ export function registerTools(server: McpServer, alchemyApi: AlchemyApi) {
       page: z.number().optional().describe("Page number for pagination"),
       before: z.string().optional().describe("Cursor for pagination (before)"),
       after: z.string().optional().describe("Cursor for pagination (after)"),
+    },
+    {
+      readOnlyHint: true,
+      destructiveHint: false,
+      openWorldHint: false,
+      idempotentHint: true,
     },
     handleToolCall(
       (params) => alchemyApi.solanaSearchAssets(params),

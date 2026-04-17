@@ -358,4 +358,113 @@ describe("MCP Tool Registration", () => {
     await client.close();
     await server.close();
   });
+
+  // Required for ChatGPT App Directory submission. See
+  // https://developers.openai.com/apps-sdk/deploy/submission/ — missing or
+  // mismatched tool hint annotations are a stated rejection reason.
+  it("every tool should declare readOnlyHint, destructiveHint, and openWorldHint annotations", async () => {
+    const container = setupDi([new ClientsModule()]);
+    const alchemyApi = container.get(AlchemyApi);
+
+    const server = new McpServer({
+      name: "test-server",
+      version: "0.0.1",
+    });
+
+    registerTools(server, alchemyApi);
+
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    const client = new Client({ name: "test-client", version: "0.0.1" });
+
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+
+    const result = await client.listTools();
+
+    for (const tool of result.tools) {
+      const annotations = tool.annotations;
+      assert.ok(
+        annotations,
+        `Tool "${tool.name}" must declare annotations (readOnlyHint, destructiveHint, openWorldHint)`,
+      );
+      assert.strictEqual(
+        typeof annotations.readOnlyHint,
+        "boolean",
+        `Tool "${tool.name}" must declare readOnlyHint as a boolean`,
+      );
+      assert.strictEqual(
+        typeof annotations.destructiveHint,
+        "boolean",
+        `Tool "${tool.name}" must declare destructiveHint as a boolean`,
+      );
+      assert.strictEqual(
+        typeof annotations.openWorldHint,
+        "boolean",
+        `Tool "${tool.name}" must declare openWorldHint as a boolean`,
+      );
+    }
+
+    await client.close();
+    await server.close();
+  });
+
+  // Sanity check: the four known state-changing tools must NOT be marked read-only.
+  // Catches regressions where someone copies a read-only template onto a new write tool.
+  it("known state-changing tools must not be marked read-only", async () => {
+    const container = setupDi([new ClientsModule()]);
+    const alchemyApi = container.get(AlchemyApi);
+
+    const server = new McpServer({
+      name: "test-server",
+      version: "0.0.1",
+    });
+
+    registerTools(server, alchemyApi);
+
+    const [clientTransport, serverTransport] =
+      InMemoryTransport.createLinkedPair();
+    const client = new Client({ name: "test-client", version: "0.0.1" });
+
+    await server.connect(serverTransport);
+    await client.connect(clientTransport);
+
+    const result = await client.listTools();
+
+    const STATE_CHANGING = [
+      "sendTransaction",
+      "swap",
+      "reportSpam",
+      "invalidateNFTContractCache",
+    ];
+
+    for (const name of STATE_CHANGING) {
+      const tool = result.tools.find((t) => t.name === name);
+      assert.ok(tool, `Expected tool "${name}" to be registered`);
+      assert.strictEqual(
+        tool.annotations?.readOnlyHint,
+        false,
+        `Tool "${name}" mutates state and must have readOnlyHint: false`,
+      );
+    }
+
+    // sendTransaction and swap are both irreversible blockchain writes — must be destructive.
+    for (const name of ["sendTransaction", "swap"]) {
+      const tool = result.tools.find((t) => t.name === name);
+      assert.ok(tool, `Expected tool "${name}" to be registered`);
+      assert.strictEqual(
+        tool.annotations?.destructiveHint,
+        true,
+        `Tool "${name}" performs irreversible blockchain writes and must have destructiveHint: true`,
+      );
+      assert.strictEqual(
+        tool.annotations?.openWorldHint,
+        true,
+        `Tool "${name}" writes to public blockchain state and must have openWorldHint: true`,
+      );
+    }
+
+    await client.close();
+    await server.close();
+  });
 });
