@@ -12,6 +12,26 @@ import { setupDi } from "./di/di-container.js";
 import { ClientsModule } from "./di/modules/clients.module.js";
 import pkg from "./package.json" with { type: "json" };
 
+const flag = process.argv[2];
+
+if (flag === "--version" || flag === "-v") {
+  process.stdout.write(`${pkg.version}\n`);
+  process.exit(0);
+}
+
+if (flag === "--help" || flag === "-h") {
+  process.stdout.write(`Alchemy MCP Server ${pkg.version}
+
+Usage:
+  mcp-server-alchemy [options]
+
+Options:
+  -h, --help      Show this help message
+  -v, --version   Show version number
+`);
+  process.exit(0);
+}
+
 dotenv.config();
 
 // ========================================
