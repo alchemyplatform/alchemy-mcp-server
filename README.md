@@ -1,6 +1,6 @@
-# Alchemy MCP Server
+# Alchemy MCP Server (Legacy — Not Actively Maintained)
 
-A Model Context Protocol (MCP) server that enables AI agents to interact with Alchemy's blockchain APIs in a structured way. This allows agents to query blockchain data directly without writing any code.
+This open-source Model Context Protocol (MCP) server runs Alchemy's blockchain APIs locally via STDIO. **New users should use the [hosted Alchemy MCP Server](https://www.alchemy.com/docs/alchemy-mcp-server) instead.**
 
 <a href="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server">
   <img width="380" height="200" src="https://glama.ai/mcp/servers/@alchemyplatform/alchemy-mcp-server/badge" alt="Alchemy Server MCP server" />
@@ -12,7 +12,7 @@ The fastest way to get started is to connect to the hosted remote server at `htt
 
 **Full documentation:** [alchemy.com/docs/alchemy-mcp-server](https://www.alchemy.com/docs/alchemy-mcp-server)
 
-> **Note:** The hosted server at `mcp.alchemy.com` and this open-source repo are maintained separately and may not be in sync.
+> **Legacy notice:** The hosted [Alchemy MCP Server](https://www.alchemy.com/docs/alchemy-mcp-server) at `https://mcp.alchemy.com/mcp` is the recommended and actively maintained MCP server. This repository contains the legacy local STDIO server, is not actively maintained, and may lag behind the hosted server's tool coverage and behavior. Alchemy plans to sunset this repository; new users should connect to the hosted server instead.
 
 | Client              | Setup                                                                              |
 | ------------------- | ---------------------------------------------------------------------------------- |
@@ -59,6 +59,8 @@ The fastest way to get started is to connect to the hosted remote server at `htt
 For any other MCP-compatible client, point it at `https://mcp.alchemy.com/mcp` using Streamable HTTP transport.
 
 ## Local STDIO Server
+
+> **Legacy:** This section documents the open-source local STDIO server. It is not actively maintained. Use the [hosted server](#remote-mcp-server-recommended) unless you specifically need the `@alchemy/mcp-server` npm package or local development workflow.
 
 This MCP server creates a bridge between AI agents and Alchemy's blockchain APIs, allowing agents to:
 
@@ -165,7 +167,9 @@ You can prompt your AI agent to use the following methods:
     - **⚠️ Important**: Requires a configured wallet agent server with `AGENT_WALLET_SERVER` environment variable
     - Example: "Swap 100 USDC for ETH"
 
-## Local Development and Open Source Contributions
+## Local Development
+
+This repository remains available for reference and migration, but is not actively maintained. For new features and the latest tool coverage, use the [hosted Alchemy MCP Server](https://www.alchemy.com/docs/alchemy-mcp-server).
 
 ### Installation
 
@@ -211,7 +215,7 @@ This will start the MCP Inspector which you can access in your browser. It allow
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+This repository is not actively maintained. Pull requests for security fixes or migration-related improvements may be considered, but new features should target the hosted server instead. For major changes, please open an issue first.
 
 ## License
 
