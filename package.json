@@ -51,8 +51,8 @@
     ]
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.14.0",
-    "axios": "^1.13.2",
+    "@modelcontextprotocol/sdk": "1.26.0",
+    "axios": "1.16.0",
     "dotenv": "^16.6.1",
     "inversify": "^8.1.0",
     "reflect-metadata": "^0.2.2",
